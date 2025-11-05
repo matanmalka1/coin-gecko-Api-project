@@ -58,18 +58,33 @@ $(document).ready(function () {
     const cardsHTML = coins
       .map(
         ({ id, name, symbol }) => `
-    <div class="col-md-4 col-lg-3">
-      <div class="card p-3 shadow-lg">
-        <h5 class="card-title">${name}</h5>
-        <p class="card-text text-muted">${symbol.toUpperCase()}</p>
-        <p class="card-text small text-muted">ID: ${id}</p>
-        <div class="form-check form-switch mb-3">
-          <input class="form-check-input coin-toggle" type="checkbox"
-            data-symbol="${symbol.toUpperCase()}"
-            ${selectedReports.includes(symbol.toUpperCase()) ? "checked" : ""}>
+    <div class="col-md-6 col-lg-4">
+      <div class="card crypto-card shadow-sm">
+        <div class="card-header bg-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">${name}</span>
+            <span class="badge bg-primary crypto-symbol">${symbol.toUpperCase()}</span>
+          </div>
         </div>
-        <button class="btn btn-outline-primary more-info" data-id="${id}">More Info</button>
-        <div class="collapse mt-3" id="collapse-${id}"></div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-sm btn-primary more-info" data-id="${id}">
+              <i class="fas fa-info-circle"></i> More Info
+            </button>
+            <label class="toggle-switch" title="Track coin">
+              <input class="coin-toggle" type="checkbox" 
+                data-symbol="${symbol.toUpperCase()}"
+                ${
+                  selectedReports.includes(symbol.toUpperCase())
+                    ? "checked"
+                    : ""
+                }
+                aria-label="Toggle ${symbol.toUpperCase()}">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="collapse mt-3" id="collapse-${id}"></div>
+        </div>
       </div>
     </div>
   `
@@ -80,19 +95,35 @@ $(document).ready(function () {
   };
 
   const showCoinInfo = (container, data) => {
-    const { small: image } = data.image || {};
+    const { large: image } = data.image || {};
     const {
       usd = "N/A",
       eur = "N/A",
       ils = "N/A",
     } = data.market_data?.current_price || {};
 
+    const description = data.description?.en
+      ? data.description.en.substring(0, 200) + "..."
+      : "No description available.";
+
     container.html(`
-    <div class="text-center">
-      <img src="${image}" alt="${data.name}" width="60" class="mb-2">
-      <p><strong>USD:</strong> $${usd}</p>
-      <p><strong>EUR:</strong> €${eur}</p>
-      <p><strong>ILS:</strong> ₪${ils}</p>
+    <div class="more-info-content p-3 bg-light rounded">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <img src="${image}" alt="${
+      data.name
+    }" class="coin-image rounded-circle" style="width:60px;height:60px;background:#fff;">
+        <div>
+          <h6 class="mb-0">${data.name}</h6>
+          <small class="text-muted">${data.symbol.toUpperCase()}</small>
+        </div>
+      </div>
+      <div class="mb-2"><strong>Current Prices:</strong></div>
+      <div class="price-badge mb-2 p-2 bg-white rounded"> USD: $${usd}</div>
+      <div class="price-badge mb-2 p-2 bg-white rounded"> EUR: €${eur}</div>
+      <div class="price-badge mb-2 p-2 bg-white rounded"> ILS: ₪${ils}</div>
+      <div class="mt-3">
+        <small class="text-muted">${description}</small>
+      </div>
     </div>
   `);
   };
