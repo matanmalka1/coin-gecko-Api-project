@@ -313,7 +313,7 @@ $(() => {
     content.html(`
        <div id="aboutSection" class="container my-5">
       <div class="row align-items-center">
-        <div class="col-md-6 text-center mb-4 mb-md-0"">
+        <div class="col-md-6 text-center mb-4 mb-md-0">
           <img
             src="images/2.jpeg"
             alt="Matan Yehuda Malka"
@@ -334,8 +334,9 @@ $(() => {
             Built with ❤️, JavaScript, and Bootstrap 5.
           </p>
           <div class="mt-4">
-            <a href="https://www.linkedin.com/in/matanyehudamalka" 
-               target="_blank" class="btn btn-outline-primary">
+          <a href="https://www.linkedin.com/in/matanyehudamalka" 
+            target="_blank" rel="noopener noreferrer"
+            class="btn btn-outline-primary">
                <i class="fab fa-linkedin"></i> View My LinkedIn
             </a>
           </div>
@@ -368,7 +369,7 @@ $(() => {
       showError($("#coinsContainer"), "Please wait for coins to load...");
       return;
     }
-    
+
     const filtered = allCoins.filter(
       (coin) => coin.symbol.toUpperCase() === searchInput
     );
