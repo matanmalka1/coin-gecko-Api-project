@@ -46,6 +46,12 @@ $(() => {
       <button id="searchBtn"
        class="btn btn-primary mx-2"
        >Search</button>
+      <button id="filterReportsBtn"
+       class="btn btn-info mx-2"
+       >Show selected coins</button>
+        <button id="clearSearchBtn"
+       class="btn btn-outline-secondary mx-2 d-none"
+       >Clear Search</button>
     </div>
 
       <div id="coinsContainer" class="row g-3">
@@ -361,7 +367,7 @@ $(() => {
   </div>
 `;
 
-  $(document).on("click", "#searchBtn", async () => {
+  const performSearch = () => {
     const searchInput = $("#searchInput").val().trim().toUpperCase();
     if (!searchInput) return;
 
@@ -383,10 +389,36 @@ $(() => {
     }
 
     displayCoins(filtered);
-  });
+    $("#clearSearchBtn").removeClass("d-none");
+  };
+
+  $(document).on("click", "#searchBtn", performSearch);
 
   $(document).on("keypress", "#searchInput", function (e) {
-    if (e.which === 13) $("#searchBtn").click();
+    if (e.which === 13) performSearch();
+  });
+
+  $(document).on("click", "#clearSearchBtn", () => {
+    $("#searchInput").val("");
+    $("#clearSearchBtn").addClass("d-none");
+    displayCoins(allCoins);
+  });
+
+  $(document).on("click", "#filterReportsBtn", () => {
+    if (selectedReports.length === 0) {
+      showError(
+        $("#coinsContainer"),
+        "No coins in report. Please choose coins first."
+      );
+      return;
+    }
+
+    const filtered = allCoins.filter((coin) =>
+      selectedReports.includes(coin.symbol.toUpperCase())
+    );
+
+    displayCoins(filtered);
+    $("#clearSearchBtn").removeClass("d-none");
   });
 
   $(document).on("click", ".more-info", async function () {
