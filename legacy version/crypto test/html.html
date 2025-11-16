@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Tracker - Live Cryptocurrency Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Parallax Header */
+        .parallax-header {
+            background-image: url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920&h=600&fit=crop');
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .parallax-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .parallax-header h1 {
+            position: relative;
+            color: white;
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #667eea !important;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            color: #333 !important;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #667eea !important;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: white;
+            min-height: calc(100vh - 400px);
+            padding: 2rem 0;
+        }
+
+        /* Search Bar */
+        .search-section {
+            margin-bottom: 2rem;
+        }
+
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-bar input {
+            border-radius: 50px 0 0 50px;
+            border-right: none;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .search-bar button {
+            border-radius: 0 50px 50px 0;
+            background: #667eea;
+            border: 1px solid #667eea;
+            color: white;
+            padding: 0.75rem 2rem;
+        }
+
+        .search-bar button:hover {
+            background: #5568d3;
+        }
+
+        .filter-btn {
+            margin-top: 1rem;
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+        }
+
+        /* Crypto Cards */
+        .crypto-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .crypto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .crypto-card .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            padding: 1rem;
+        }
+
+        .crypto-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .crypto-symbol {
+            background: #f8f9fa;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .more-info-content {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .coin-image {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .price-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #e8f5e9;
+            border-radius: 10px;
+            margin: 0.25rem;
+            font-weight: 500;
+        }
+
+        /* Progress Bar */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        /* Chart Container */
+        #chartContainer {
+            height: 500px;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 3rem 0;
+        }
+
+        .about-card {
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .profile-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #667eea;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Modal */
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .parallax-header {
+                height: 250px;
+                background-attachment: scroll;
+            }
+
+            .parallax-header h1 {
+                font-size: 2rem;
+            }
+
+            .search-bar {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .parallax-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Parallax Header -->
+    <div class="parallax-header">
+        <h1><i class="fas fa-coins"></i> Crypto Tracker</h1>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-chart-line"></i> CryptoTracker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-page="home">Currencies</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="reports">Live Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="about">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Home Page -->
+            <section id="homePage" class="page-section active">
+                <div class="search-section">
+                    <div class="search-bar input-group">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search by currency symbol (e.g., BTC, ETH)">
+                        <button class="btn" type="button" id="searchBtn">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    <div class="text-center">
+                        <button class="filter-btn" id="filterSelected">
+                            <i class="fas fa-filter"></i> Show Selected Only
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row" id="coinsContainer">
+                    <!-- Coins will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Reports Page -->
+            <section id="reportsPage" class="page-section">
+                <h2 class="text-center mb-4">Live Cryptocurrency Reports</h2>
+                <p class="text-center text-muted">Real-time price tracking updated every 2 seconds</p>
+                <div id="chartContainer"></div>
+                <div class="text-center mt-3">
+                    <p class="text-muted"><small>Selected coins: <span id="selectedCoinsText">None</span></small></p>
+                </div>
+            </section>
+
+            <!-- About Page -->
+            <section id="aboutPage" class="page-section">
+                <div class="about-section">
+                    <div class="about-card text-center">
+                        <img src="https://ui-avatars.com/api/?name=Developer&size=200&background=667eea&color=fff" alt="Developer" class="profile-img">
+                        <h2>Crypto Tracker Project</h2>
+                        <h4 class="text-muted mb-4">Full Stack Web Developer</h4>
+                        <div class="text-start">
+                            <h5><i class="fas fa-info-circle"></i> Project Description</h5>
+                            <p>This is a comprehensive single-page application for tracking cryptocurrency prices and trends in real-time. The application uses multiple APIs to fetch live cryptocurrency data and display it in an intuitive, responsive interface.</p>
+                            
+                            <h5 class="mt-4"><i class="fas fa-code"></i> Technologies Used</h5>
+                            <ul>
+                                <li>HTML5 & CSS3 with modern features</li>
+                                <li>Bootstrap 5 for responsive design</li>
+                                <li>jQuery for DOM manipulation and AJAX calls</li>
+                                <li>Canvas.js for real-time charting</li>
+                                <li>CoinGecko API for cryptocurrency data</li>
+                                <li>CryptoCompare API for live price updates</li>
+                            </ul>
+
+                            <h5 class="mt-4"><i class="fas fa-star"></i> Features</h5>
+                            <ul>
+                                <li>Browse and search through cryptocurrency listings</li>
+                                <li>View detailed information about each coin</li>
+                                <li>Select up to 5 coins for live tracking</li>
+                                <li>Real-time price charts with automatic updates</li>
+                                <li>Local caching system for optimal performance</li>
+                                <li>Fully responsive mobile-first design</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal for Coin Selection Limit -->
+    <div class="modal fade" id="selectionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Maximum Selection Reached</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You can only track up to 5 currencies. Please remove one to add a new one:</p>
+                    <div id="selectedCoinsList"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Canvas.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Global variables
+            let allCoins = [];
+            let selectedCoins = [];
+            let coinCache = {};
+            let chart = null;
+            let chartInterval = null;
+            let filterActive = false;
+
+            // Initialize app
+            loadCoins();
+
+            // Navigation
+            $('.nav-link').on('click', function(e) {
+                e.preventDefault();
+                $('.nav-link').removeClass('active');
+                $(this).addClass('active');
+                
+                const page = $(this).data('page');
+                $('.page-section').removeClass('active');
+                
+                if (page === 'home') {
+                    $('#homePage').addClass('active');
+                    stopChart();
+                } else if (page === 'reports') {
+                    $('#reportsPage').addClass('active');
+                    startChart();
+                } else if (page === 'about') {
+                    $('#aboutPage').addClass('active');
+                    stopChart();
+                }
+            });
+
+            // Load coins from API
+            function loadCoins() {
+                showLoading();
+                $.ajax({
+                    url: 'https://api.coingecko.com/api/v3/coins/list',
+                    method: 'GET',
+                    success: function(data) {
+                        allCoins = data.slice(0, 100); // Limit to 100 for performance
+                        displayCoins(allCoins);
+                        hideLoading();
+                    },
+                    error: function(error) {
+                        console.error('Error loading coins:', error);
+                        hideLoading();
+                        alert('Failed to load cryptocurrency data. Please try again.');
+                    }
+                });
+            }
+
+            // Display coins
+            function displayCoins(coins) {
+                const container = $('#coinsContainer');
+                container.empty();
+
+                if (coins.length === 0) {
+                    container.html('<div class="col-12 text-center"><p class="text-muted">No cryptocurrencies found.</p></div>');
+                    return;
+                }
+
+                coins.forEach(function(coin) {
+                    const isSelected = selectedCoins.includes(coin.id);
+                    const cardHtml = `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="crypto-card card">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>${coin.name}</span>
+                                        <span class="crypto-symbol">${coin.symbol.toUpperCase()}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <button class="btn btn-sm btn-primary more-info-btn" data-coin-id="${coin.id}">
+                                            <i class="fas fa-info-circle"></i> More Info
+                                        </button>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" class="coin-toggle" data-coin-id="${coin.id}" ${isSelected ? 'checked' : ''}>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="more-info-collapse" id="info-${coin.id}" style="display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(cardHtml);
+                });
+
+                // Attach event handlers
+                attachEventHandlers();
+            }
+
+            // Attach event handlers
+            function attachEventHandlers() {
+                $('.more-info-btn').off('click').on('click', function() {
+                    const coinId = $(this).data('coin-id');
+                    const infoDiv = $(`#info-${coinId}`);
+                    
+                    if (infoDiv.is(':visible')) {
+                        infoDiv.slideUp();
+                    } else {
+                        loadCoinInfo(coinId);
+                    }
+                });
+
+                $('.coin-toggle').off('change').on('change', function() {
+                    const coinId = $(this).data('coin-id');
+                    const isChecked = $(this).is(':checked');
+
+                    if (isChecked) {
+                        if (selectedCoins.length >= 5) {
+                            $(this).prop('checked', false);
+                            showSelectionModal(coinId);
+                        } else {
+                            selectedCoins.push(coinId);
+                        }
+                    } else {
+                        selectedCoins = selectedCoins.filter(id => id !== coinId);
+                    }
+
+                    updateSelectedCoinsText();
+                });
+            }
+
+            // Load coin info
+            function loadCoinInfo(coinId) {
+                const now = Date.now();
+                const cached = coinCache[coinId];
+
+                // Check cache (2 minutes = 120000ms)
+                if (cached && (now - cached.timestamp < 120000)) {
+                    displayCoinInfo(coinId, cached.data);
+                    return;
+                }
+
+                showLoading();
+                $.ajax({
+                    url: `https://api.coingecko.com/api/v3/coins/${coinId}`,
+                    method: 'GET',
+                    success: function(data) {
+                        coinCache[coinId] = {
+                            data: data,
+                            timestamp: now
+                        };
+                        displayCoinInfo(coinId, data);
+                        hideLoading();
+                    },
+                    error: function(error) {
+                        console.error('Error loading coin info:', error);
+                        hideLoading();
+                        alert('Failed to load coin information. Please try again.');
+                    }
+                });
+            }
+
+            // Display coin info
+            function displayCoinInfo(coinId, data) {
+                const infoDiv = $(`#info-${coinId}`);
+                const imageUrl = data.image?.large || data.image?.small || '';
+                const priceUSD = data.market_data?.current_price?.usd || 'N/A';
+                const priceEUR = data.market_data?.current_price?.eur || 'N/A';
+                const priceILS = data.market_data?.current_price?.ils || 'N/A';
+
+                const infoHtml = `
+                    <div class="more-info-content">
+                        ${imageUrl ? `<img src="${imageUrl}" alt="${data.name}" class="coin-image mb-3">` : ''}
+                        <h6>Current Prices:</h6>
+                        <div class="price-badge">💵 USD: $${typeof priceUSD === 'number' ? priceUSD.toLocaleString() : priceUSD}</div>
+                        <div class="price-badge">💶 EUR: €${typeof priceEUR === 'number' ? priceEUR.toLocaleString() : priceEUR}</div>
+                        <div class="price-badge">💰 ILS: ₪${typeof priceILS === 'number' ? priceILS.toLocaleString() : priceILS}</div>
+                    </div>
+                `;
+
+                infoDiv.html(infoHtml).slideDown();
+            }
+
+            // Show selection modal
+            function showSelectionModal(newCoinId) {
+                const listDiv = $('#selectedCoinsList');
+                listDiv.empty();
+
+                selectedCoins.forEach(function(coinId) {
+                    const coin = allCoins.find(c => c.id === coinId);
+                    if (coin) {
+                        const itemHtml = `
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                                <span><strong>${coin.name}</strong> (${coin.symbol.toUpperCase()})</span>
+                                <button class="btn btn-sm btn-danger remove-coin-btn" data-coin-id="${coinId}" data-new-coin-id="${newCoinId}">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                            </div>
+                        `;
+                        listDiv.append(itemHtml);
+                    }
+                });
+
+                $('.remove-coin-btn').on('click', function() {
+                    const coinId = $(this).data('coin-id');
+                    const newCoinId = $(this).data('new-coin-id');
+                    
+                    selectedCoins = selectedCoins.filter(id => id !== coinId);
+                    selectedCoins.push(newCoinId);
+                    
+                    $(`.coin-toggle[data-coin-id="${coinId}"]`).prop('checked', false);
+                    $(`.coin-toggle[data-coin-id="${newCoinId}"]`).prop('checked', true);
+                    
+                    updateSelectedCoinsText();
+                    $('#selectionModal').modal('hide');
+                });
+
+                $('#selectionModal').modal('show');
+            }
+
+            // Search functionality
+            $('#searchBtn').on('click', function() {
+                performSearch();
+            });
+
+            $('#searchInput').on('keypress', function(e) {
+                if (e.which === 13) {
+                    performSearch();
+                }
+            });
+
+            function performSearch() {
+                const searchTerm = $('#searchInput').val().trim().toUpperCase();
+                
+                if (searchTerm === '') {
+                    displayCoins(allCoins);
+                    return;
+                }
+
+                const filtered = allCoins.filter(coin => 
+                    coin.symbol.toUpperCase() === searchTerm
+                );
+
+                displayCoins(filtered);
+            }
+
+            // Filter selected
+            $('#filterSelected').on('click', function() {
+                filterActive = !filterActive;
+                
+                if (filterActive) {
+                    const filtered = allCoins.filter(coin => selectedCoins.includes(coin.id));
+                    displayCoins(filtered);
+                    $(this).html('<i class="fas fa-times"></i> Show All');
+                } else {
+                    displayCoins(allCoins);
+                    $(this).html('<i class="fas fa-filter"></i> Show Selected Only');
+                }
+            });
+
+            // Chart functionality
+            function startChart() {
+                if (selectedCoins.length === 0) {
+                    $('#chartContainer').html('<div class="alert alert-info text-center">Please select cryptocurrencies to track by toggling them on the Currencies page.</div>');
+                    return;
+                }
+
+                updateSelectedCoinsText();
+                initChart();
+                updateChart();
+                chartInterval = setInterval(updateChart, 2000);
+            }
+
+            function stopChart() {
+                if (chartInterval) {
+                    clearInterval(chartInterval);
+                    chartInterval = null;
+                }
+            }
+
+            function initChart() {
+                const dataPoints = {};
+                selectedCoins.forEach(coinId => {
+                    dataPoints[coinId] = [];
+                });
+
+                chart = new CanvasJS.Chart("chartContainer", {
+                    animationEnabled: true,
+                    title: {
+                        text: "Live Cryptocurrency Prices (USD)"
+                    },
+                    axisX: {
+                        title: "Time",
+                        valueFormatString: "HH:mm:ss"
+                    },
+                    axisY: {
+                        title: "Price (USD)",
+                        prefix: "$"
+                    },
+                    legend: {
+                        cursor: "pointer",
+                        verticalAlign: "top"
+                    },
+                    data: selectedCoins.map((coinId, index) => {
+                        const colors = ["#667eea", "#764ba2", "#f093fb", "#4facfe", "#43e97b"];
+                        return {
+                            type: "line",
+                            name: coinId.toUpperCase(),
+                            showInLegend: true,
+                            color: colors[index % colors.length],
+                            dataPoints: dataPoints[coinId]
+                        };
+                    })
+                });
+
+                chart.render();
+            }
+
+            function updateChart() {
+                if (selectedCoins.length === 0) return;
+
+                const symbols = selectedCoins.map(id => id.toUpperCase()).join(',');
+                const url = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${symbols}&tsyms=USD`;
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function(data) {
+                        const now = new Date();
+                        
+                        selectedCoins.forEach((coinId, index) => {
+                            const price = data[coinId.toUpperCase()]?.USD;
+                            if (price && chart && chart.options.data[index]) {
+                                chart.options.data[index].dataPoints.push({
+                                    x: now,
+                                    y: price
+                                });
+
+                                // Keep only last 30 data points
+                                if (chart.options.data[index].dataPoints.length > 30) {
+                                    chart.options.data[index].dataPoints.shift();
+                                }
+                            }
+                        });
+
+                        if (chart) {
+                            chart.render();
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error updating chart:', error);
+                    }
+                });
+            }
+
+            function updateSelectedCoinsText() {
+                const text = selectedCoins.length > 0 ? 
+                    selectedCoins.map(id => id.toUpperCase()).join(', ') : 
+                    'None';
+                $('#selectedCoinsText').text(text);
+            }
+
+            // Loading overlay
+            function showLoading() {
+                $('#loadingOverlay').addClass('active');
+            }
+
+            function hideLoading() {
+                $('#loadingOverlay').removeClass('active');
+            }
+        });
+    </script>
+</body>
+</html>

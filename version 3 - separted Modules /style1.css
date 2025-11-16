@@ -1,0 +1,221 @@
+:root {
+  --color-primary: #0d6efd;
+  --color-bg-light: #f5f5f5;
+  --color-white: #ffffff;
+  --color-border: #e0e0e0;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+  --radius-md: 15px;
+  --radius-lg: 20px;
+
+  --size-coin: 50px;
+  --size-coin-info: 60px;
+
+  --content-padding: 40px;
+  --chart-padding: 20px;
+
+  --anim-fast: 0.2s;
+  --anim-medium: 0.4s;
+  --anim-slow: 0.5s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
+  background-color: var(--color-bg-light);
+}
+
+.parallax {
+  background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920");
+  height: 400px;
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  font-size: 3rem;
+  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+nav button {
+  transition: background-color var(--anim-fast), transform var(--anim-fast);
+}
+
+#content {
+  min-height: 500px;
+  padding: var(--content-padding);
+  animation: fadeIn var(--anim-slow) ease-in;
+}
+
+.card {
+  border-radius: var(--radius-md);
+  transition: transform var(--anim-fast), box-shadow var(--anim-fast);
+  height: 100%;
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn var(--anim-medium) ease-in;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.coin-image {
+  width: var(--size-coin);
+  height: var(--size-coin);
+  background-color: var(--color-white);
+  border-radius: 50%;
+  object-fit: cover;
+  padding: 5px;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--anim-fast);
+}
+
+.coin-image:hover {
+  transform: scale(1.1);
+}
+
+.coin-info-image {
+  width: var(--size-coin-info);
+  height: var(--size-coin-info);
+  background-color: var(--color-white);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--anim-fast);
+}
+
+.coin-info-image:hover {
+  transform: scale(1.15);
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: var(--anim-fast);
+  border-radius: 24px;
+}
+
+.toggle-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--color-white);
+  transition: var(--anim-fast);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: var(--color-primary);
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.5);
+}
+
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-switch:hover .slider {
+  box-shadow: var(--shadow-md);
+}
+
+.more-info-content {
+  animation: fadeIn var(--anim-medium) ease-in;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.price-badge {
+  font-size: 0.95rem;
+  border-left: 3px solid var(--color-primary);
+  transition: transform var(--anim-fast);
+}
+
+.price-badge:hover {
+  transform: translateX(5px);
+}
+
+#chartContainer {
+  height: 500px;
+  width: 100%;
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: var(--chart-padding);
+  box-shadow: var(--shadow-sm);
+}
+
+#searchInput {
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--color-border);
+}
+
+#aboutSection img {
+  max-width: 350px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--anim-fast);
+}
+
+#aboutSection img:hover {
+  transform: scale(1.05);
+}
+
+.progress-loader {
+  height: 25px;
+  width: 80%;
+  margin: 2rem auto;
+  border-radius: var(--radius-md);
+}
+
+.spinner-border {
+  border-width: 3px;
+}
+
+footer {
+  margin-top: auto;
+}

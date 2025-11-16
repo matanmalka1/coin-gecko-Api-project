@@ -1,0 +1,193 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
+  background-color: #f5f5f5;
+}
+
+.parallax {
+  background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920");
+  height: 400px;
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 3rem;
+  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+nav button {
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#content {
+  min-height: 500px;
+  padding: 40px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.card {
+  border-radius: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+  animation: fadeIn 0.4s ease-in;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.coin-image {
+  width: 50px;
+  height: 50px;
+  background-color: #fff;
+  border-radius: 50%;
+  object-fit: cover;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.coin-image:hover {
+  transform: scale(1.1);
+}
+
+.coin-info-image {
+  width: 60px;
+  height: 60px;
+  background-color: #fff;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease-in-out;
+}
+
+.coin-info-image:hover {
+  transform: scale(1.15);
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggle-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: #0d6efd;
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.5);
+}
+
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-switch:hover .slider {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.more-info-content {
+  animation: fadeIn 0.3s ease-in;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+}
+
+.price-badge {
+  font-size: 0.95rem;
+  border-left: 3px solid #0d6efd;
+}
+
+.price-badge:hover {
+  transform: translateX(5px);
+}
+
+#chartContainer {
+  height: 500px;
+  width: 100%;
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+#searchInput {
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e0e0e0;
+}
+
+#aboutSection img {
+  max-width: 350px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+#aboutSection img:hover {
+  transform: scale(1.05);
+}
+
+.progress-loader {
+  height: 25px;
+  width: 80%;
+  margin: 2rem auto;
+  border-radius: 15px;
+}
+
+.spinner-border {
+  border-width: 3px;
+}
+
+footer {
+  margin-top: auto;
+}

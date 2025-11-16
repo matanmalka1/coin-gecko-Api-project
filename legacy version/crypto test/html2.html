@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crypto Tracker - Live Cryptocurrency Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Parallax Header -->
+    <div class="parallax-header">
+      <h1><i class="fas fa-coins"></i> Crypto Tracker</h1>
+    </div>
+
+    <!-- Navigation -->
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-light sticky-top"
+      aria-label="Main navigation"
+    >
+      <div class="container">
+        <a class="navbar-brand" href="#"
+          ><i class="fas fa-chart-line"></i> CryptoTracker</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" data-page="home"
+                >Currencies</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-page="reports">Live Reports</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-page="about">About</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main -->
+    <div class="main-content">
+      <div class="container">
+        <!-- Home Page -->
+        <section
+          id="homePage"
+          class="page-section active"
+          aria-label="Currencies list"
+        >
+          <div class="search-section">
+            <div class="search-bar input-group">
+              <input
+                type="text"
+                class="form-control"
+                id="searchInput"
+                placeholder="Search by name or symbol (e.g., BTC, ETH, Sol)"
+                aria-label="Search coins"
+              />
+              <button
+                class="btn"
+                type="button"
+                id="searchBtn"
+                aria-label="Run search"
+              >
+                <i class="fas fa-search"></i> Search
+              </button>
+            </div>
+            <div class="text-center">
+              <button class="filter-btn" id="filterSelected">
+                <i class="fas fa-filter"></i> Show Selected Only
+              </button>
+            </div>
+          </div>
+
+          <div class="row" id="coinsContainer" role="list">
+            <!-- Coins inserted here -->
+          </div>
+        </section>
+
+        <!-- Reports Page -->
+        <section
+          id="reportsPage"
+          class="page-section"
+          aria-label="Live reports"
+        >
+          <h2 class="text-center mb-4">Live Cryptocurrency Reports</h2>
+          <p class="text-center text-muted">
+            Real-time price tracking updated every 2 seconds
+          </p>
+          <div id="chartContainer"></div>
+          <div class="text-center mt-3">
+            <p class="text-muted">
+              <small
+                >Selected coins: <span id="selectedCoinsText">None</span></small
+              >
+            </p>
+          </div>
+        </section>
+
+        <!-- About Page -->
+        <section id="aboutPage" class="page-section" aria-label="About">
+          <div class="about-section">
+            <div class="about-card text-center">
+              <img
+                src="https://ui-avatars.com/api/?name=Developer&size=200&background=667eea&color=fff"
+                alt="Developer avatar"
+                class="profile-img"
+              />
+              <h2>Crypto Tracker Project</h2>
+              <h4 class="text-muted mb-4">Full Stack Web Developer</h4>
+              <div class="text-start">
+                <h5><i class="fas fa-info-circle"></i> Project Description</h5>
+                <p>
+                  This is a comprehensive SPA for tracking cryptocurrency prices
+                  and trends in real-time, using CoinGecko API and CanvasJS.
+                </p>
+
+                <h5 class="mt-4">
+                  <i class="fas fa-code"></i> Technologies Used
+                </h5>
+                <ul>
+                  <li>HTML5 & CSS3</li>
+                  <li>Bootstrap 5</li>
+                  <li>jQuery (DOM & AJAX)</li>
+                  <li>CanvasJS (charts)</li>
+                  <li>CoinGecko API</li>
+                </ul>
+
+                <h5 class="mt-4"><i class="fas fa-star"></i> Features</h5>
+                <ul>
+                  <li>Browse & search (fuzzy) through top coins</li>
+                  <li>More info per coin with caching</li>
+                  <li>Select up to 5 coins (persisted)</li>
+                  <li>Live chart updates every 2s</li>
+                  <li>Local caching & graceful errors</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Modal: Selection Limit -->
+    <div
+      class="modal fade"
+      id="selectionModal"
+      tabindex="-1"
+      aria-hidden="true"
+      aria-labelledby="selectionModalTitle"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="selectionModalTitle" class="modal-title">
+              <i class="fas fa-exclamation-triangle"></i> Maximum Selection
+              Reached
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              You can only track up to 5 currencies. Remove one to add the new
+              coin:
+            </p>
+            <div id="selectedCoinsList"></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Canvas.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
+
+    <script src="main.js"></script>
+  </body>
+</html>
