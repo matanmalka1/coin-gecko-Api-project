@@ -56,7 +56,7 @@ export const EventHandlers = (() => {
     AppState.setTheme(next);
     UIManager.applyTheme(next);
   };
-
+  
   const registerEvents = () => {
     $(document)
       .on("click", "#themeToggleBtn", handleThemeToggle)
@@ -73,7 +73,11 @@ export const EventHandlers = (() => {
 
       .on("click", ".more-info", handleMoreInfo)
 
-      .on("change", ".coin-toggle", handleCoinToggle);
+      .on("change", ".coin-toggle", handleCoinToggle)
+
+      .on("change", "#sortSelect", () => {
+        CoinsService.sortCoins($("#sortSelect").val());
+      });
   };
 
   const registerNavigation = () => {

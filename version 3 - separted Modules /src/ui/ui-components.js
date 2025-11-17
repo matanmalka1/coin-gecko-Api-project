@@ -154,6 +154,8 @@ export const UIComponents = (() => {
 
   const currenciesPage = () => `
     <div id="searchArea" class="my-4 text-center">
+
+    
       <input type="text" id="searchInput"
         placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)"
         class="form-control w-50 d-inline-block">
@@ -161,6 +163,20 @@ export const UIComponents = (() => {
       <button id="filterReportsBtn" class="btn btn-info mx-2">Show Selected</button>
       <button id="clearSearchBtn" class="btn btn-outline-secondary mx-2 d-none">Clear</button>
     </div>
+
+    <div id="sortArea" class="my-3">
+      <select id="sortSelect" class="form-select w-25 d-inline-block">
+        <option value="">Sort by...</option>
+        <option value="price_desc">Price ↓</option>
+        <option value="price_asc">Price ↑</option>
+        <option value="name_asc">Name A-Z</option>
+        <option value="name_desc">Name Z-A</option>
+        <option value="marketcap_desc">Market Cap ↓</option>
+        <option value="marketcap_asc">Market Cap ↑</option>
+      </select>
+    </div>
+  </div>
+
     <div id="coinsContainer" class="row g-3"></div>
   `;
 

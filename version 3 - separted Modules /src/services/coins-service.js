@@ -23,6 +23,35 @@ export const CoinsService = (() => {
     UIManager.displayCoins(coins, AppState.getSelectedReports());
   };
 
+  const sortCoins = (sortType) => {
+    let coins = AppState.getAllCoins();
+
+    switch (sortType) {
+      case "price_desc":
+        coins.sort((a, b) => b.current_price - a.current_price);
+        break;
+      case "price_asc":
+        coins.sort((a, b) => a.current_price - b.current_price);
+        break;
+      case "name_asc":
+        coins.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name_desc":
+        coins.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "marketcap_desc":
+        coins.sort((a, b) => b.market_cap - a.market_cap);
+        break;
+      case "marketcap_asc":
+        coins.sort((a, b) => a.market_cap - b.market_cap);
+        break;
+      default:
+        coins = AppState.getAllCoins();
+    }
+
+    UIManager.displayCoins(coins, AppState.getSelectedReports());
+  };
+
   const getCoinDetails = async (coinId) => {
     let cached = CacheManager.getCache(coinId);
 
@@ -115,5 +144,6 @@ export const CoinsService = (() => {
     searchCoin,
     filterSelectedCoins,
     clearSearch,
+    sortCoins,
   };
 })();
