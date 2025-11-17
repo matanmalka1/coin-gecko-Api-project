@@ -49,9 +49,14 @@ export const coinAPI = (() => {
     return safeRequest(url);
   };
 
+  const getCoinMarketChart = async (coinId, days = 7) => {
+    const url = `${COINGECKO_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`;
+    return safeRequest(url);
+  };
   return {
     getMarkets,
     getCoinDetails,
     getLivePrices,
+    getCoinMarketChart,
   };
 })();

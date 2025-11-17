@@ -142,6 +142,10 @@ export const UIComponents = (() => {
     `;
   };
 
+  const coinMiniChart = (id) => `
+  <div id="miniChart-${id}" class="mini-chart-container mt-3"></div>
+`;
+
   const replaceModal = (newSymbol, existingCoins) => {
     const listItems = existingCoins
       .map(
@@ -282,5 +286,6 @@ export const UIComponents = (() => {
     reportsPage,
     aboutPage,
     compareModal,
+    coinMiniChart,
   };
 })();

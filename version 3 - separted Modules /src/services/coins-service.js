@@ -142,6 +142,21 @@ export const CoinsService = (() => {
     );
   };
 
+  const getCoinMarketChart = async (coinId) => {
+    const cacheKey = `${coinId}-chart`;
+    const cached = CacheManager.getCache(cacheKey);
+
+    if (cached) return cached;
+
+    const result = await coinAPI.getCoinMarketChart(coinId, 7);
+
+    if (!result.success) return null;
+
+    CacheManager.setCache(cacheKey, result.data);
+
+    return result.data;
+  };
+
   return {
     loadAllCoins,
     getCoinDetails,
@@ -150,5 +165,6 @@ export const CoinsService = (() => {
     clearSearch,
     sortCoins,
     refreshCoinsDisplay,
+    getCoinMarketChart,
   };
 })();

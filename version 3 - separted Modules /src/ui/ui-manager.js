@@ -1,4 +1,5 @@
 import { UIComponents } from "./ui-components.js";
+import { CoinsService } from "../services/coins-service.js";
 
 export const UIManager = (() => {
   const content = $("#content");
@@ -64,7 +65,11 @@ export const UIManager = (() => {
 
   const showCoinDetails = (containerId, data) => {
     const container = $(`#${containerId}`);
-    container.html(UIComponents.coinDetails(data));
+    const html =
+      UIComponents.coinDetails(data) + UIComponents.coinMiniChart(data.id);
+    container.html(html);
+
+    drawMiniChart(data.id);
   };
 
   const showReplaceModal = (newSymbol, existingCoins) => {
@@ -103,6 +108,40 @@ export const UIManager = (() => {
     $(selector).removeClass("d-none");
   };
 
+  const drawMiniChart = async (coinId) => {
+    const chartData = await CoinsService.getCoinMarketChart(coinId);
+
+    if (!chartData) return;
+
+    const prices = chartData.prices.map(([time, price]) => ({
+      x: new Date(time),
+      y: price,
+    }));
+
+    const chart = new CanvasJS.Chart(`miniChart-${coinId}`, {
+      height: 220,
+      backgroundColor: "transparent",
+      axisX: {
+        labelFormatter: () => "",
+      },
+      axisY: {
+        prefix: "$",
+        labelFontSize: 10,
+      },
+      data: [
+        {
+          type: "line",
+          dataPoints: prices,
+          color: "#0d6efd",
+          markerSize: 0,
+          lineThickness: 2,
+        },
+      ],
+    });
+
+    chart.render();
+  };
+
   return {
     clearContent,
     showPage,
@@ -118,5 +157,6 @@ export const UIManager = (() => {
     hideElement,
     showElement,
     applyTheme,
+    drawMiniChart,
   };
 })();
