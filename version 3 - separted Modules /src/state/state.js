@@ -6,6 +6,7 @@ export const AppState = (() => {
     selectedReports: [],
     currentView: "currencies",
     searchTerm: "",
+    theme: localStorage.getItem("theme") || "light",
   };
 
   const getState = () => ({ ...state });
@@ -26,6 +27,12 @@ export const AppState = (() => {
     state.selectedReports.push(symbolUpper);
     return true;
   };
+  const setTheme = (theme) => {
+    state.theme = theme;
+    localStorage.setItem("theme", theme);
+  };
+
+  const getTheme = () => state.theme;
 
   const removeReport = (symbol) => {
     const symbolUpper = symbol.toUpperCase();
@@ -77,5 +84,7 @@ export const AppState = (() => {
     getCurrentView,
     setSearchTerm,
     getSearchTerm,
+    setTheme,
+    getTheme,
   };
 })();

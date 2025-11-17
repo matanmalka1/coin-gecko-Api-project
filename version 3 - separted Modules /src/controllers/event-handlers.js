@@ -2,6 +2,7 @@ import { CoinsService } from "../services/coins-service.js";
 import { ReportsService } from "./reports-service.js";
 import { UIManager } from "../ui/ui-manager.js";
 import { PagesController } from "./pages-controller.js";
+import { AppState } from "../state/state.js";
 
 export const EventHandlers = (() => {
   const handleSearch = () => {
@@ -48,8 +49,18 @@ export const EventHandlers = (() => {
     ReportsService.toggleCoinSelection(symbol);
   };
 
+  const handleThemeToggle = () => {
+    const current = AppState.getTheme();
+    const next = current === "light" ? "dark" : "light";
+
+    AppState.setTheme(next);
+    UIManager.applyTheme(next);
+  };
+
   const registerEvents = () => {
     $(document)
+      .on("click", "#themeToggleBtn", handleThemeToggle)
+
       .on("click", "#searchBtn", handleSearch)
 
       .on("keypress", "#searchInput", (e) => {

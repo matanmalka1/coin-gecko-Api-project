@@ -12,6 +12,10 @@ export const UIManager = (() => {
     content.html(html);
   };
 
+  const applyTheme = (theme) => {
+    $("html").toggleClass("dark", theme === "dark");
+  };
+
   const showError = (container, error) => {
     let message = "Failed to load data. Please try again.";
 
@@ -113,5 +117,6 @@ export const UIManager = (() => {
     toggleCollapse,
     hideElement,
     showElement,
+    applyTheme,
   };
 })();
