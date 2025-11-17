@@ -51,6 +51,10 @@ export const CoinsService = (() => {
 
     UIManager.displayCoins(coins, AppState.getSelectedReports());
   };
+  const refreshCoinsDisplay = () => {
+    const allCoins = AppState.getAllCoins();
+    UIManager.displayCoins(allCoins, AppState.getSelectedReports());
+  };
 
   const getCoinDetails = async (coinId) => {
     let cached = CacheManager.getCache(coinId);
@@ -145,5 +149,6 @@ export const CoinsService = (() => {
     filterSelectedCoins,
     clearSearch,
     sortCoins,
+    refreshCoinsDisplay,
   };
 })();

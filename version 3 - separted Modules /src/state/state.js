@@ -7,6 +7,7 @@ export const AppState = (() => {
     currentView: "currencies",
     searchTerm: "",
     theme: localStorage.getItem("theme") || "light",
+    favorites: JSON.parse(localStorage.getItem("favorites")) || [],
   };
 
   const getState = () => ({ ...state });
@@ -17,6 +18,25 @@ export const AppState = (() => {
     state.allCoins = coins;
   };
 
+  const addFavorite = (symbol) => {
+    const s = symbol.toUpperCase();
+    if (!state.favorites.includes(s)) {
+      state.favorites.push(s);
+      localStorage.setItem("favorites", JSON.stringify(state.favorites));
+    }
+  };
+
+  const removeFavorite = (symbol) => {
+    const s = symbol.toUpperCase();
+    state.favorites = state.favorites.filter((x) => x !== s);
+    localStorage.setItem("favorites", JSON.stringify(state.favorites));
+  };
+
+  const isFavorite = (symbol) => {
+    return state.favorites.includes(symbol.toUpperCase());
+  };
+
+  const getFavorites = () => [...state.favorites];
   const getSelectedReports = () => [...state.selectedReports];
 
   const addReport = (symbol) => {
@@ -86,5 +106,9 @@ export const AppState = (() => {
     getSearchTerm,
     setTheme,
     getTheme,
+    addFavorite,
+    removeFavorite,
+    isFavorite,
+    getFavorites,
   };
 })();

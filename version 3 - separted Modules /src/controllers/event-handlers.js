@@ -21,7 +21,17 @@ export const EventHandlers = (() => {
     CoinsService.filterSelectedCoins();
     UIManager.showElement("#clearSearchBtn");
   };
+  const handleFavoriteToggle = function () {
+    const symbol = $(this).data("symbol");
 
+    if (AppState.isFavorite(symbol)) {
+      AppState.removeFavorite(symbol);
+    } else {
+      AppState.addFavorite(symbol);
+    }
+
+    CoinsService.refreshCoinsDisplay();
+  };
   const handleMoreInfo = async function () {
     const coinId = $(this).data("id");
     const collapseDiv = $(`#collapse-${coinId}`);
@@ -56,7 +66,14 @@ export const EventHandlers = (() => {
     AppState.setTheme(next);
     UIManager.applyTheme(next);
   };
-  
+
+  const handleShowFavorites = () => {
+    const fav = AppState.getFavorites();
+    const all = AppState.getAllCoins();
+    const filtered = all.filter((c) => fav.includes(c.symbol.toUpperCase()));
+    UIManager.displayCoins(filtered, AppState.getSelectedReports());
+  };
+
   const registerEvents = () => {
     $(document)
       .on("click", "#themeToggleBtn", handleThemeToggle)
@@ -66,6 +83,10 @@ export const EventHandlers = (() => {
       .on("keypress", "#searchInput", (e) => {
         if (e.which === 13) handleSearch();
       })
+
+      .on("click", "#showFavoritesBtn", handleShowFavorites)
+
+      .on("click", ".favorite-btn", handleFavoriteToggle)
 
       .on("click", "#clearSearchBtn", handleClearSearch)
 

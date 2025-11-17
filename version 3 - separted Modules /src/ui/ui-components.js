@@ -1,4 +1,5 @@
 import { CONFIG } from "../config/config.js";
+import { AppState } from "../state/state.js";
 
 export const UIComponents = (() => {
   const spinner = (message = "Loading...") => `
@@ -33,39 +34,63 @@ export const UIComponents = (() => {
 
   const coinCard = (coin, isSelected = false) => {
     const { id, name, symbol, image, current_price } = coin;
+
     const price =
       typeof current_price === "number"
         ? `$${current_price.toLocaleString()}`
         : "N/A";
 
+    const isFavorite = AppState.isFavorite(symbol);
+
     return `
-      <div class="col-md-6 col-lg-4">
-        <div class="card border-0 shadow-sm hover-shadow transition p-3">
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <img src="${image}" alt="${name}" loading="lazy" 
-              class="rounded-circle coin-image">
-            <div>
-              <h6 class="fw-bold mb-0">${name}</h6>
-              <small class="text-muted">${symbol.toUpperCase()}</small>
-            </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card border-0 shadow-sm hover-shadow transition p-3 h-100">
+        
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <img src="${image}" alt="${name}" loading="lazy"
+               class="rounded-circle coin-image">
+          <div>
+            <h6 class="fw-bold mb-0">${name}</h6>
+            <small class="text-muted">${symbol.toUpperCase()}</small>
           </div>
-          <p class="mb-2"><strong>Price:</strong> ${price}</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <button class="btn btn-sm btn-outline-primary more-info" 
-              data-id="${id}">
-              <i class="fas fa-info-circle"></i> More Info
+        </div>
+
+        <p class="mb-2">
+          <strong>Price:</strong> ${price}
+        </p>
+
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <button class="btn btn-sm btn-outline-primary more-info"
+                  data-id="${id}">
+            <i class="fas fa-info-circle"></i> More Info
+          </button>
+
+          <div class="d-flex align-items-center gap-2">
+            <button type="button"
+                    class="btn btn-sm p-0 favorite-btn"
+                    data-symbol="${symbol.toUpperCase()}"
+                    title="${
+                      isFavorite ? "Remove from favorites" : "Add to favorites"
+                    }">
+              <i class="fas fa-star ${
+                isFavorite ? "text-warning" : "text-muted"
+              }"
+                 style="font-size: 1.2rem;"></i>
             </button>
-            <label class="toggle-switch" title="Track coin">
+
+            <label class="toggle-switch mb-0" title="Track coin">
               <input class="coin-toggle" type="checkbox"
-                data-symbol="${symbol.toUpperCase()}"
-                ${isSelected ? "checked" : ""}>
+                     data-symbol="${symbol.toUpperCase()}"
+                     ${isSelected ? "checked" : ""}>
               <span class="slider"></span>
             </label>
           </div>
-          <div class="collapse mt-3" id="collapse-${id}"></div>
         </div>
+
+        <div class="collapse mt-3" id="collapse-${id}"></div>
       </div>
-    `;
+    </div>
+  `;
   };
 
   const coinDetails = (data) => {
@@ -155,6 +180,7 @@ export const UIComponents = (() => {
   const currenciesPage = () => `
     <div id="searchArea" class="my-4 text-center">
 
+    <button id="showFavoritesBtn" class="btn btn-warning mx-2">Favorites ⭐</button>
     
       <input type="text" id="searchInput"
         placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)"
