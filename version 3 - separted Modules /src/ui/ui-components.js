@@ -65,6 +65,11 @@ export const UIComponents = (() => {
             <i class="fas fa-info-circle"></i> More Info
           </button>
 
+          <button class="btn btn-sm btn-outline-secondary compare-btn" 
+        data-id="${id}" data-symbol="${symbol.toUpperCase()}">
+  <i class="fas fa-balance-scale"></i> Compare
+</button>
+
           <div class="d-flex align-items-center gap-2">
             <button type="button"
                     class="btn btn-sm p-0 favorite-btn"
@@ -242,6 +247,29 @@ export const UIComponents = (() => {
     </div>
   `;
 
+  const compareModal = (coinsHTML) => `
+  <div class="modal fade" id="compareModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Compare Coins</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          ${coinsHTML}
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+`;
+
   return {
     spinner,
     progressBar,
@@ -253,5 +281,6 @@ export const UIComponents = (() => {
     currenciesPage,
     reportsPage,
     aboutPage,
+    compareModal,
   };
 })();

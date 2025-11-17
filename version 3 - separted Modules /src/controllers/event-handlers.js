@@ -74,6 +74,19 @@ export const EventHandlers = (() => {
     UIManager.displayCoins(filtered, AppState.getSelectedReports());
   };
 
+  const selectedCompare = [];
+
+  const handleCompareClick = function () {
+    const id = $(this).data("id");
+
+    if (!selectedCompare.includes(id)) {
+      selectedCompare.push(id);
+    }
+
+    if (selectedCompare.length >= 2) {
+      ReportsService.openCompareModal(selectedCompare);
+    }
+  };
   const registerEvents = () => {
     $(document)
       .on("click", "#themeToggleBtn", handleThemeToggle)
@@ -95,6 +108,8 @@ export const EventHandlers = (() => {
       .on("click", ".more-info", handleMoreInfo)
 
       .on("change", ".coin-toggle", handleCoinToggle)
+
+      .on("click", ".compare-btn", handleCompareClick)
 
       .on("change", "#sortSelect", () => {
         CoinsService.sortCoins($("#sortSelect").val());
