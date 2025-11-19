@@ -16,7 +16,6 @@ export const CONFIG = {
 
   DISPLAY: {
     COINS_PER_PAGE: 150,
-    DESCRIPTION_MAX_LENGTH: 200,
   },
 
   CURRENCIES: {

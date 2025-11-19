@@ -4,95 +4,117 @@ import { AppState } from "../state/state.js";
 import { UIManager } from "../ui/ui-manager.js";
 
 export const CoinsService = (() => {
-  const SORTERS = {
-    price_desc: (a, b) => b.current_price - a.current_price,
-    price_asc: (a, b) => a.current_price - b.current_price,
-    name_asc: (a, b) => a.name.localeCompare(b.name),
-    name_desc: (a, b) => b.name.localeCompare(a.name),
-    marketcap_desc: (a, b) => b.market_cap - a.market_cap,
-    marketcap_asc: (a, b) => a.market_cap - b.market_cap,
-  };
-
   const loadAllCoins = async () => {
+    const container = $("#coinsContainer");
+
+    if (AppState.getAllCoins().length === 0)
+      UIManager.showSpinner(container, "Loading coins...");
+
     const result = await coinAPI.getMarkets();
 
     if (!result.success) {
-      return { success: false, error: result.error };
+      UIManager.showError(container, result.error);
+      return;
     }
 
     const coins = result.data;
     AppState.setAllCoins(coins);
 
-    return { success: true, data: coins };
-  };
-
-  const refreshCoinsDisplay = () => {
-    const coins = AppState.getAllCoins();
-    const selected = AppState.getSelectedReports();
-    UIManager.displayCoins(coins, selected);
+    UIManager.displayCoins(coins, AppState.getSelectedReports());
   };
 
   const sortCoins = (sortType) => {
-    const coins = [...AppState.getAllCoins()];
+    let coins = AppState.getAllCoins();
 
-    const sorter = SORTERS[sortType];
-    if (sorter) {
-      coins.sort(sorter);
-      AppState.setAllCoins(coins); // ⭐ שמירה חזרה ל-state
-      refreshCoinsDisplay(); // ⭐ עדכון תצוגה
+    switch (sortType) {
+      case "price_desc":
+        coins.sort((a, b) => b.current_price - a.current_price);
+        break;
+      case "price_asc":
+        coins.sort((a, b) => a.current_price - b.current_price);
+        break;
+      case "name_asc":
+        coins.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name_desc":
+        coins.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "marketcap_desc":
+        coins.sort((a, b) => b.market_cap - a.market_cap);
+        break;
+      case "marketcap_asc":
+        coins.sort((a, b) => a.market_cap - b.market_cap);
+        break;
+      default:
+        coins = AppState.getAllCoins();
     }
 
-    return coins;
+    UIManager.displayCoins(coins, AppState.getSelectedReports());
   };
-  const getAllCoinsForDisplay = () => {
-    return AppState.getAllCoins();
+  const refreshCoinsDisplay = () => {
+    const allCoins = AppState.getAllCoins();
+    UIManager.displayCoins(allCoins, AppState.getSelectedReports());
   };
 
-  // ✅ נקי - רק משיכת נתונים
   const getCoinDetails = async (coinId) => {
-    const cached = CacheManager.getCache(coinId);
+    let cached = CacheManager.getCache(coinId);
+
     if (cached) return cached;
 
     const result = await coinAPI.getCoinDetails(coinId);
 
     if (!result.success) return null;
 
-    CacheManager.setCache(coinId, result.data);
-    return result.data;
+    const data = result.data;
+    CacheManager.setCache(coinId, data);
+
+    return data;
   };
 
   const searchCoin = (term) => {
-    const searchTerm = term.trim().toLowerCase();
+    const searchTerm = term.trim().toUpperCase();
 
     if (!searchTerm) {
-      return { success: false, error: "EMPTY_SEARCH" };
+      UIManager.showError($("#coinsContainer"), "Please enter a search term.");
+      return;
     }
 
     const allCoins = AppState.getAllCoins();
 
     if (allCoins.length === 0) {
-      return { success: false, error: "NO_COINS_LOADED" };
+      UIManager.showError(
+        $("#coinsContainer"),
+        "Please wait for coins to load..."
+      );
+      return;
     }
 
     const filtered = allCoins.filter(
-      (coin) =>
-        coin.symbol.toLowerCase().includes(searchTerm) ||
-        coin.name.toLowerCase().includes(searchTerm)
+      (coin) => coin.symbol.toUpperCase() === searchTerm
     );
 
     if (filtered.length === 0) {
-      return { success: false, error: "NO_RESULTS", term: searchTerm };
+      UIManager.showError(
+        $("#coinsContainer"),
+        `No coins found matching "${searchTerm}".`
+      );
+      return;
     }
 
     AppState.setSearchTerm(searchTerm);
-    return { success: true, data: filtered };
+
+    UIManager.displayCoins(filtered, AppState.getSelectedReports());
   };
 
   const filterSelectedCoins = () => {
     const selectedReports = AppState.getSelectedReports();
 
     if (selectedReports.length === 0) {
-      return { success: false, error: "NO_COINS_SELECTED" };
+      UIManager.showError(
+        $("#coinsContainer"),
+        "No coins selected. Please choose coins first."
+      );
+      return;
     }
 
     const allCoins = AppState.getAllCoins();
@@ -101,19 +123,25 @@ export const CoinsService = (() => {
     );
 
     if (filtered.length === 0) {
-      return { success: false, error: "SELECTED_NOT_FOUND" };
+      UIManager.showError(
+        $("#coinsContainer"),
+        "Selected coins not found. Try refreshing data."
+      );
+      return;
     }
 
-    return { success: true, data: filtered };
+    UIManager.displayCoins(filtered, selectedReports);
   };
 
   const clearSearch = () => {
     AppState.setSearchTerm("");
-    refreshCoinsDisplay(); // ⭐ הוספה
-    return AppState.getAllCoins();
+
+    UIManager.displayCoins(
+      AppState.getAllCoins(),
+      AppState.getSelectedReports()
+    );
   };
 
-  // ✅ נקי - רק משיכת נתונים
   const getCoinMarketChart = async (coinId) => {
     const cacheKey = `${coinId}-chart`;
     const cached = CacheManager.getCache(cacheKey);
@@ -125,6 +153,7 @@ export const CoinsService = (() => {
     if (!result.success) return null;
 
     CacheManager.setCache(cacheKey, result.data);
+
     return result.data;
   };
 
@@ -135,8 +164,7 @@ export const CoinsService = (() => {
     filterSelectedCoins,
     clearSearch,
     sortCoins,
-    getAllCoinsForDisplay,
-    getCoinMarketChart,
     refreshCoinsDisplay,
+    getCoinMarketChart,
   };
 })();

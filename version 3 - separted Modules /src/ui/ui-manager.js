@@ -1,4 +1,3 @@
-import { ReportsService } from "../services/reports-service.js";
 import { UIComponents } from "./ui-components.js";
 import { CoinsService } from "../services/coins-service.js";
 
@@ -69,32 +68,8 @@ export const UIManager = (() => {
     const html =
       UIComponents.coinDetails(data) + UIComponents.coinMiniChart(data.id);
     container.html(html);
-    // drawMiniChart נקרא מבחוץ, לא פנימית
-  };
 
-  const showCompareModalWithData = (coins) => {
-    const table = UIComponents.compareTable(coins);
-    const modalHTML = UIComponents.compareModal(table);
-    $("body").append(modalHTML);
-    const modal = new bootstrap.Modal($("#compareModal"));
-    modal.show();
-    $("#compareModal").one("hidden.bs.modal", () => {
-      $("#compareModal").remove();
-    });
-  };
-
-  const showCompareModal = (coins) => {
-    const table = UIComponents.compareTable(coins);
-    const modalHTML = UIComponents.compareModal(table);
-
-    $("body").append(modalHTML);
-
-    const modal = new bootstrap.Modal($("#compareModal"));
-    modal.show();
-
-    $("#compareModal").one("hidden.bs.modal", () => {
-      $("#compareModal").remove();
-    });
+    drawMiniChart(data.id);
   };
 
   const showReplaceModal = (newSymbol, existingCoins) => {
@@ -133,8 +108,9 @@ export const UIManager = (() => {
     $(selector).removeClass("d-none");
   };
 
-  // ui-manager.js
-  const drawMiniChart = (coinId, chartData) => {
+  const drawMiniChart = async (coinId) => {
+    const chartData = await CoinsService.getCoinMarketChart(coinId);
+
     if (!chartData) return;
 
     const prices = chartData.prices.map(([time, price]) => ({
@@ -145,8 +121,13 @@ export const UIManager = (() => {
     const chart = new CanvasJS.Chart(`miniChart-${coinId}`, {
       height: 220,
       backgroundColor: "transparent",
-      axisX: { labelFormatter: () => "" },
-      axisY: { prefix: "$", labelFontSize: 10 },
+      axisX: {
+        labelFormatter: () => "",
+      },
+      axisY: {
+        prefix: "$",
+        labelFontSize: 10,
+      },
       data: [
         {
           type: "line",
@@ -177,7 +158,5 @@ export const UIManager = (() => {
     showElement,
     applyTheme,
     drawMiniChart,
-    showCompareModal,
-    showCompareModalWithData,
   };
 })();

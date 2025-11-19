@@ -8,7 +8,6 @@ export const AppState = (() => {
     searchTerm: "",
     theme: localStorage.getItem("theme") || "light",
     favorites: JSON.parse(localStorage.getItem("favorites")) || [],
-    compareSelection: [],
   };
 
   const getState = () => ({ ...state });
@@ -42,9 +41,7 @@ export const AppState = (() => {
 
   const addReport = (symbol) => {
     const symbolUpper = symbol.toUpperCase();
-    if (state.selectedReports.includes(symbolUpper)) {
-      return false;
-    }
+    if (state.selectedReports.includes(symbolUpper)) return false;
     if (state.selectedReports.length >= CONFIG.REPORTS.MAX_COINS) return false;
 
     state.selectedReports.push(symbolUpper);
@@ -93,19 +90,6 @@ export const AppState = (() => {
 
   const getSearchTerm = () => state.searchTerm;
 
-  const getCompareSelection = () => [...state.compareSelection];
-  const addToCompare = (id) => {
-    if (!state.compareSelection.includes(id)) {
-      state.compareSelection.push(id);
-    }
-  };
-  const removeFromCompare = (id) => {
-    state.compareSelection = state.compareSelection.filter((x) => x !== id);
-  };
-  const clearCompareSelection = () => {
-    state.compareSelection = [];
-  };
-
   return {
     getState,
     getAllCoins,
@@ -126,9 +110,5 @@ export const AppState = (() => {
     removeFavorite,
     isFavorite,
     getFavorites,
-    getCompareSelection,
-    addToCompare,
-    removeFromCompare,
-    clearCompareSelection,
   };
 })();
