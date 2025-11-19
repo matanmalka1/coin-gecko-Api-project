@@ -41,7 +41,7 @@ export const AppState = (() => {
 
   const addReport = (symbol) => {
     const symbolUpper = symbol.toUpperCase();
-    if (state.selectedReports.includes(symbolUpper)) return false;
+    if (state.selectedReports.includes(symbolUpper)){ return false;}
     if (state.selectedReports.length >= CONFIG.REPORTS.MAX_COINS) return false;
 
     state.selectedReports.push(symbolUpper);

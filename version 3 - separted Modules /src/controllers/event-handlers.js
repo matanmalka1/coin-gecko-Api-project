@@ -1,5 +1,5 @@
 import { CoinsService } from "../services/coins-service.js";
-import { ReportsService } from "./reports-service.js";
+import { ReportsService } from "../services/reports-service.js";
 import { UIManager } from "../ui/ui-manager.js";
 import { PagesController } from "./pages-controller.js";
 import { AppState } from "../state/state.js";
@@ -74,17 +74,36 @@ export const EventHandlers = (() => {
     UIManager.displayCoins(filtered, AppState.getSelectedReports());
   };
 
-  const selectedCompare = [];
+  let selectedCompare = [];
 
   const handleCompareClick = function () {
     const id = $(this).data("id");
+    const $btn = $(this);
 
-    if (!selectedCompare.includes(id)) {
+    if (selectedCompare.includes(id)) {
+      // הסר מהבחירה
+      selectedCompare = selectedCompare.filter((x) => x !== id);
+      $btn.removeClass("btn-primary").addClass("btn-outline-secondary");
+    } else {
       selectedCompare.push(id);
+      $btn.removeClass("btn-outline-secondary").addClass("btn-primary");
     }
 
-    if (selectedCompare.length >= 2) {
-      ReportsService.openCompareModal(selectedCompare);
+    // עדכן כפתורים
+    $(".compare-btn").prop(
+      "disabled",
+      selectedCompare.length >= 2 && !selectedCompare.includes(id)
+    );
+
+    if (selectedCompare.length === 2) {
+      UIManager.openCompareModal([...selectedCompare]);
+
+      
+      selectedCompare = [];
+      $(".compare-btn")
+        .removeClass("btn-primary")
+        .addClass("btn-outline-secondary")
+        .prop("disabled", false);
     }
   };
   const registerEvents = () => {

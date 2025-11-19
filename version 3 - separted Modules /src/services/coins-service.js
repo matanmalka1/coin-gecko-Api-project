@@ -4,11 +4,23 @@ import { AppState } from "../state/state.js";
 import { UIManager } from "../ui/ui-manager.js";
 
 export const CoinsService = (() => {
+
+  const SORTERS = {
+    price_desc: (a, b) => b.current_price - a.current_price,
+    price_asc: (a, b) => a.current_price - b.current_price,
+    name_asc: (a, b) => a.name.localeCompare(b.name),
+    name_desc: (a, b) => b.name.localeCompare(a.name),
+    marketcap_desc: (a, b) => b.market_cap - a.market_cap,
+    marketcap_asc: (a, b) => a.market_cap - b.market_cap,
+  };
+
+
   const loadAllCoins = async () => {
     const container = $("#coinsContainer");
 
-    if (AppState.getAllCoins().length === 0)
+    if (AppState.getAllCoins().length === 0) {
       UIManager.showSpinner(container, "Loading coins...");
+    }
 
     const result = await coinAPI.getMarkets();
 
@@ -23,56 +35,38 @@ export const CoinsService = (() => {
     UIManager.displayCoins(coins, AppState.getSelectedReports());
   };
 
-  const sortCoins = (sortType) => {
-    let coins = AppState.getAllCoins();
 
-    switch (sortType) {
-      case "price_desc":
-        coins.sort((a, b) => b.current_price - a.current_price);
-        break;
-      case "price_asc":
-        coins.sort((a, b) => a.current_price - b.current_price);
-        break;
-      case "name_asc":
-        coins.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "name_desc":
-        coins.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case "marketcap_desc":
-        coins.sort((a, b) => b.market_cap - a.market_cap);
-        break;
-      case "marketcap_asc":
-        coins.sort((a, b) => a.market_cap - b.market_cap);
-        break;
-      default:
-        coins = AppState.getAllCoins();
+  const sortCoins = (sortType) => {
+    const coins = [...AppState.getAllCoins()]; 
+
+    const sorter = SORTERS[sortType];
+    if (sorter) {
+      coins.sort(sorter);
     }
 
     UIManager.displayCoins(coins, AppState.getSelectedReports());
   };
+
   const refreshCoinsDisplay = () => {
     const allCoins = AppState.getAllCoins();
     UIManager.displayCoins(allCoins, AppState.getSelectedReports());
   };
 
-  const getCoinDetails = async (coinId) => {
-    let cached = CacheManager.getCache(coinId);
 
+  const getCoinDetails = async (coinId) => {
+    const cached = CacheManager.getCache(coinId);
     if (cached) return cached;
 
     const result = await coinAPI.getCoinDetails(coinId);
 
     if (!result.success) return null;
 
-    const data = result.data;
-    CacheManager.setCache(coinId, data);
-
-    return data;
+    CacheManager.setCache(coinId, result.data);
+    return result.data;
   };
 
   const searchCoin = (term) => {
-    const searchTerm = term.trim().toUpperCase();
+    const searchTerm = term.trim().toLowerCase();
 
     if (!searchTerm) {
       UIManager.showError($("#coinsContainer"), "Please enter a search term.");
@@ -90,7 +84,9 @@ export const CoinsService = (() => {
     }
 
     const filtered = allCoins.filter(
-      (coin) => coin.symbol.toUpperCase() === searchTerm
+      (coin) =>
+        coin.symbol.toLowerCase().includes(searchTerm) ||
+        coin.name.toLowerCase().includes(searchTerm)
     );
 
     if (filtered.length === 0) {
@@ -102,7 +98,6 @@ export const CoinsService = (() => {
     }
 
     AppState.setSearchTerm(searchTerm);
-
     UIManager.displayCoins(filtered, AppState.getSelectedReports());
   };
 
@@ -135,7 +130,6 @@ export const CoinsService = (() => {
 
   const clearSearch = () => {
     AppState.setSearchTerm("");
-
     UIManager.displayCoins(
       AppState.getAllCoins(),
       AppState.getSelectedReports()
@@ -153,7 +147,6 @@ export const CoinsService = (() => {
     if (!result.success) return null;
 
     CacheManager.setCache(cacheKey, result.data);
-
     return result.data;
   };
 

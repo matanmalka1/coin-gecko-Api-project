@@ -1,3 +1,4 @@
+import { ReportsService } from "../services/reports-service.js";
 import { UIComponents } from "./ui-components.js";
 import { CoinsService } from "../services/coins-service.js";
 
@@ -70,6 +71,35 @@ export const UIManager = (() => {
     container.html(html);
 
     drawMiniChart(data.id);
+  };
+
+  const openCompareModal = async (ids) => {
+    const coins = await ReportsService.getCompareData(ids);
+    const tableHTML = UIComponents.compareTable(coins);
+    const modalHTML = UIComponents.compareModal(tableHTML);
+
+    $("body").append(modalHTML);
+
+    const modal = new bootstrap.Modal($("#compareModal"));
+    modal.show();
+
+    $("#compareModal").one("hidden.bs.modal", () => {
+      $("#compareModal").remove();
+    });
+  };
+
+  const showCompareModal = (coins) => {
+    const table = UIComponents.compareTable(coins);
+    const modalHTML = UIComponents.compareModal(table);
+
+    $("body").append(modalHTML);
+
+    const modal = new bootstrap.Modal($("#compareModal"));
+    modal.show();
+
+    $("#compareModal").one("hidden.bs.modal", () => {
+      $("#compareModal").remove();
+    });
   };
 
   const showReplaceModal = (newSymbol, existingCoins) => {
@@ -158,5 +188,7 @@ export const UIManager = (() => {
     showElement,
     applyTheme,
     drawMiniChart,
+    showCompareModal,
+    openCompareModal,
   };
 })();

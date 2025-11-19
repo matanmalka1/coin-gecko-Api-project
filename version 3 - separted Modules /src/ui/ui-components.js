@@ -108,7 +108,8 @@ export const UIComponents = (() => {
 
     const currencies = CONFIG.CURRENCIES;
     const desc = description?.en
-      ? description.en.substring(0, 200) + "..."
+      ? description.en.substring(0, CONFIG.DISPLAY.DESCRIPTION_MAX_LENGTH) +
+        "..."
       : "No description available.";
 
     const priceItem = (label, value, curr) => `
@@ -196,7 +197,7 @@ export const UIComponents = (() => {
         class="form-control w-50 d-inline-block">
       <button id="searchBtn" class="btn btn-primary mx-2">Search</button>
       <button id="filterReportsBtn" class="btn btn-info mx-2">Show Selected</button>
-      <button id="clearSearchBtn" class="btn btn-outline-secondary mx-2 d-none">Clear</button>
+      <button id="clearSearchBtn" class="btn btn-outline-secondary mx-2 ">Clear</button>
     </div>
 
     <div id="sortArea" class="my-3">
@@ -250,6 +251,47 @@ export const UIComponents = (() => {
       </div>
     </div>
   `;
+  const compareTable = (coins) => {
+    const rows = coins
+      .map(
+        (c) => `
+        <tr>
+          <td>
+            <img src="${
+              c.image.small
+            }" class="me-2" style="width:24px; border-radius:50%;">
+            ${c.name}
+          </td>
+          <td>$${c.market_data.current_price.usd.toLocaleString()}</td>
+          <td>$${c.market_data.market_cap.usd.toLocaleString()}</td>
+          <td class="${
+            c.market_data.price_change_percentage_24h >= 0
+              ? "text-success"
+              : "text-danger"
+          }">
+            ${c.market_data.price_change_percentage_24h.toFixed(2)}%
+          </td>
+          <td>$${c.market_data.total_volume.usd.toLocaleString()}</td>
+        </tr>
+      `
+      )
+      .join("");
+
+    return `
+      <table class="table table-striped text-center align-middle">
+        <thead>
+          <tr>
+            <th>Coin</th>
+            <th>Price</th>
+            <th>Market Cap</th>
+            <th>24h %</th>
+            <th>Volume</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  };
 
   const compareModal = (coinsHTML) => `
   <div class="modal fade" id="compareModal" tabindex="-1">
@@ -287,5 +329,6 @@ export const UIComponents = (() => {
     aboutPage,
     compareModal,
     coinMiniChart,
+    compareTable,
   };
 })();
