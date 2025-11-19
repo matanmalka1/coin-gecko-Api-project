@@ -5,14 +5,25 @@ import { ChartService } from "../services/chart-service.js";
 import { AppState } from "../state/state.js";
 
 export const PagesController = (() => {
-  const showCurrenciesPage = () => {
+  const showCurrenciesPage = async () => {
+    // ⭐ הוסף async
     ChartService.cleanup();
     AppState.setCurrentView("currencies");
 
     const pageHTML = UIComponents.currenciesPage();
     UIManager.showPage(pageHTML);
 
-    CoinsService.loadAllCoins();
+    // ⭐ הצג spinner
+    UIManager.showSpinner($("#coinsContainer"), "Loading cryptocurrencies...");
+
+    // ⭐ טען מטבעות
+    const result = await CoinsService.loadAllCoins();
+
+    if (result.success) {
+      UIManager.displayCoins(result.data, AppState.getSelectedReports());
+    } else {
+      UIManager.showError($("#coinsContainer"), result.error);
+    }
   };
 
   const showReportsPage = () => {

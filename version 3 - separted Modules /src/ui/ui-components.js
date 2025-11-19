@@ -197,7 +197,7 @@ export const UIComponents = (() => {
         class="form-control w-50 d-inline-block">
       <button id="searchBtn" class="btn btn-primary mx-2">Search</button>
       <button id="filterReportsBtn" class="btn btn-info mx-2">Show Selected</button>
-      <button id="clearSearchBtn" class="btn btn-outline-secondary mx-2 ">Clear</button>
+      <button id="clearSearchBtn" class="btn btn-outline-secondary mx-2 d-none">Clear</button>
     </div>
 
     <div id="sortArea" class="my-3">

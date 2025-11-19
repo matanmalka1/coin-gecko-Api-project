@@ -4,7 +4,6 @@ import { AppState } from "../state/state.js";
 import { UIManager } from "../ui/ui-manager.js";
 
 export const CoinsService = (() => {
-
   const SORTERS = {
     price_desc: (a, b) => b.current_price - a.current_price,
     price_asc: (a, b) => a.current_price - b.current_price,
@@ -14,45 +13,42 @@ export const CoinsService = (() => {
     marketcap_asc: (a, b) => a.market_cap - b.market_cap,
   };
 
-
   const loadAllCoins = async () => {
-    const container = $("#coinsContainer");
-
-    if (AppState.getAllCoins().length === 0) {
-      UIManager.showSpinner(container, "Loading coins...");
-    }
-
     const result = await coinAPI.getMarkets();
 
     if (!result.success) {
-      UIManager.showError(container, result.error);
-      return;
+      return { success: false, error: result.error };
     }
 
     const coins = result.data;
     AppState.setAllCoins(coins);
 
-    UIManager.displayCoins(coins, AppState.getSelectedReports());
+    return { success: true, data: coins };
   };
 
+  const refreshCoinsDisplay = () => {
+    const coins = AppState.getAllCoins();
+    const selected = AppState.getSelectedReports();
+    UIManager.displayCoins(coins, selected);
+  };
 
   const sortCoins = (sortType) => {
-    const coins = [...AppState.getAllCoins()]; 
+    const coins = [...AppState.getAllCoins()];
 
     const sorter = SORTERS[sortType];
     if (sorter) {
       coins.sort(sorter);
+      AppState.setAllCoins(coins); // ⭐ שמירה חזרה ל-state
+      refreshCoinsDisplay(); // ⭐ עדכון תצוגה
     }
 
-    UIManager.displayCoins(coins, AppState.getSelectedReports());
+    return coins;
+  };
+  const getAllCoinsForDisplay = () => {
+    return AppState.getAllCoins();
   };
 
-  const refreshCoinsDisplay = () => {
-    const allCoins = AppState.getAllCoins();
-    UIManager.displayCoins(allCoins, AppState.getSelectedReports());
-  };
-
-
+  // ✅ נקי - רק משיכת נתונים
   const getCoinDetails = async (coinId) => {
     const cached = CacheManager.getCache(coinId);
     if (cached) return cached;
@@ -69,18 +65,13 @@ export const CoinsService = (() => {
     const searchTerm = term.trim().toLowerCase();
 
     if (!searchTerm) {
-      UIManager.showError($("#coinsContainer"), "Please enter a search term.");
-      return;
+      return { success: false, error: "EMPTY_SEARCH" };
     }
 
     const allCoins = AppState.getAllCoins();
 
     if (allCoins.length === 0) {
-      UIManager.showError(
-        $("#coinsContainer"),
-        "Please wait for coins to load..."
-      );
-      return;
+      return { success: false, error: "NO_COINS_LOADED" };
     }
 
     const filtered = allCoins.filter(
@@ -90,26 +81,18 @@ export const CoinsService = (() => {
     );
 
     if (filtered.length === 0) {
-      UIManager.showError(
-        $("#coinsContainer"),
-        `No coins found matching "${searchTerm}".`
-      );
-      return;
+      return { success: false, error: "NO_RESULTS", term: searchTerm };
     }
 
     AppState.setSearchTerm(searchTerm);
-    UIManager.displayCoins(filtered, AppState.getSelectedReports());
+    return { success: true, data: filtered };
   };
 
   const filterSelectedCoins = () => {
     const selectedReports = AppState.getSelectedReports();
 
     if (selectedReports.length === 0) {
-      UIManager.showError(
-        $("#coinsContainer"),
-        "No coins selected. Please choose coins first."
-      );
-      return;
+      return { success: false, error: "NO_COINS_SELECTED" };
     }
 
     const allCoins = AppState.getAllCoins();
@@ -118,24 +101,19 @@ export const CoinsService = (() => {
     );
 
     if (filtered.length === 0) {
-      UIManager.showError(
-        $("#coinsContainer"),
-        "Selected coins not found. Try refreshing data."
-      );
-      return;
+      return { success: false, error: "SELECTED_NOT_FOUND" };
     }
 
-    UIManager.displayCoins(filtered, selectedReports);
+    return { success: true, data: filtered };
   };
 
   const clearSearch = () => {
     AppState.setSearchTerm("");
-    UIManager.displayCoins(
-      AppState.getAllCoins(),
-      AppState.getSelectedReports()
-    );
+    refreshCoinsDisplay(); // ⭐ הוספה
+    return AppState.getAllCoins();
   };
 
+  // ✅ נקי - רק משיכת נתונים
   const getCoinMarketChart = async (coinId) => {
     const cacheKey = `${coinId}-chart`;
     const cached = CacheManager.getCache(cacheKey);
@@ -157,7 +135,8 @@ export const CoinsService = (() => {
     filterSelectedCoins,
     clearSearch,
     sortCoins,
-    refreshCoinsDisplay,
+    getAllCoinsForDisplay,
     getCoinMarketChart,
+    refreshCoinsDisplay,
   };
 })();

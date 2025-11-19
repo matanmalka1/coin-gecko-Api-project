@@ -69,20 +69,15 @@ export const UIManager = (() => {
     const html =
       UIComponents.coinDetails(data) + UIComponents.coinMiniChart(data.id);
     container.html(html);
-
-    drawMiniChart(data.id);
+    // drawMiniChart נקרא מבחוץ, לא פנימית
   };
 
-  const openCompareModal = async (ids) => {
-    const coins = await ReportsService.getCompareData(ids);
-    const tableHTML = UIComponents.compareTable(coins);
-    const modalHTML = UIComponents.compareModal(tableHTML);
-
+  const showCompareModalWithData = (coins) => {
+    const table = UIComponents.compareTable(coins);
+    const modalHTML = UIComponents.compareModal(table);
     $("body").append(modalHTML);
-
     const modal = new bootstrap.Modal($("#compareModal"));
     modal.show();
-
     $("#compareModal").one("hidden.bs.modal", () => {
       $("#compareModal").remove();
     });
@@ -138,9 +133,8 @@ export const UIManager = (() => {
     $(selector).removeClass("d-none");
   };
 
-  const drawMiniChart = async (coinId) => {
-    const chartData = await CoinsService.getCoinMarketChart(coinId);
-
+  // ui-manager.js
+  const drawMiniChart = (coinId, chartData) => {
     if (!chartData) return;
 
     const prices = chartData.prices.map(([time, price]) => ({
@@ -151,13 +145,8 @@ export const UIManager = (() => {
     const chart = new CanvasJS.Chart(`miniChart-${coinId}`, {
       height: 220,
       backgroundColor: "transparent",
-      axisX: {
-        labelFormatter: () => "",
-      },
-      axisY: {
-        prefix: "$",
-        labelFontSize: 10,
-      },
+      axisX: { labelFormatter: () => "" },
+      axisY: { prefix: "$", labelFontSize: 10 },
       data: [
         {
           type: "line",
@@ -189,6 +178,6 @@ export const UIManager = (() => {
     applyTheme,
     drawMiniChart,
     showCompareModal,
-    openCompareModal,
+    showCompareModalWithData,
   };
 })();
