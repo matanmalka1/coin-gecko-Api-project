@@ -1,5 +1,7 @@
-import { CONFIG } from "../config/config.js";
-import { AppState } from "../state/state.js";
+// TODO (phase 1): UIComponents חייב להיות מפעל HTML טהור.
+// בעתיד הקרוב כל פונקציה כאן תקבל props מפורשים (isFavorite, isSelected,
+// נתוני מטבעות, תצורת מטבעות וכו') במקום לקרוא ל-AppState/CONFIG ישירות.
+// עד אז אנחנו רק מתעדים את הדרישות כדי שנוכל לפרק תלותים בהמשך בצורה בטוחה.
 
 export const UIComponents = (() => {
   const spinner = (message = "Loading...") => `
@@ -32,15 +34,16 @@ export const UIComponents = (() => {
     </div>
   `;
 
-  const coinCard = (coin, isSelected = false) => {
+  const coinCard = (coin, isSelected = false, options = {}) => {
     const { id, name, symbol, image, current_price } = coin;
+    const { isFavorite = false } = options;
 
     const price =
       typeof current_price === "number"
         ? `$${current_price.toLocaleString()}`
         : "N/A";
 
-    const isFavorite = AppState.isFavorite(symbol);
+    const favoriteState = isFavorite === true;
 
     return `
     <div class="col-md-6 col-lg-4">
@@ -75,10 +78,12 @@ export const UIComponents = (() => {
                     class="btn btn-sm p-0 favorite-btn"
                     data-symbol="${symbol.toUpperCase()}"
                     title="${
-                      isFavorite ? "Remove from favorites" : "Add to favorites"
+                      favoriteState
+                        ? "Remove from favorites"
+                        : "Add to favorites"
                     }">
               <i class="fas fa-star ${
-                isFavorite ? "text-warning" : "text-muted"
+                favoriteState ? "text-warning" : "text-muted"
               }"
                  style="font-size: 1.2rem;"></i>
             </button>
@@ -98,15 +103,13 @@ export const UIComponents = (() => {
   `;
   };
 
-  const coinDetails = (data) => {
+  const coinDetails = (data, currencies = {}) => {
     const { image, name, symbol, market_data, description } = data;
     const {
       usd = "N/A",
       eur = "N/A",
       ils = "N/A",
     } = market_data?.current_price || {};
-
-    const currencies = CONFIG.CURRENCIES;
     const desc = description?.en
       ? description.en.substring(0, 200) + "..."
       : "No description available.";
@@ -115,7 +118,7 @@ export const UIComponents = (() => {
       <div class="price-badge mb-2 p-2 bg-white rounded ${
         value === "N/A" ? "text-muted" : ""
       }">
-        ${label}: ${curr.symbol}${
+        ${label}: ${curr?.symbol ?? ""}${
       value !== "N/A" ? value.toLocaleString() : value
     }
       </div>
@@ -146,7 +149,10 @@ export const UIComponents = (() => {
   <div id="miniChart-${id}" class="mini-chart-container mt-3"></div>
 `;
 
-  const replaceModal = (newSymbol, existingCoins) => {
+  const replaceModal = (newSymbol, existingCoins, options = {}) => {
+    const { maxCoins } = options;
+    const limit =
+      typeof maxCoins === "number" ? maxCoins : existingCoins.length || 0;
     const listItems = existingCoins
       .map(
         (coin) => `
@@ -170,7 +176,7 @@ export const UIComponents = (() => {
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-              <p>You've reached the limit of ${CONFIG.REPORTS.MAX_COINS} coins.</p>
+              <p>You've reached the limit of ${limit} coins.</p>
               <p>Choose a coin to replace with <strong>${newSymbol}</strong>:</p>
               <ul class="list-group">${listItems}</ul>
             </div>
@@ -210,7 +216,6 @@ export const UIComponents = (() => {
         <option value="marketcap_asc">Market Cap ↑</option>
       </select>
     </div>
-  </div>
 
     <div id="coinsContainer" class="row g-3"></div>
   `;
@@ -251,13 +256,15 @@ export const UIComponents = (() => {
     </div>
   `;
 
-  const compareModal = (coinsHTML) => `
+  const compareModal = (coinsHTML, options = {}) => {
+    const { title = "Compare Coins" } = options;
+    return `
   <div class="modal fade" id="compareModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
 
         <div class="modal-header">
-          <h5 class="modal-title">Compare Coins</h5>
+          <h5 class="modal-title">${title}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
@@ -273,6 +280,7 @@ export const UIComponents = (() => {
     </div>
   </div>
 `;
+  };
 
   return {
     spinner,

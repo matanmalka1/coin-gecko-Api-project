@@ -1,5 +1,8 @@
-import { UIComponents } from "./ui-components.js";
+import { UIComponents } from "./components/ui-components.js";
+import { ChartRenderer } from "../utils/chart-renderer.js";
 import { CoinsService } from "../services/coins-service.js";
+import { CONFIG } from "../config/config.js";
+import { ERRORS } from "../config/error.js";
 
 export const UIManager = (() => {
   const content = $("#content");
@@ -8,30 +11,55 @@ export const UIManager = (() => {
     content.empty();
   };
 
+  const getInputValue = (selector) => {
+    const el = $(selector);
+    return el.length ? el.val() : "";
+  };
+
+  const setInputValue = (selector, value = "") => {
+    const el = $(selector);
+    if (el.length) el.val(value);
+  };
+
+  const getDataAttr = (element, key) => $(element).data(key);
+
+  const setHtml = (selector, html) => {
+    const el = $(selector);
+    if (el.length) el.html(html);
+  };
+
+  const isCollapseOpen = (collapseId) => {
+    const el = $(`#${collapseId}`);
+    return el.length ? el.hasClass("show") : false;
+  };
+
   const showPage = (html) => {
     clearContent();
     content.html(html);
+  };
+
+  const renderCurrenciesPage = () => {
+    showPage(UIComponents.currenciesPage());
+  };
+
+  const renderReportsPage = () => {
+    showPage(UIComponents.reportsPage());
+  };
+
+  const renderAboutPage = (userData) => {
+    showPage(UIComponents.aboutPage(userData));
   };
 
   const applyTheme = (theme) => {
     $("html").toggleClass("dark", theme === "dark");
   };
 
-  const showError = (container, error) => {
-    let message = "Failed to load data. Please try again.";
-
-    if (error && error.status) {
-      console.error("API Error:", error);
-      if (error.status === 429) {
-        message = "Rate limit exceeded. Please wait and try again.";
-      } else {
-        message = `Error ${error.status}: Request failed.`;
-      }
-    } else if (typeof error === "string") {
-      message = error;
-    }
-
-    $(container).html(UIComponents.errorAlert(message));
+  const showError = (container, message) => {
+    const msg =
+      typeof message === "string" && message.trim().length
+        ? message
+        : CONFIG.UI.GENERIC_ERROR;
+    $(container).html(UIComponents.errorAlert(msg));
   };
 
   const showInfo = (container, message) => {
@@ -42,46 +70,168 @@ export const UIManager = (() => {
     $(container).html(UIComponents.spinner(message));
   };
 
-  const displayCoins = (coins, selectedReports = []) => {
+  const displayCoins = (coins, selectedReports = [], options = {}) => {
+    const { favorites, emptyMessage } = options;
     const container = $("#coinsContainer");
     if (!container.length) return;
 
     if (coins.length === 0) {
-      showInfo(container, "No coins found.");
+      showInfo(container, emptyMessage || CONFIG.UI.NO_COINS_FOUND);
       return;
     }
 
+    const normalizedFavorites = Array.isArray(favorites)
+      ? favorites.map((f) => f.toUpperCase())
+      : [];
+
     const cardsHTML = coins
-      .map((coin) =>
-        UIComponents.coinCard(
-          coin,
-          selectedReports.includes(coin.symbol.toUpperCase())
-        )
-      )
+      .map((coin) => {
+        const isSelected = selectedReports.includes(coin.symbol.toUpperCase());
+        const isFavorite = normalizedFavorites.includes(
+          coin.symbol.toUpperCase()
+        );
+        return UIComponents.coinCard(coin, isSelected, { isFavorite });
+      })
       .join("");
 
     container.html(cardsHTML);
   };
 
-  const showCoinDetails = (containerId, data) => {
+  const showCoinDetails = (containerId, data, options = {}) => {
+    const { currencies = {} } = options;
     const container = $(`#${containerId}`);
     const html =
-      UIComponents.coinDetails(data) + UIComponents.coinMiniChart(data.id);
+      UIComponents.coinDetails(data, currencies) +
+      UIComponents.coinMiniChart(data.id);
     container.html(html);
 
     drawMiniChart(data.id);
   };
 
-  const showReplaceModal = (newSymbol, existingCoins) => {
-    const modalHTML = UIComponents.replaceModal(newSymbol, existingCoins);
+  const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
+    const modalHTML = UIComponents.replaceModal(newSymbol, existingCoins, {
+      maxCoins: options.maxCoins,
+    });
     $("body").append(modalHTML);
-    const modal = new bootstrap.Modal($("#replaceModal"));
+    const modalElement = document.getElementById("replaceModal");
+    const modal = new bootstrap.Modal(modalElement);
     modal.show();
+    return modal;
+  };
+
+  const openReplaceDialog = (newSymbol, existingCoins, options = {}) => {
+    const { maxCoins, onConfirm, onClose } = options;
+    const modal = showReplaceModal(newSymbol, existingCoins, { maxCoins });
+
+    $("#confirmReplace")
+      .off()
+      .on("click", () => {
+        const selectedToRemove = $(".replace-toggle:checked").data("symbol");
+        if (!selectedToRemove) {
+          alert(CONFIG.UI.REPLACE_ALERT);
+          return;
+        }
+        if (typeof onConfirm === "function") {
+          onConfirm({ remove: selectedToRemove, add: newSymbol, modal });
+        } else {
+          modal.hide();
+        }
+      });
+
+    $("#replaceModal").one("hidden.bs.modal", function () {
+      removeModal("replaceModal");
+      if (typeof onClose === "function") onClose();
+    });
+
     return modal;
   };
 
   const removeModal = (modalId) => {
     $(`#${modalId}`).remove();
+  };
+
+  const showCompareModal = (coins, options = {}) => {
+    const missingSymbols = Array.isArray(options.missingSymbols)
+      ? options.missingSymbols
+      : [];
+
+    const rows = coins
+      .map((c) => {
+        const price = c?.market_data?.current_price?.usd;
+        const marketCap = c?.market_data?.market_cap?.usd;
+        const change = c?.market_data?.price_change_percentage_24h;
+        const volume = c?.market_data?.total_volume?.usd;
+        return `
+  <tr>
+    <td>${c?.symbol?.toUpperCase() || ""}</td>
+    <td>${price != null ? `$${price.toLocaleString()}` : "N/A"}</td>
+    <td>${marketCap != null ? `$${marketCap.toLocaleString()}` : "N/A"}</td>
+    <td>${change != null ? change.toFixed(2) + "%" : "N/A"}</td>
+    <td>${volume != null ? `$${volume.toLocaleString()}` : "N/A"}</td>
+  </tr>
+  `;
+      })
+      .join("");
+
+    const table = `
+    <table class="table table-striped text-center align-middle">
+      <thead>
+        <tr>
+          <th>Coin</th>
+          <th>Price</th>
+          <th>Market Cap</th>
+          <th>24h %</th>
+          <th>Volume</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+
+    const missingNotice = missingSymbols.length
+      ? `<div class="alert alert-warning mt-3" role="alert">
+          ${ERRORS.REPORTS.MISSING_DATA(missingSymbols.join(", "))}
+        </div>`
+      : "";
+
+    const modalHTML = UIComponents.compareModal(table + missingNotice, {
+      title: options.title || CONFIG.UI.COMPARE_TITLE,
+    });
+    $("body").append(modalHTML);
+
+    const modalElement = document.getElementById("compareModal");
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+    $("#compareModal").on("hidden.bs.modal", () => {
+      $("#compareModal").remove();
+      if (typeof options.onClose === "function") options.onClose();
+    });
+
+    return modal;
+  };
+
+  const initLiveChart = (symbols, options = {}) => {
+    const { updateIntervalMs, historyPoints } = options;
+    ChartRenderer.init("chartContainer", symbols, {
+      updateIntervalMs,
+      title: CONFIG.CHART.TITLE,
+      axisXTitle: CONFIG.CHART.AXIS_X_TITLE,
+      axisXFormat: CONFIG.CHART.AXIS_X_FORMAT,
+      axisYTitle: CONFIG.CHART.AXIS_Y_TITLE,
+      axisYPrefix: CONFIG.CHART.AXIS_Y_PREFIX,
+    });
+    if (historyPoints) {
+      ChartRenderer.update({}, new Date(), { historyPoints });
+    }
+  };
+
+  const updateLiveChart = (prices, time, options = {}) => {
+    ChartRenderer.update(prices, time, options);
+  };
+
+  const clearLiveChart = () => {
+    ChartRenderer.destroy("chartContainer");
   };
 
   const updateToggleStates = (selectedReports) => {
@@ -109,11 +259,11 @@ export const UIManager = (() => {
   };
 
   const drawMiniChart = async (coinId) => {
-    const chartData = await CoinsService.getCoinMarketChart(coinId);
+    const chartResult = await CoinsService.getCoinMarketChart(coinId);
 
-    if (!chartData) return;
+    if (!chartResult?.ok || !chartResult.data?.prices) return;
 
-    const prices = chartData.prices.map(([time, price]) => ({
+    const prices = chartResult.data.prices.map(([time, price]) => ({
       x: new Date(time),
       y: price,
     }));
@@ -145,6 +295,9 @@ export const UIManager = (() => {
   return {
     clearContent,
     showPage,
+    renderCurrenciesPage,
+    renderReportsPage,
+    renderAboutPage,
     showError,
     showInfo,
     showSpinner,
@@ -158,5 +311,15 @@ export const UIManager = (() => {
     showElement,
     applyTheme,
     drawMiniChart,
+    showCompareModal,
+    initLiveChart,
+    updateLiveChart,
+    clearLiveChart,
+    getInputValue,
+    setInputValue,
+    openReplaceDialog,
+    getDataAttr,
+    setHtml,
+    isCollapseOpen,
   };
 })();
