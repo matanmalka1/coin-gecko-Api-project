@@ -1,29 +1,13 @@
 import { CoinsService } from "../services/coins-service.js";
-import { ReportsService } from "./reports-service.js";
+import { ReportsService } from "../services/reports-service.js";
 import { UIManager } from "../ui/ui-manager.js";
 import { PagesController } from "./pages-controller.js";
 import { AppState } from "../state/state.js";
 import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
+import { ErrorResolver } from "../utils/error-resolver.js";
 
 export const EventHandlers = (() => {
-  const resolveError = (code, term) => {
-    switch (code) {
-      case "EMPTY_TERM":
-        return ERRORS.SEARCH.EMPTY_TERM;
-      case "LOAD_WAIT":
-        return ERRORS.SEARCH.LOAD_WAIT;
-      case "NO_MATCH":
-        return ERRORS.SEARCH.NO_MATCH(term || "");
-      case "NONE_SELECTED":
-        return ERRORS.REPORTS.NONE_SELECTED;
-      case "NOT_FOUND":
-        return ERRORS.REPORTS.NOT_FOUND;
-      default:
-        return ERRORS.API.DEFAULT;
-    }
-  };
-
   const handleSearch = () => {
     const searchTerm = UIManager.getInputValue("#searchInput");
     const serviceResult = CoinsService.searchCoin(searchTerm);
@@ -32,7 +16,9 @@ export const EventHandlers = (() => {
     if (!serviceResult?.ok) {
       UIManager.showError(
         "#coinsContainer",
-        resolveError(serviceResult.code, serviceResult.term)
+        ErrorResolver.resolve(serviceResult.code, {
+          term: serviceResult.term,
+        })
       );
       return;
     }
@@ -58,7 +44,10 @@ export const EventHandlers = (() => {
     UIManager.showElement("#clearSearchBtn");
 
     if (!serviceResult?.ok) {
-      UIManager.showError("#coinsContainer", resolveError(serviceResult.code));
+      UIManager.showError(
+        "#coinsContainer",
+        ErrorResolver.resolve(serviceResult.code)
+      );
       return;
     }
 
@@ -98,12 +87,17 @@ export const EventHandlers = (() => {
     try {
       const fetchedData = await CoinsService.getCoinDetails(coinIdentifier);
 
-      if (!fetchedData) {
-        UIManager.showError(`#${detailsCollapseId}`, ERRORS.API.DEFAULT);
+      if (!fetchedData?.ok) {
+        UIManager.showError(
+          `#${detailsCollapseId}`,
+          ErrorResolver.resolve(fetchedData.code, {
+            defaultMessage: fetchedData?.error,
+          })
+        );
         return;
       }
 
-      UIManager.showCoinDetails(detailsCollapseId, fetchedData, {
+      UIManager.showCoinDetails(detailsCollapseId, fetchedData.data, {
         currencies: CONFIG.CURRENCIES,
       });
     } catch (error) {
@@ -159,7 +153,18 @@ export const EventHandlers = (() => {
     UIManager.applyTheme(nextTheme);
   };
 
+  let showingFavorites = false;
+
   const handleShowFavorites = () => {
+    if (showingFavorites) {
+      UIManager.displayCoins(AppState.getAllCoins(), AppState.getSelectedReports(), {
+        favorites: AppState.getFavorites(),
+      });
+      $("#showFavoritesBtn").text("Favorites ⭐");
+      showingFavorites = false;
+      return;
+    }
+
     const favoriteSymbols = AppState.getFavorites().map((f) => f.toUpperCase());
     const allCoins = AppState.getAllCoins();
     const filteredCoins = allCoins.filter((c) =>
@@ -167,7 +172,10 @@ export const EventHandlers = (() => {
     );
     UIManager.displayCoins(filteredCoins, AppState.getSelectedReports(), {
       favorites: favoriteSymbols,
+      emptyMessage: CONFIG.UI.FAVORITES_EMPTY,
     });
+    $("#showFavoritesBtn").text("All Coins");
+    showingFavorites = true;
   };
 
   let selectedCompare = [];
@@ -177,12 +185,12 @@ export const EventHandlers = (() => {
     if (isCompareModalOpen) return;
     const coinIdForAction = UIManager.getDataAttr(this, "id");
 
-    if (!selectedCompare.includes(coinIdForAction)) {
-      selectedCompare.push(coinIdForAction);
-    }
+    const alreadySelected = selectedCompare.includes(coinIdForAction);
 
-    if (selectedCompare.length > 2) {
-      selectedCompare = selectedCompare.slice(-2);
+    if (!alreadySelected && selectedCompare.length >= 2) return;
+
+    if (!alreadySelected) {
+      selectedCompare.push(coinIdForAction);
     }
 
     if (selectedCompare.length >= 2) {
@@ -191,7 +199,12 @@ export const EventHandlers = (() => {
       );
 
       if (!serviceResult?.ok) {
-        UIManager.showError("#content", ERRORS.API.DEFAULT);
+        UIManager.showError(
+          "#content",
+          ErrorResolver.resolve(serviceResult.code, {
+            defaultMessage: ERRORS.API.DEFAULT,
+          })
+        );
         selectedCompare = [];
         isCompareModalOpen = false;
         return;
@@ -199,6 +212,7 @@ export const EventHandlers = (() => {
 
       isCompareModalOpen = true;
       UIManager.showCompareModal(serviceResult.coins, {
+        missingSymbols: serviceResult.missing,
         onClose: () => {
           selectedCompare = [];
           isCompareModalOpen = false;

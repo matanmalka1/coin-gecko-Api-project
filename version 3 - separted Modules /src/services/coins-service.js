@@ -1,26 +1,21 @@
 import { coinAPI } from "./api.js";
 import { CacheManager } from "./cache.js";
 import { AppState } from "../state/state.js";
-import { UIManager } from "../ui/ui-manager.js";
+
+// Services should not touch UI/DOM; return data/status only.
 
 export const CoinsService = (() => {
   const loadAllCoins = async () => {
-    const container = $("#coinsContainer");
-
-    if (AppState.getAllCoins().length === 0)
-      UIManager.showSpinner(container, "Loading coins...");
-
     const result = await coinAPI.getMarkets();
 
-    if (!result.success) {
-      UIManager.showError(container, result.error);
-      return;
+    if (!result.ok) {
+      return { ok: false, code: "API_ERROR", error: result.error };
     }
 
     const coins = result.data;
     AppState.setAllCoins(coins);
 
-    UIManager.displayCoins(coins, AppState.getSelectedReports());
+    return { ok: true, data: coins };
   };
 
   const sortCoins = (sortType) => {
@@ -49,44 +44,47 @@ export const CoinsService = (() => {
         coins = AppState.getAllCoins();
     }
 
-    UIManager.displayCoins(coins, AppState.getSelectedReports());
+    return { ok: true, data: coins };
   };
+
   const refreshCoinsDisplay = () => {
-    const allCoins = AppState.getAllCoins();
-    UIManager.displayCoins(allCoins, AppState.getSelectedReports());
+    return {
+      ok: true,
+      data: AppState.getAllCoins(),
+      selected: AppState.getSelectedReports(),
+      favorites: AppState.getFavorites(),
+    };
   };
 
   const getCoinDetails = async (coinId) => {
-    let cached = CacheManager.getCache(coinId);
+    const cacheKey = coinId;
+    const cached = CacheManager.getCache(cacheKey);
 
-    if (cached) return cached;
+    if (cached) return { ok: true, data: cached, fromCache: true };
 
     const result = await coinAPI.getCoinDetails(coinId);
 
-    if (!result.success) return null;
+    if (!result.ok) {
+      console.error("getCoinDetails failed", { coinId, error: result.error });
+      return { ok: false, code: result.code || "API_ERROR", error: result.error };
+    }
 
-    const data = result.data;
-    CacheManager.setCache(coinId, data);
+    CacheManager.setCache(cacheKey, result.data);
 
-    return data;
+    return { ok: true, data: result.data, fromCache: false };
   };
 
   const searchCoin = (term) => {
     const searchTerm = term.trim().toUpperCase();
 
     if (!searchTerm) {
-      UIManager.showError($("#coinsContainer"), "Please enter a search term.");
-      return;
+      return { ok: false, code: "EMPTY_TERM" };
     }
 
     const allCoins = AppState.getAllCoins();
 
     if (allCoins.length === 0) {
-      UIManager.showError(
-        $("#coinsContainer"),
-        "Please wait for coins to load..."
-      );
-      return;
+      return { ok: false, code: "LOAD_WAIT" };
     }
 
     const filtered = allCoins.filter(
@@ -94,27 +92,24 @@ export const CoinsService = (() => {
     );
 
     if (filtered.length === 0) {
-      UIManager.showError(
-        $("#coinsContainer"),
-        `No coins found matching "${searchTerm}".`
-      );
-      return;
+      return { ok: false, code: "NO_MATCH", term: searchTerm };
     }
 
     AppState.setSearchTerm(searchTerm);
 
-    UIManager.displayCoins(filtered, AppState.getSelectedReports());
+    return {
+      ok: true,
+      data: filtered,
+      selected: AppState.getSelectedReports(),
+      favorites: AppState.getFavorites(),
+    };
   };
 
   const filterSelectedCoins = () => {
     const selectedReports = AppState.getSelectedReports();
 
     if (selectedReports.length === 0) {
-      UIManager.showError(
-        $("#coinsContainer"),
-        "No coins selected. Please choose coins first."
-      );
-      return;
+      return { ok: false, code: "NONE_SELECTED" };
     }
 
     const allCoins = AppState.getAllCoins();
@@ -123,38 +118,44 @@ export const CoinsService = (() => {
     );
 
     if (filtered.length === 0) {
-      UIManager.showError(
-        $("#coinsContainer"),
-        "Selected coins not found. Try refreshing data."
-      );
-      return;
+      return { ok: false, code: "NOT_FOUND" };
     }
 
-    UIManager.displayCoins(filtered, selectedReports);
+    return {
+      ok: true,
+      data: filtered,
+      selected: selectedReports,
+      favorites: AppState.getFavorites(),
+    };
   };
 
   const clearSearch = () => {
     AppState.setSearchTerm("");
 
-    UIManager.displayCoins(
-      AppState.getAllCoins(),
-      AppState.getSelectedReports()
-    );
+    return {
+      ok: true,
+      data: AppState.getAllCoins(),
+      selected: AppState.getSelectedReports(),
+      favorites: AppState.getFavorites(),
+    };
   };
 
   const getCoinMarketChart = async (coinId) => {
     const cacheKey = `${coinId}-chart`;
     const cached = CacheManager.getCache(cacheKey);
 
-    if (cached) return cached;
+    if (cached) return { ok: true, data: cached, fromCache: true };
 
     const result = await coinAPI.getCoinMarketChart(coinId, 7);
 
-    if (!result.success) return null;
+    if (!result.ok) {
+      console.error("getCoinMarketChart failed", { coinId, error: result.error });
+      return { ok: false, code: result.code || "API_ERROR", error: result.error };
+    }
 
     CacheManager.setCache(cacheKey, result.data);
 
-    return result.data;
+    return { ok: true, data: result.data, fromCache: false };
   };
 
   return {

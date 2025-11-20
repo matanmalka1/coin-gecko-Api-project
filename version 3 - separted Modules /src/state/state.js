@@ -6,8 +6,23 @@ export const AppState = (() => {
     selectedReports: [],
     currentView: "currencies",
     searchTerm: "",
-    theme: localStorage.getItem("theme") || "light",
-    favorites: JSON.parse(localStorage.getItem("favorites")) || [],
+    theme: (() => {
+      try {
+        return localStorage.getItem(CONFIG.STORAGE_KEYS.THEME) || "light";
+      } catch (e) {
+        console.warn("Failed to read theme from localStorage", e);
+        return "light";
+      }
+    })(),
+    favorites: (() => {
+      try {
+        const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.FAVORITES);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        console.warn("Failed to parse favorites from localStorage", e);
+        return [];
+      }
+    })(),
   };
 
   const getState = () => ({ ...state });
@@ -22,14 +37,20 @@ export const AppState = (() => {
     const s = symbol.toUpperCase();
     if (!state.favorites.includes(s)) {
       state.favorites.push(s);
-      localStorage.setItem("favorites", JSON.stringify(state.favorites));
+      localStorage.setItem(
+        CONFIG.STORAGE_KEYS.FAVORITES,
+        JSON.stringify(state.favorites)
+      );
     }
   };
 
   const removeFavorite = (symbol) => {
     const s = symbol.toUpperCase();
     state.favorites = state.favorites.filter((x) => x !== s);
-    localStorage.setItem("favorites", JSON.stringify(state.favorites));
+    localStorage.setItem(
+      CONFIG.STORAGE_KEYS.FAVORITES,
+      JSON.stringify(state.favorites)
+    );
   };
 
   const isFavorite = (symbol) => {
@@ -49,7 +70,7 @@ export const AppState = (() => {
   };
   const setTheme = (theme) => {
     state.theme = theme;
-    localStorage.setItem("theme", theme);
+    localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, theme);
   };
 
   const getTheme = () => state.theme;

@@ -1,4 +1,4 @@
-import { UIComponents } from "./components/ui-components.js";
+import { UIComponents } from "./ui-components.js";
 import { ChartRenderer } from "../utils/chart-renderer.js";
 import { CoinsService } from "../services/coins-service.js";
 import { CONFIG } from "../config/config.js";
@@ -51,7 +51,10 @@ export const UIManager = (() => {
   };
 
   const applyTheme = (theme) => {
-    $("html").toggleClass("dark", theme === "dark");
+    const isDark = theme === "dark";
+    $("html").toggleClass("dark", isDark);
+    $("body").toggleClass("dark", isDark);
+    $(".navbar, footer, .card").toggleClass("dark", isDark);
   };
 
   const showError = (container, message) => {
@@ -95,6 +98,9 @@ export const UIManager = (() => {
       .join("");
 
     container.html(cardsHTML);
+
+    const isDark = $("html").hasClass("dark");
+    $(".card").toggleClass("dark", isDark);
   };
 
   const showCoinDetails = (containerId, data, options = {}) => {

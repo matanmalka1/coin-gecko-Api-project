@@ -1,5 +1,5 @@
 import { AppState } from "../state/state.js";
-import { coinAPI } from "../services/api.js";
+import { coinAPI } from "./api.js";
 import { CONFIG } from "../config/config.js";
 
 // Reports domain logic only: no UI/DOM.
@@ -43,13 +43,22 @@ export const ReportsService = (() => {
     const dataPromises = ids.map((id) => coinAPI.getCoinDetails(id));
     const results = await Promise.all(dataPromises);
 
-    const coins = results.filter((r) => r.success).map((r) => r.data);
+    const coins = [];
+    const missing = [];
+
+    results.forEach((result, idx) => {
+      if (result.ok) {
+        coins.push(result.data);
+      } else {
+        missing.push(ids[idx]);
+      }
+    });
 
     if (!coins.length) {
-      return { ok: false, code: "NO_DATA" };
+      return { ok: false, code: "NO_DATA", missing };
     }
 
-    return { ok: true, coins };
+    return { ok: true, coins, missing };
   };
 
   return {

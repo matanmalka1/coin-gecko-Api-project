@@ -1,4 +1,5 @@
 import { CONFIG } from "../config/config.js";
+import { ERRORS } from "../config/error.js";
 
 export const coinAPI = (() => {
   const { COINGECKO_BASE, CRYPTOCOMPARE_BASE } = CONFIG.API;
@@ -9,13 +10,24 @@ export const coinAPI = (() => {
       const response = await fetch(url, options);
 
       if (!response.ok) {
-        return { success: false, error: `HTTP ${response.status}` };
+        return {
+          ok: false,
+          code: response.status === 429 ? "RATE_LIMIT" : "HTTP_ERROR",
+          error:
+            response.status === 429
+              ? ERRORS.API.RATE_LIMIT
+              : ERRORS.API.HTTP_STATUS(response.status),
+        };
       }
 
       const data = await response.json();
-      return { success: true, data };
+      return { ok: true, data };
     } catch (error) {
-      return { success: false, error };
+      return {
+        ok: false,
+        code: "NETWORK_ERROR",
+        error: ERRORS.API.DEFAULT,
+      };
     }
   };
 
@@ -37,7 +49,7 @@ export const coinAPI = (() => {
   };
   const getLivePrices = async (symbols = []) => {
     if (!Array.isArray(symbols) || symbols.length === 0) {
-      return { success: false, error: "No symbols provided" };
+      return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
     }
 
     const params = new URLSearchParams({
