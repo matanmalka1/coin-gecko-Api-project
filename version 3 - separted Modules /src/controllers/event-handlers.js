@@ -87,7 +87,7 @@ export const EventHandlers = (() => {
     try {
       const fetchedData = await CoinsService.getCoinDetails(coinIdentifier);
 
-      if (!fetchedData?.ok) {
+      if (!fetchedData?.ok || !fetchedData.data) {
         UIManager.showError(
           `#${detailsCollapseId}`,
           ErrorResolver.resolve(fetchedData.code, {

@@ -1,9 +1,5 @@
-// TODO (phase 1): UIComponents חייב להיות מפעל HTML טהור.
-// בעתיד הקרוב כל פונקציה כאן תקבל props מפורשים (isFavorite, isSelected,
-// נתוני מטבעות, תצורת מטבעות וכו') במקום לקרוא ל-AppState/CONFIG ישירות.
-// עד אז אנחנו רק מתעדים את הדרישות כדי שנוכל לפרק תלותים בהמשך בצורה בטוחה.
-
 export const UIComponents = (() => {
+  // Loaders & alerts
   const spinner = (message = "Loading...") => `
     <div class="text-center my-3">
       <div class="spinner-border text-primary" role="status">
@@ -34,6 +30,7 @@ export const UIComponents = (() => {
     </div>
   `;
 
+  // Coin cards
   const coinCard = (coin, isSelected = false, options = {}) => {
     const { id, name, symbol, image, current_price } = coin;
     const { isFavorite = false } = options;
@@ -103,8 +100,9 @@ export const UIComponents = (() => {
   `;
   };
 
+  // More info panel
   const coinDetails = (data, currencies = {}) => {
-    const { image, name, symbol, market_data, description } = data;
+    const { image, name, symbol, market_data, description, platforms } = data;
     const {
       usd = "N/A",
       eur = "N/A",
@@ -124,6 +122,11 @@ export const UIComponents = (() => {
       </div>
     `;
 
+    const contractAddress =
+      platforms && typeof platforms === "object"
+        ? Object.values(platforms).find((addr) => addr)
+        : null;
+
     return `
       <div class="more-info-content p-3 bg-light rounded">
         <div class="d-flex align-items-center gap-3 mb-3">
@@ -138,6 +141,11 @@ export const UIComponents = (() => {
         ${priceItem("USD", usd, currencies.USD)}
         ${priceItem("EUR", eur, currencies.EUR)}
         ${priceItem("ILS", ils, currencies.ILS)}
+        <div class="mt-2">
+          <small class="text-muted">
+            <strong>CA:</strong> ${contractAddress || "N/A"}
+          </small>
+        </div>
         <div class="mt-3">
           <small class="text-muted">${desc}</small>
         </div>
@@ -149,6 +157,7 @@ export const UIComponents = (() => {
   <div id="miniChart-${id}" class="mini-chart-container mt-3"></div>
 `;
 
+  // Modals
   const replaceModal = (newSymbol, existingCoins, options = {}) => {
     const { maxCoins } = options;
     const limit =
@@ -192,6 +201,7 @@ export const UIComponents = (() => {
     `;
   };
 
+  // Pages
   const currenciesPage = () => `
     <div id="searchArea" class="my-4 text-center">
 
@@ -256,6 +266,7 @@ export const UIComponents = (() => {
     </div>
   `;
 
+  // Compare modal wrapper
   const compareModal = (coinsHTML, options = {}) => {
     const { title = "Compare Coins" } = options;
     return `
