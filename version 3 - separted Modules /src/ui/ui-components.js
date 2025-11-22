@@ -232,7 +232,7 @@ export const UIComponents = (() => {
 
   const reportsPage = () => `
     <h3 class="mb-4">Live Reports</h3>
-    <div id="chartContainer"></div>
+    <div id="chartsGrid" class="row g-3"></div>
   `;
 
   const aboutPage = (userData) => `

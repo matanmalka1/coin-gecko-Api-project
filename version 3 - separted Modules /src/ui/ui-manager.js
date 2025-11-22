@@ -1,11 +1,12 @@
 import { UIComponents } from "./ui-components.js";
-import { ChartRenderer } from "../utils/chart-renderer.js";
 import { CoinsService } from "../services/coins-service.js";
 import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
 
 export const UIManager = (() => {
   const content = $("#content");
+  const liveCharts = {};
+  const liveChartData = {};
 
   const clearContent = () => {
     content.empty();
@@ -51,18 +52,18 @@ export const UIManager = (() => {
   };
 
   const applyTheme = (theme) => {
-    const isDark = theme === "dark";
-    $("html").toggleClass("dark", isDark);
-    $("body").toggleClass("dark", isDark);
-    $(".navbar, footer, .card").toggleClass("dark", isDark);
+    const isDarkMode = theme === "dark";
+    $("html").toggleClass("dark", isDarkMode);
+    $("body").toggleClass("dark", isDarkMode);
+    $(".navbar, footer, .card").toggleClass("dark", isDarkMode);
   };
 
   const showError = (container, message) => {
-    const msg =
+    const errorMsg =
       typeof message === "string" && message.trim().length
         ? message
         : CONFIG.UI.GENERIC_ERROR;
-    $(container).html(UIComponents.errorAlert(msg));
+    $(container).html(UIComponents.errorAlert(errorMsg));
   };
 
   const showInfo = (container, message) => {
@@ -87,7 +88,7 @@ export const UIManager = (() => {
       ? favorites.map((f) => f.toUpperCase())
       : [];
 
-    const cardsHTML = coins
+    const coinCardsHtml = coins
       .map((coin) => {
         const isSelected = selectedReports.includes(coin.symbol.toUpperCase());
         const isFavorite = normalizedFavorites.includes(
@@ -97,10 +98,10 @@ export const UIManager = (() => {
       })
       .join("");
 
-    container.html(cardsHTML);
+    container.html(coinCardsHtml);
 
-    const isDark = $("html").hasClass("dark");
-    $(".card").toggleClass("dark", isDark);
+    const isDarkMode = $("html").hasClass("dark");
+    $(".card").toggleClass("dark", isDarkMode);
   };
 
   const showCoinDetails = (containerId, data, options = {}) => {
@@ -161,7 +162,7 @@ export const UIManager = (() => {
       ? options.missingSymbols
       : [];
 
-    const rows = coins
+    const compareRowsHtm = coins
       .map((c) => {
         const price = c?.market_data?.current_price?.usd;
         const marketCap = c?.market_data?.market_cap?.usd;
@@ -179,7 +180,7 @@ export const UIManager = (() => {
       })
       .join("");
 
-    const table = `
+    const compareTableHtml = `
     <table class="table table-striped text-center align-middle">
       <thead>
         <tr>
@@ -190,7 +191,7 @@ export const UIManager = (() => {
           <th>Volume</th>
         </tr>
       </thead>
-      <tbody>${rows}</tbody>
+      <tbody>${compareRowsHtm}</tbody>
     </table>
   `;
 
@@ -200,9 +201,12 @@ export const UIManager = (() => {
         </div>`
       : "";
 
-    const modalHTML = UIComponents.compareModal(table + missingNotice, {
-      title: options.title || CONFIG.UI.COMPARE_TITLE,
-    });
+    const modalHTML = UIComponents.compareModal(
+      compareTableHtml + missingNotice,
+      {
+        title: options.title || CONFIG.UI.COMPARE_TITLE,
+      }
+    );
     $("body").append(modalHTML);
 
     const modalElement = document.getElementById("compareModal");
@@ -218,26 +222,87 @@ export const UIManager = (() => {
   };
 
   const initLiveChart = (symbols, options = {}) => {
-    const { updateIntervalMs, historyPoints } = options;
-    ChartRenderer.init("chartContainer", symbols, {
-      updateIntervalMs,
-      title: CONFIG.CHART.TITLE,
-      axisXTitle: CONFIG.CHART.AXIS_X_TITLE,
-      axisXFormat: CONFIG.CHART.AXIS_X_FORMAT,
-      axisYTitle: CONFIG.CHART.AXIS_Y_TITLE,
-      axisYPrefix: CONFIG.CHART.AXIS_Y_PREFIX,
+    const { historyPoints = CONFIG.CHART.HISTORY_POINTS } = options;
+    const grid = $("#chartsGrid");
+    if (!grid.length) return;
+
+    // clean previous
+    Object.keys(liveCharts).forEach((key) => {
+      const chart = liveCharts[key];
+      if (chart?.destroy) chart.destroy();
+      delete liveCharts[key];
+      delete liveChartData[key];
     });
-    if (historyPoints) {
-      ChartRenderer.update({}, new Date(), { historyPoints });
-    }
+    grid.empty();
+
+    symbols.forEach((symbol) => {
+      const id = symbol.toUpperCase();
+      const chartContainerId = `live-chart-${id}`;
+      const card = `
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="mb-0">${id}</h6>
+              <small class="text-muted">Live</small>
+            </div>
+            <div id="${chartContainerId}" style="height:220px;"></div>
+          </div>
+        </div>
+      `;
+      grid.append(card);
+
+      liveChartData[id] = [];
+      liveCharts[id] = new CanvasJS.Chart(chartContainerId, {
+        backgroundColor: "transparent",
+        axisX: {
+          valueFormatString: CONFIG.CHART.AXIS_X_FORMAT,
+          labelFontSize: 10,
+        },
+        axisY: { prefix: "$", labelFontSize: 10 },
+        data: [
+          {
+            type: "line",
+            dataPoints: liveChartData[id],
+            color: "#0d6efd",
+            markerSize: 0,
+            lineThickness: 2,
+          },
+        ],
+      });
+      liveCharts[id].render();
+    });
+
+    liveCharts.__historyPoints = historyPoints;
   };
 
   const updateLiveChart = (prices, time, options = {}) => {
-    ChartRenderer.update(prices, time, options);
+    const historyPoints =
+      options.historyPoints || liveCharts.__historyPoints || 30;
+
+    Object.entries(prices || {}).forEach(([symbol, priceObj]) => {
+      const id = symbol.toUpperCase();
+      const chart = liveCharts[id];
+      const dp = liveChartData[id];
+      if (!chart || !dp) return;
+
+      const price = priceObj?.USD;
+      if (price == null) return;
+
+      dp.push({ x: time, y: price });
+      if (dp.length > historyPoints) dp.shift();
+      chart.render();
+    });
   };
 
   const clearLiveChart = () => {
-    ChartRenderer.destroy("chartContainer");
+    Object.keys(liveCharts).forEach((key) => {
+      const chart = liveCharts[key];
+      if (chart?.destroy) chart.destroy();
+      delete liveCharts[key];
+      delete liveChartData[key];
+    });
+    liveCharts.__historyPoints = undefined;
+    $("#chartsGrid").empty();
   };
 
   const updateToggleStates = (selectedReports) => {

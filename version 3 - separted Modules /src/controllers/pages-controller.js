@@ -61,7 +61,7 @@ export const PagesController = (() => {
         const message = ErrorResolver.resolve(code, {
           defaultMessage: error,
         });
-        UIManager.showError("#chartContainer", message);
+        UIManager.showError("#chartsGrid", message);
       },
     });
 
@@ -69,7 +69,7 @@ export const PagesController = (() => {
       const message = ErrorResolver.resolve(result.code, {
         defaultMessage: ERRORS.API.DEFAULT,
       });
-      UIManager.showError("#chartContainer", message);
+      UIManager.showError("#chartsGrid", message);
     }
   };
 
