@@ -6,6 +6,8 @@ import { AppState } from "../state/state.js";
 import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
+// [NEWS]
+import { NewsService } from "../services/news-service.js";
 
 export const EventHandlers = (() => {
   const handleSearch = () => {
@@ -160,10 +162,14 @@ export const EventHandlers = (() => {
 
   const handleShowFavorites = () => {
     if (showingFavorites) {
-      UIManager.displayCoins(AppState.getAllCoins(), AppState.getSelectedReports(), {
-        favorites: AppState.getFavorites(),
-      });
-      $("#showFavoritesBtn").text("Favorites ⭐");
+      UIManager.displayCoins(
+        AppState.getAllCoins(),
+        AppState.getSelectedReports(),
+        {
+          favorites: AppState.getFavorites(),
+        }
+      );
+      UIManager.setFavoritesButtonLabel(false);
       showingFavorites = false;
       return;
     }
@@ -177,7 +183,7 @@ export const EventHandlers = (() => {
       favorites: favoriteSymbols,
       emptyMessage: CONFIG.UI.FAVORITES_EMPTY,
     });
-    $("#showFavoritesBtn").text("All Coins");
+    UIManager.setFavoritesButtonLabel(true);
     showingFavorites = true;
   };
 
@@ -257,7 +263,74 @@ export const EventHandlers = (() => {
             favorites: serviceResult.favorites || AppState.getFavorites(),
           }
         );
-      });
+      })
+
+      // [NEWS] News filter buttons inside news page
+      .on("click", "#newsGeneralBtn", handleNewsGeneral)
+      .on("click", "#newsFavoritesBtn", handleNewsFavorites);
+  };
+
+  // [NEWS] Toggle active state for news filter buttons
+  const setNewsFilterButtons = (mode) => {
+    const generalBtn = $("#newsGeneralBtn");
+    const favoritesBtn = $("#newsFavoritesBtn");
+    if (!generalBtn.length || !favoritesBtn.length) return;
+    if (mode === "general") {
+      generalBtn.addClass("active");
+      favoritesBtn.removeClass("active");
+    } else {
+      favoritesBtn.addClass("active");
+      generalBtn.removeClass("active");
+    }
+  };
+
+  // [NEWS] Navigate to news page
+  const handleShowNewsPage = () => {
+    PagesController.showNewsPage();
+  };
+
+  // [NEWS] Load general news
+  const handleNewsGeneral = async () => {
+    setNewsFilterButtons("general");
+    UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_GENERAL);
+    UIManager.showNewsLoading(CONFIG.NEWS_UI.LOADING_GENERAL);
+
+    try {
+      const { articles, usedFallback } = await NewsService.getGeneralNews();
+      if (usedFallback) {
+        UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_FALLBACK_GENERAL);
+      }
+      UIManager.showNews(articles);
+    } catch (error) {
+      UIManager.showNewsError(CONFIG.NEWS_UI.ERROR_GENERAL);
+    }
+  };
+
+  // [NEWS] Load favorites news
+  const handleNewsFavorites = async () => {
+    setNewsFilterButtons("favorites");
+
+    const favorites = AppState.getFavorites();
+    if (!favorites.length) {
+      UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_NO_FAVORITES);
+      UIManager.showNews([], { emptyMessage: CONFIG.NEWS_UI.EMPTY });
+      return;
+    }
+
+    UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_FAVORITES);
+    UIManager.showNewsLoading(CONFIG.NEWS_UI.LOADING_FAVORITES);
+
+    try {
+      const { articles, usedFallback } = await NewsService.getNewsForFavorites(
+        favorites
+      );
+      if (usedFallback) {
+        UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_FALLBACK_FAVORITES);
+      }
+      UIManager.showNews(articles);
+    } catch (error) {
+      UIManager.showNewsError(CONFIG.NEWS_UI.ERROR_FAVORITES);
+    }
   };
 
   const registerNavigation = () => {
@@ -265,9 +338,13 @@ export const EventHandlers = (() => {
       PagesController.showCurrenciesPage();
     });
 
+    $("#brandHome").on("click ", () => PagesController.showCurrenciesPage());
+
     $("#reportsBtn").on("click", () => {
       PagesController.showReportsPage();
     });
+
+    $("#newsBtn").on("click", handleShowNewsPage);
 
     $("#aboutBtn").on("click", () => {
       PagesController.showAboutPage();

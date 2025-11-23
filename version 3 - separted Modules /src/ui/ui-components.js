@@ -1,8 +1,10 @@
+import { CONFIG } from "../config/config.js";
+
 export const UIComponents = (() => {
   // Loaders & alerts
   const spinner = (message = "Loading...") => `
     <div class="text-center my-3">
-      <div class="spinner-border text-primary" role="status">
+      <div class="spinner-border text-primary">
         <span class="visually-hidden">${message}</span>
       </div>
       <p class="mt-2">${message}</p>
@@ -10,13 +12,13 @@ export const UIComponents = (() => {
   `;
 
   const errorAlert = (message) => `
-    <div class="alert alert-danger text-center mt-4" role="alert">
+    <div class="alert alert-danger text-center mt-4">
       <i class="bi bi-exclamation-triangle-fill"></i> ${message}
     </div>
   `;
 
   const infoAlert = (message) => `
-    <div class="alert alert-info text-center mt-4" role="alert">
+    <div class="alert alert-info text-center mt-4">
       <i class="bi bi-info-circle-fill"></i> ${message}
     </div>
   `;
@@ -191,7 +193,7 @@ export const UIComponents = (() => {
       .join("");
 
     return `
-      <div class="modal fade" id="replaceModal" tabindex="-1">
+      <div class="modal fade" id="replaceModal">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -282,11 +284,96 @@ export const UIComponents = (() => {
     </div>
   `;
 
+  // [NEWS] News page layout
+  const newsPage = () => `
+  <section class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+      <h2 class="mb-0">Crypto News</h2>
+      <div class="btn-group">
+        <button type="button" class="btn btn-outline-primary active" id="newsGeneralBtn">
+          General News
+        </button>
+        <button type="button" class="btn btn-outline-primary" id="newsFavoritesBtn">
+          Favorites News
+        </button>
+      </div>
+    </div>
+
+    <div id="newsStatus" class="mb-2 small text-muted">
+      ${CONFIG.NEWS_UI.STATUS_GENERAL}
+    </div>
+
+    <div id="newsList" class="row g-3"></div>
+  </section>
+`;
+
+  // [NEWS] Single news article card
+  const newsArticleCard = (article) => {
+    const {
+      title,
+      description,
+      published_at,
+      source,
+      original_url,
+      url,
+      image,
+    } = article || {};
+
+    const displayTitle = title || "Untitled";
+    const displayDesc = description || "";
+    const displaySource = source?.title || source?.domain || "Unknown source";
+    const displayLink = original_url || url || "#";
+    const hasLink = !!(original_url || url);
+    const publishedDate = published_at
+      ? new Date(published_at).toLocaleString()
+      : "Unknown time";
+    const imageUrl =
+      image || "https://via.placeholder.com/400x200?text=Crypto+News";
+
+    return `
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <img
+          src="${imageUrl}"
+          class="card-img-top"
+          alt="${displayTitle.replace(/"/g, "&quot;")}"
+          onerror="this.style.display='none';"
+        />
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">
+            ${
+              hasLink
+                ? `<a href="${displayLink}" target="_blank" rel="noopener noreferrer">${displayTitle}</a>`
+                : displayTitle
+            }
+          </h5>
+          <p class="card-text small text-muted mb-1">
+            <i class="bi bi-newspaper"></i> ${displaySource}
+          </p>
+          <p class="card-text small text-muted mb-2">
+            <i class="bi bi-clock"></i> ${publishedDate}
+          </p>
+          ${
+            displayDesc
+              ? `<p class="card-text flex-grow-1">${displayDesc}</p>`
+              : `<p class="card-text flex-grow-1 text-muted fst-italic">No description available.</p>`
+          }
+          ${
+            hasLink
+              ? `<a href="${displayLink}" class="btn btn-sm btn-outline-primary mt-2 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>`
+              : ""
+          }
+        </div>
+      </div>
+    </div>
+  `;
+  };
+
   // Compare modal wrapper
   const compareModal = (coinsHTML, options = {}) => {
     const { title = "Compare Coins" } = options;
     return `
-  <div class="modal fade" id="compareModal" tabindex="-1">
+  <div class="modal fade" id="compareModal">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
 
@@ -321,5 +408,7 @@ export const UIComponents = (() => {
     aboutPage,
     compareModal,
     coinMiniChart,
+    newsPage,
+    newsArticleCard,
   };
 })();

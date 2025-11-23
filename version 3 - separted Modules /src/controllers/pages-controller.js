@@ -5,6 +5,10 @@ import { AppState } from "../state/state.js";
 import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
+// [NEWS]
+import { UIComponents } from "../ui/ui-components.js";
+// [NEWS]
+import { NewsService } from "../services/news-service.js";
 
 export const PagesController = (() => {
   let isLoadingCoins = false;
@@ -77,18 +81,38 @@ export const PagesController = (() => {
     ChartService.cleanup();
     AppState.setCurrentView("about");
 
-    const userData = {
-      name: "Matan Yehuda Malka",
-      image: "images/2.jpeg",
-      linkedin: "https://www.linkedin.com/in/matanyehudamalka",
-    };
+    UIManager.renderAboutPage({
+      name: CONFIG.ABOUT.NAME,
+      image: CONFIG.ABOUT.IMAGE,
+      linkedin: CONFIG.ABOUT.LINKEDIN,
+    });
+  };
 
-    UIManager.renderAboutPage(userData);
+  // [NEWS] Render news page and load general feed
+  const showNewsPage = async () => {
+    ChartService.cleanup();
+    AppState.setCurrentView("news");
+
+    UIManager.showPage(UIComponents.newsPage());
+    UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_GENERAL);
+    UIManager.showNewsLoading(CONFIG.NEWS_UI.LOADING_GENERAL);
+
+    try {
+      const { articles, usedFallback } = await NewsService.getGeneralNews();
+      if (usedFallback) {
+        UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_FALLBACK_GENERAL);
+      }
+      UIManager.showNews(articles);
+    } catch (err) {
+      UIManager.showNewsError(CONFIG.NEWS_UI.ERROR_GENERAL);
+    }
   };
 
   return {
     showCurrenciesPage,
     showReportsPage,
     showAboutPage,
+    // [NEWS]
+    showNewsPage,
   };
 })();

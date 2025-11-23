@@ -51,6 +51,43 @@ export const UIManager = (() => {
     showPage(UIComponents.aboutPage(userData));
   };
 
+  // [NEWS] Render news list with fallback
+  const showNews = (articles = [], options = {}) => {
+    const emptyMessage = options.emptyMessage || CONFIG.NEWS_UI.EMPTY;
+    const list = $("#newsList");
+    if (!list.length) return;
+
+    if (!articles.length) {
+      list.html(UIComponents.infoAlert(emptyMessage));
+      return;
+    }
+
+    const html = articles.map(UIComponents.newsArticleCard).join("");
+    list.html(html);
+  };
+
+  // [NEWS] Update news status text
+  const updateNewsStatus = (text) => {
+    $("#newsStatus").text(text);
+  };
+
+  // [NEWS] Show loading state in news list
+  const showNewsLoading = (message = "Loading news...") => {
+    $("#newsList").html(UIComponents.spinner(message));
+  };
+
+  // [NEWS] Show news error
+  const showNewsError = (message) => {
+    $("#newsList").html(UIComponents.errorAlert(message));
+  };
+
+  const setFavoritesButtonLabel = (showingFavorites) => {
+    const label = showingFavorites
+      ? CONFIG.UI.FAVORITES_HIDE_LABEL
+      : CONFIG.UI.FAVORITES_SHOW_LABEL;
+    $("#showFavoritesBtn").text(label);
+  };
+
   const applyTheme = (theme) => {
     const isDarkMode = theme === "dark";
     $("html").toggleClass("dark", isDarkMode);
@@ -188,7 +225,7 @@ export const UIManager = (() => {
   `;
 
     const missingNotice = missingSymbols.length
-      ? `<div class="alert alert-warning mt-3" role="alert">
+      ? `<div class="alert alert-warning mt-3">
           ${ERRORS.REPORTS.MISSING_DATA(missingSymbols.join(", "))}
         </div>`
       : "";
@@ -361,6 +398,12 @@ export const UIManager = (() => {
     renderCurrenciesPage,
     renderReportsPage,
     renderAboutPage,
+    // [NEWS]
+    showNews,
+    updateNewsStatus,
+    showNewsLoading,
+    showNewsError,
+    setFavoritesButtonLabel,
     showError,
     showSpinner,
     displayCoins,
