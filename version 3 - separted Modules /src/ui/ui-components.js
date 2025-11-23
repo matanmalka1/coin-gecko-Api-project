@@ -336,7 +336,7 @@ export const UIComponents = (() => {
     const displayTitle = title || "Untitled";
     const displayDesc = description || "";
     const trimmedDesc =
-      displayDesc.length > NEWS_DESC_MAX
+      displayDesc && displayDesc.length > NEWS_DESC_MAX
         ? `${displayDesc.slice(0, NEWS_DESC_MAX)}...`
         : displayDesc;
     const displaySource = source?.title || source?.domain || "Unknown source";
@@ -360,14 +360,14 @@ export const UIComponents = (() => {
           />
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title mb-2">
+          <h5 class="card-title mb-3">
             ${
               hasLink
                 ? `<a href="${displayLink}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${displayTitle}</a>`
                 : displayTitle
             }
           </h5>
-          <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-3">
             <span class="badge text-bg-light">
               <i class="bi bi-newspaper"></i> ${displaySource}
             </span>
@@ -377,8 +377,8 @@ export const UIComponents = (() => {
           </div>
           ${
             displayDesc
-              ? `<p class="card-text flex-grow-1">${trimmedDesc}</p>`
-              : `<p class="card-text flex-grow-1 text-muted fst-italic">No description available.</p>`
+              ? `<p class="card-text flex-grow-1 mb-0 news-desc">${trimmedDesc}</p>`
+              : `<p class="card-text flex-grow-1 text-muted fst-italic news-desc">No description available.</p>`
           }
           ${
             hasLink
