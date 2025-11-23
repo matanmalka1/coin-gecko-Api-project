@@ -9,15 +9,6 @@ export const UIComponents = (() => {
     </div>
   `;
 
-  const progressBar = (message = "Loading...") => `
-    <div class="text-center my-3">
-      <div class="progress progress-loader">
-        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
-          role="progressbar" style="width: 100%">${message}</div>
-      </div>
-    </div>
-  `;
-
   const errorAlert = (message) => `
     <div class="alert alert-danger text-center mt-4" role="alert">
       <i class="bi bi-exclamation-triangle-fill"></i> ${message}
@@ -58,7 +49,16 @@ export const UIComponents = (() => {
         <p class="mb-2">
           <strong>Price:</strong> ${price}
         </p>
+        
+        <p class="mb-2">
+          <strong>Market Cap:</strong> ${
+            typeof coin.market_cap === "number"
+              ? `$${coin.market_cap.toLocaleString()}`
+              : "N/A"
+          }
+        </p>
 
+     
         <div class="d-flex justify-content-between align-items-center mt-2">
           <button class="btn btn-sm btn-outline-primary more-info"
                   data-id="${id}">
@@ -66,9 +66,9 @@ export const UIComponents = (() => {
           </button>
 
           <button class="btn btn-sm btn-outline-secondary compare-btn" 
-        data-id="${id}" data-symbol="${symbol.toUpperCase()}">
-  <i class="fas fa-balance-scale"></i> Compare
-</button>
+            data-id="${id}" data-symbol="${symbol.toUpperCase()}">
+            <i class="fas fa-balance-scale"></i> Compare
+          </button>
 
           <div class="d-flex align-items-center gap-2">
             <button type="button"
@@ -108,6 +108,9 @@ export const UIComponents = (() => {
       eur = "N/A",
       ils = "N/A",
     } = market_data?.current_price || {};
+
+    const { usd: athUsd = "N/A" } = market_data?.ath || {};
+
     const desc = description?.en
       ? description.en.substring(0, 200) + "..."
       : "No description available.";
@@ -127,6 +130,11 @@ export const UIComponents = (() => {
         ? Object.values(platforms).find((addr) => addr)
         : null;
 
+    const rank =
+      typeof data.market_cap_rank === "number"
+        ? `#${data.market_cap_rank}`
+        : "N/A";
+
     return `
       <div class="more-info-content p-3 bg-light rounded">
         <div class="d-flex align-items-center gap-3 mb-3">
@@ -135,12 +143,18 @@ export const UIComponents = (() => {
           <div>
             <h6 class="mb-0">${name}</h6>
             <small class="text-muted">${symbol.toUpperCase()}</small>
+            <div class="text-muted small">Rank: ${rank}</div>
           </div>
         </div>
+
         <div class="mb-2"><strong>Current Prices:</strong></div>
         ${priceItem("USD", usd, currencies.USD)}
         ${priceItem("EUR", eur, currencies.EUR)}
         ${priceItem("ILS", ils, currencies.ILS)}
+
+        <div class="mb-2 mt-3"><strong>All-Time High (USD):</strong></div>
+        ${priceItem("ATH", athUsd, currencies.USD)}
+
         <div class="mt-2">
           <small class="text-muted">
             <strong>CA:</strong> ${contractAddress || "N/A"}
@@ -202,28 +216,30 @@ export const UIComponents = (() => {
   };
 
   // Pages
-  const currenciesPage = () => `
+  const currenciesPage = () =>
+    // SEARCH AREA
+    `
     <div id="searchArea" class="my-4 text-center">
 
-    <button id="showFavoritesBtn" class="btn btn-warning mx-2">Favorites ⭐</button>
-    
-      <input type="text" id="searchInput"
-        placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)"
-        class="form-control w-50 d-inline-block">
-      <button id="searchBtn" class="btn btn-primary mx-2">Search</button>
-      <button id="filterReportsBtn" class="btn btn-info mx-2">Show Selected</button>
-      <button id="clearSearchBtn" class="btn btn-outline-secondary mx-2 d-none">Clear</button>
+    <input type="text" id="searchInput"
+    placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)"
+    class="form-control w-50 d-inline-block">
+
+    <button id="searchBtn" class="btn btn-primary mx-2">Search</button>
+    <button id="filterReportsBtn" class="btn btn-info mx-2">Show Selected</button>
+    <button id="showFavoritesBtn" class="btn btn-warning mx-2">Favorites</button>
+    <button id="clearSearchBtn" class="btn btn-outline-secondary mx-2">Clear</button>
     </div>
 
     <div id="sortArea" class="my-3">
-      <select id="sortSelect" class="form-select w-25 d-inline-block">
-        <option value="">Sort by...</option>
+      <select id="sortSelect" class="form-select d-inline-block">
+        <option value="">Sort by default</option>
         <option value="price_desc">Price ↓</option>
         <option value="price_asc">Price ↑</option>
-        <option value="name_asc">Name A-Z</option>
-        <option value="name_desc">Name Z-A</option>
         <option value="marketcap_desc">Market Cap ↓</option>
         <option value="marketcap_asc">Market Cap ↑</option>
+        <option value="volume_high">Volume High</option>
+        <option value="volume_low">Volume Low</option>
       </select>
     </div>
 
@@ -275,7 +291,7 @@ export const UIComponents = (() => {
       <div class="modal-content">
 
         <div class="modal-header">
-          <h5 class="modal-title">${title}</h5>
+          <h5 class="modal-title">${title}</h5> 
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
@@ -295,7 +311,6 @@ export const UIComponents = (() => {
 
   return {
     spinner,
-    progressBar,
     errorAlert,
     infoAlert,
     coinCard,

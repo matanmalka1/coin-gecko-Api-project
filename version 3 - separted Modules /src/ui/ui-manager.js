@@ -66,10 +66,6 @@ export const UIManager = (() => {
     $(container).html(UIComponents.errorAlert(errorMsg));
   };
 
-  const showInfo = (container, message) => {
-    $(container).html(UIComponents.infoAlert(message));
-  };
-
   const showSpinner = (container, message) => {
     $(container).html(UIComponents.spinner(message));
   };
@@ -80,20 +76,16 @@ export const UIManager = (() => {
     if (!container.length) return;
 
     if (coins.length === 0) {
-      showInfo(container, emptyMessage || CONFIG.UI.NO_COINS_FOUND);
+      container.html(
+        UIComponents.infoAlert(emptyMessage || CONFIG.UI.NO_COINS_FOUND)
+      );
       return;
     }
 
-    const normalizedFavorites = Array.isArray(favorites)
-      ? favorites.map((f) => f.toUpperCase())
-      : [];
-
     const coinCardsHtml = coins
       .map((coin) => {
-        const isSelected = selectedReports.includes(coin.symbol.toUpperCase());
-        const isFavorite = normalizedFavorites.includes(
-          coin.symbol.toUpperCase()
-        );
+        const isSelected = selectedReports.includes(coin.symbol);
+        const isFavorite = favorites?.includes(coin.symbol);
         return UIComponents.coinCard(coin, isSelected, { isFavorite });
       })
       .join("");
@@ -162,7 +154,7 @@ export const UIManager = (() => {
       ? options.missingSymbols
       : [];
 
-    const compareRowsHtm = coins
+    const compareRowsHtml = coins
       .map((c) => {
         const price = c?.market_data?.current_price?.usd;
         const marketCap = c?.market_data?.market_cap?.usd;
@@ -191,7 +183,7 @@ export const UIManager = (() => {
           <th>Volume</th>
         </tr>
       </thead>
-      <tbody>${compareRowsHtm}</tbody>
+      <tbody>${compareRowsHtml}</tbody>
     </table>
   `;
 
@@ -236,7 +228,7 @@ export const UIManager = (() => {
     grid.empty();
 
     symbols.forEach((symbol) => {
-      const id = symbol.toUpperCase();
+      const id = symbol;
       const chartContainerId = `live-chart-${id}`;
       const card = `
         <div class="col-md-6 col-lg-4">
@@ -280,7 +272,7 @@ export const UIManager = (() => {
       options.historyPoints || liveCharts.__historyPoints || 30;
 
     Object.entries(prices || {}).forEach(([symbol, priceObj]) => {
-      const id = symbol.toUpperCase();
+      const id = symbol;
       const chart = liveCharts[id];
       const dp = liveChartData[id];
       if (!chart || !dp) return;
@@ -370,7 +362,6 @@ export const UIManager = (() => {
     renderReportsPage,
     renderAboutPage,
     showError,
-    showInfo,
     showSpinner,
     displayCoins,
     showCoinDetails,

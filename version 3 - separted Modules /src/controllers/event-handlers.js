@@ -30,12 +30,15 @@ export const EventHandlers = (() => {
 
   const handleClearSearch = () => {
     UIManager.setInputValue("#searchInput", "");
-    UIManager.hideElement("#clearSearchBtn");
-    const serviceResult = CoinsService.clearSearch();
-    if (serviceResult?.ok) {
-      UIManager.displayCoins(serviceResult.data, serviceResult.selected, {
-        favorites: serviceResult.favorites,
-      });
+    const {
+      ok,
+      data,
+      selected = [],
+      favorites = [],
+    } = CoinsService.clearSearch();
+
+    if (ok) {
+      UIManager.displayCoins(data, selected, { favorites });
     }
   };
 
@@ -165,10 +168,10 @@ export const EventHandlers = (() => {
       return;
     }
 
-    const favoriteSymbols = AppState.getFavorites().map((f) => f.toUpperCase());
+    const favoriteSymbols = AppState.getFavorites();
     const allCoins = AppState.getAllCoins();
     const filteredCoins = allCoins.filter((c) =>
-      favoriteSymbols.includes(c.symbol.toUpperCase())
+      favoriteSymbols.includes(c.symbol)
     );
     UIManager.displayCoins(filteredCoins, AppState.getSelectedReports(), {
       favorites: favoriteSymbols,
