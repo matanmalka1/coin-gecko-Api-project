@@ -17,13 +17,16 @@ export const AppState = (() => {
     favorites: (() => {
       try {
         const raw = localStorage.getItem(CONFIG.STORAGE_KEYS.FAVORITES);
-        return raw ? JSON.parse(raw) : [];
+        return raw ? JSON.parse(raw).map((s) => s.toUpperCase()) : [];
       } catch (e) {
         console.warn("Failed to parse favorites from localStorage", e);
         return [];
       }
     })(),
   };
+
+  const normalizeSymbol = (symbol = "") =>
+    typeof symbol === "string" ? symbol.toUpperCase() : symbol;
 
   const getState = () => ({ ...state });
 
@@ -34,7 +37,7 @@ export const AppState = (() => {
   };
 
   const addFavorite = (symbol) => {
-    const s = symbol.toUpperCase();
+    const s = normalizeSymbol(symbol);
     if (!state.favorites.includes(s)) {
       state.favorites.push(s);
       localStorage.setItem(
@@ -45,7 +48,7 @@ export const AppState = (() => {
   };
 
   const removeFavorite = (symbol) => {
-    const s = symbol.toUpperCase();
+    const s = normalizeSymbol(symbol);
     state.favorites = state.favorites.filter((x) => x !== s);
     localStorage.setItem(
       CONFIG.STORAGE_KEYS.FAVORITES,
@@ -54,14 +57,14 @@ export const AppState = (() => {
   };
 
   const isFavorite = (symbol) => {
-    return state.favorites.includes(symbol.toUpperCase());
+    return state.favorites.includes(normalizeSymbol(symbol));
   };
 
   const getFavorites = () => [...state.favorites];
   const getSelectedReports = () => [...state.selectedReports];
 
   const addReport = (symbol) => {
-    const symbolUpper = symbol.toUpperCase();
+    const symbolUpper = normalizeSymbol(symbol);
     if (state.selectedReports.includes(symbolUpper)) return false;
     if (state.selectedReports.length >= CONFIG.REPORTS.MAX_COINS) return false;
 
@@ -76,14 +79,14 @@ export const AppState = (() => {
   const getTheme = () => state.theme;
 
   const removeReport = (symbol) => {
-    const symbolUpper = symbol.toUpperCase();
+    const symbolUpper = normalizeSymbol(symbol);
     state.selectedReports = state.selectedReports.filter(
       (s) => s !== symbolUpper
     );
   };
 
   const toggleReport = (symbol) => {
-    const symbolUpper = symbol.toUpperCase();
+    const symbolUpper = normalizeSymbol(symbol);
     if (state.selectedReports.includes(symbolUpper)) {
       removeReport(symbolUpper);
       return false;
@@ -92,7 +95,7 @@ export const AppState = (() => {
   };
 
   const hasReport = (symbol) => {
-    return state.selectedReports.includes(symbol.toUpperCase());
+    return state.selectedReports.includes(normalizeSymbol(symbol));
   };
 
   const isReportsFull = () => {

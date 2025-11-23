@@ -4,6 +4,13 @@ import { AppState } from "../state/state.js";
 
 // Services should not touch UI/DOM; return data/status only.
 
+const normalizeCoinSymbols = (coins = []) =>
+  coins.map((coin) => ({
+    ...coin,
+    symbol:
+      typeof coin.symbol === "string" ? coin.symbol.toUpperCase() : coin.symbol,
+  }));
+
 export const CoinsService = (() => {
   const loadAllCoins = async () => {
     const result = await coinAPI.getMarkets();
@@ -12,7 +19,7 @@ export const CoinsService = (() => {
       return { ok: false, code: "API_ERROR", error: result.error };
     }
 
-    const coins = result.data;
+    const coins = normalizeCoinSymbols(result.data);
     AppState.setAllCoins(coins);
 
     return { ok: true, data: coins };
@@ -28,11 +35,11 @@ export const CoinsService = (() => {
       case "price_asc":
         coins.sort((a, b) => a.current_price - b.current_price);
         break;
-      case "name_asc":
-        coins.sort((a, b) => a.name.localeCompare(b.name));
+      case "volume_high":
+        coins.sort((a, b) => b.total_volume - a.total_volume);
         break;
-      case "name_desc":
-        coins.sort((a, b) => b.name.localeCompare(a.name));
+      case "volume_low":
+        coins.sort((a, b) => a.total_volume - b.total_volume);
         break;
       case "marketcap_desc":
         coins.sort((a, b) => b.market_cap - a.market_cap);
