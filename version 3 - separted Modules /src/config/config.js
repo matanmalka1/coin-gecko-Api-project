@@ -77,6 +77,7 @@ export const CONFIG = {
     ERROR_GENERAL: "Failed to load general news. Please try again later.",
     ERROR_FAVORITES: "Failed to load favorites news. Please try again later.",
     EMPTY: "No news found for the last 5 hours.",
+    DESC_MAX: 200,
   },
 
   // [ABOUT] Static about page data

@@ -37,8 +37,9 @@ export const NewsService = (() => {
       const usedFallback =
         filteredCache.length === 0 && (cached.articles || []).length > 0;
       return {
+        ok: true,
         articles: filteredCache.length ? filteredCache : cached.articles || [],
-        usedFallback,
+        usedCacheFallback: usedFallback,
       };
     }
 
@@ -51,7 +52,10 @@ export const NewsService = (() => {
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        return {
+          ok: false,
+          errorMessage: `News API returned ${response.status}`,
+        };
       }
       const data = await response.json();
       const normalized = (data.results || []).map((article = {}) => ({
@@ -76,12 +80,16 @@ export const NewsService = (() => {
       const usedFallback = filtered.length === 0 && normalized.length > 0;
 
       return {
+        ok: true,
         articles: filtered.length ? filtered : normalized,
-        usedFallback,
+        usedCacheFallback: usedFallback,
       };
     } catch (error) {
       console.error("NewsService: API error", error);
-      throw error;
+      return {
+        ok: false,
+        errorMessage: "Failed to load news. Please try again later.",
+      };
     }
   };
 
@@ -94,7 +102,11 @@ export const NewsService = (() => {
 
     const unique = Array.from(new Set(cleaned));
     if (!unique.length) {
-      return Promise.resolve({ articles: [], usedFallback: false });
+      return Promise.resolve({
+        ok: true,
+        articles: [],
+        usedCacheFallback: false,
+      });
     }
 
     const query = unique.join(" OR ").trim();

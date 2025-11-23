@@ -286,29 +286,43 @@ export const UIComponents = (() => {
 
   // [NEWS] News page layout
   const newsPage = () => `
-  <section class="container py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
-      <h2 class="mb-0">Crypto News</h2>
-      <div class="btn-group">
-        <button type="button" class="btn btn-outline-primary active" id="newsGeneralBtn">
-          General News
-        </button>
-        <button type="button" class="btn btn-outline-primary" id="newsFavoritesBtn">
-          Favorites News
-        </button>
+  <div class="container py-4">
+    <div class="row justify-content-between align-items-center gy-3 mb-3">
+      <div class="col-md-6">
+        <div class="d-flex align-items-center gap-3">
+          <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+            <i class="fa-solid fa-newspaper"></i>
+          </div>
+          <div>
+            <h2 class="mb-0">Crypto News</h2>
+            <p class="text-muted mb-0 small">Fresh articles from the last 5 hours</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <div class="btn-group">
+          <button type="button" class="btn btn-dark border-0 active" id="newsGeneralBtn">
+            General
+          </button>
+          <button type="button" class="btn" id="newsFavoritesBtn">
+            Favorites
+          </button>
+        </div>
       </div>
     </div>
 
-    <div id="newsStatus" class="mb-2 small text-muted">
-      ${CONFIG.NEWS_UI.STATUS_GENERAL}
+    <div class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 mb-3">
+      <i class="bi bi-info-circle-fill text-primary"></i>
+      <span id="newsStatus" class="small mb-0">${CONFIG.NEWS_UI.STATUS_GENERAL}</span>
     </div>
 
-    <div id="newsList" class="row g-3"></div>
-  </section>
+    <div id="newsList" class="row g-4"></div>
+  </div>
 `;
 
   // [NEWS] Single news article card
   const newsArticleCard = (article) => {
+    const NEWS_DESC_MAX = CONFIG.NEWS_UI.DESC_MAX || 200;
     const {
       title,
       description,
@@ -321,6 +335,10 @@ export const UIComponents = (() => {
 
     const displayTitle = title || "Untitled";
     const displayDesc = description || "";
+    const trimmedDesc =
+      displayDesc.length > NEWS_DESC_MAX
+        ? `${displayDesc.slice(0, NEWS_DESC_MAX)}...`
+        : displayDesc;
     const displaySource = source?.title || source?.domain || "Unknown source";
     const displayLink = original_url || url || "#";
     const hasLink = !!(original_url || url);
@@ -332,35 +350,39 @@ export const UIComponents = (() => {
 
     return `
     <div class="col-12 col-md-6 col-lg-4">
-      <div class="card h-100 shadow-sm">
-        <img
-          src="${imageUrl}"
-          class="card-img-top"
-          alt="${displayTitle.replace(/"/g, "&quot;")}"
-          onerror="this.style.display='none';"
-        />
+      <div class="card h-100 shadow-sm border-0">
+        <div class="ratio ratio-16x9 bg-light rounded-top">
+          <img
+            src="${imageUrl}"
+            class="card-img-top h-100 w-100 object-fit-cover rounded-top"
+            alt="${displayTitle.replace(/"/g, "&quot;")}"
+            onerror="this.style.display='none';"
+          />
+        </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">
+          <h5 class="card-title mb-2">
             ${
               hasLink
-                ? `<a href="${displayLink}" target="_blank" rel="noopener noreferrer">${displayTitle}</a>`
+                ? `<a href="${displayLink}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${displayTitle}</a>`
                 : displayTitle
             }
           </h5>
-          <p class="card-text small text-muted mb-1">
-            <i class="bi bi-newspaper"></i> ${displaySource}
-          </p>
-          <p class="card-text small text-muted mb-2">
-            <i class="bi bi-clock"></i> ${publishedDate}
-          </p>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge text-bg-light">
+              <i class="bi bi-newspaper"></i> ${displaySource}
+            </span>
+            <small class="text-muted">
+              <i class="bi bi-clock"></i> ${publishedDate}
+            </small>
+          </div>
           ${
             displayDesc
-              ? `<p class="card-text flex-grow-1">${displayDesc}</p>`
+              ? `<p class="card-text flex-grow-1">${trimmedDesc}</p>`
               : `<p class="card-text flex-grow-1 text-muted fst-italic">No description available.</p>`
           }
           ${
             hasLink
-              ? `<a href="${displayLink}" class="btn btn-sm btn-outline-primary mt-2 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>`
+              ? `<a href="${displayLink}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>`
               : ""
           }
         </div>

@@ -98,11 +98,17 @@ export const PagesController = (() => {
     UIManager.showNewsLoading(CONFIG.NEWS_UI.LOADING_GENERAL);
 
     try {
-      const { articles, usedFallback } = await NewsService.getGeneralNews();
-      if (usedFallback) {
+      const result = await NewsService.getGeneralNews();
+      if (!result?.ok) {
+        UIManager.showNewsError(
+          result?.errorMessage || CONFIG.NEWS_UI.ERROR_GENERAL
+        );
+        return;
+      }
+      if (result.usedCacheFallback) {
         UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_FALLBACK_GENERAL);
       }
-      UIManager.showNews(articles);
+      UIManager.showNews(result.articles);
     } catch (err) {
       UIManager.showNewsError(CONFIG.NEWS_UI.ERROR_GENERAL);
     }

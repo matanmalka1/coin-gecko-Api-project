@@ -29,6 +29,7 @@ html.dark {
 
   --content-padding: 40px;
   --chart-padding: 20px;
+  --news-desc-min-height: 110px;
 
   --anim-fast: 0.2s;
   --anim-medium: 0.4s;
@@ -78,6 +79,10 @@ footer.dark {
 
 .card.dark {
   background-color: #1c1c1c !important;
+}
+
+.news-desc {
+  min-height: var(--news-desc-min-height);
 }
 
 #content {

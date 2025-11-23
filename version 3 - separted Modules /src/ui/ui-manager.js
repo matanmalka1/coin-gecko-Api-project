@@ -2,11 +2,10 @@ import { UIComponents } from "./ui-components.js";
 import { CoinsService } from "../services/coins-service.js";
 import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
+import { ChartRenderer } from "../utils/chart-renderer.js";
 
 export const UIManager = (() => {
   const content = $("#content");
-  const liveCharts = {};
-  const liveChartData = {};
 
   const clearContent = () => {
     content.empty();
@@ -251,87 +250,15 @@ export const UIManager = (() => {
   };
 
   const initLiveChart = (symbols, options = {}) => {
-    const { historyPoints = CONFIG.CHART.HISTORY_POINTS } = options;
-    const grid = $("#chartsGrid");
-    if (!grid.length) return;
-
-    // clean previous
-    Object.keys(liveCharts).forEach((key) => {
-      const chart = liveCharts[key];
-      if (chart?.destroy) chart.destroy();
-      delete liveCharts[key];
-      delete liveChartData[key];
-    });
-    grid.empty();
-
-    symbols.forEach((symbol) => {
-      const id = symbol;
-      const chartContainerId = `live-chart-${id}`;
-      const card = `
-        <div class="col-md-6 col-lg-4">
-          <div class="card shadow-sm p-3 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="mb-0">${id}</h6>
-              <small class="text-muted">Live</small>
-            </div>
-            <div id="${chartContainerId}" style="height:220px;"></div>
-          </div>
-        </div>
-      `;
-      grid.append(card);
-
-      liveChartData[id] = [];
-      liveCharts[id] = new CanvasJS.Chart(chartContainerId, {
-        backgroundColor: "transparent",
-        axisX: {
-          valueFormatString: CONFIG.CHART.AXIS_X_FORMAT,
-          labelFontSize: 10,
-        },
-        axisY: { prefix: "$", labelFontSize: 10 },
-        data: [
-          {
-            type: "line",
-            dataPoints: liveChartData[id],
-            color: "#0d6efd",
-            markerSize: 0,
-            lineThickness: 2,
-          },
-        ],
-      });
-      liveCharts[id].render();
-    });
-
-    liveCharts.__historyPoints = historyPoints;
+    ChartRenderer.init(symbols, options);
   };
 
   const updateLiveChart = (prices, time, options = {}) => {
-    const historyPoints =
-      options.historyPoints || liveCharts.__historyPoints || 30;
-
-    Object.entries(prices || {}).forEach(([symbol, priceObj]) => {
-      const id = symbol;
-      const chart = liveCharts[id];
-      const dp = liveChartData[id];
-      if (!chart || !dp) return;
-
-      const price = priceObj?.USD;
-      if (price == null) return;
-
-      dp.push({ x: time, y: price });
-      if (dp.length > historyPoints) dp.shift();
-      chart.render();
-    });
+    ChartRenderer.update(prices, time, options);
   };
 
   const clearLiveChart = () => {
-    Object.keys(liveCharts).forEach((key) => {
-      const chart = liveCharts[key];
-      if (chart?.destroy) chart.destroy();
-      delete liveCharts[key];
-      delete liveChartData[key];
-    });
-    liveCharts.__historyPoints = undefined;
-    $("#chartsGrid").empty();
+    ChartRenderer.clear();
   };
 
   const updateToggleStates = (selectedReports) => {
@@ -348,10 +275,6 @@ export const UIManager = (() => {
     } else {
       element.removeClass("show").slideUp();
     }
-  };
-
-  const hideElement = (selector) => {
-    $(selector).addClass("d-none");
   };
 
   const showElement = (selector) => {
@@ -412,7 +335,6 @@ export const UIManager = (() => {
     removeModal,
     updateToggleStates,
     toggleCollapse,
-    hideElement,
     showElement,
     applyTheme,
     drawMiniChart,

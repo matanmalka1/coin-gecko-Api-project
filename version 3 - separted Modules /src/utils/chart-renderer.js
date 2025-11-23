@@ -1,73 +1,91 @@
-let chart = null;
+import { CONFIG } from "../config/config.js";
 
-export const ChartRenderer = {
-  init(containerId, symbols = [], options = {}) {
-    const {
-      updateIntervalMs = 2000,
-      title = "Live Crypto Prices (USD)",
-      axisXTitle = "Time",
-      axisXFormat = "HH:mm:ss",
-      axisYTitle = "Price (USD)",
-      axisYPrefix = "$",
-    } = options;
+const liveCharts = {};
+const liveChartData = {};
 
-    chart = new CanvasJS.Chart(containerId, {
-      title: { text: title },
-      subtitles: [
+const destroyAll = () => {
+  Object.keys(liveCharts).forEach((key) => {
+    const chart = liveCharts[key];
+    if (chart?.destroy) chart.destroy();
+    delete liveCharts[key];
+    delete liveChartData[key];
+  });
+  liveCharts.__historyPoints = undefined;
+};
+
+const buildChartCard = (id) => `
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">${id}</h6>
+        <small class="text-muted">Live</small>
+      </div>
+      <div id="live-chart-${id}" style="height:220px;"></div>
+    </div>
+  </div>
+`;
+
+const init = (symbols, options = {}) => {
+  const { historyPoints = CONFIG.CHART.HISTORY_POINTS } = options;
+  const grid = $("#chartsGrid");
+  if (!grid.length) return;
+
+  destroyAll();
+  grid.empty();
+
+  symbols.forEach((symbol) => {
+    const id = symbol;
+    grid.append(buildChartCard(id));
+
+    liveChartData[id] = [];
+    liveCharts[id] = new CanvasJS.Chart(`live-chart-${id}`, {
+      backgroundColor: "transparent",
+      axisX: {
+        valueFormatString: CONFIG.CHART.AXIS_X_FORMAT,
+        labelFontSize: 10,
+      },
+      axisY: { prefix: "$", labelFontSize: 10 },
+      data: [
         {
-          text: `Updated every ${updateIntervalMs / 1000} seconds`,
+          type: "line",
+          dataPoints: liveChartData[id],
+          color: "#0d6efd",
+          markerSize: 0,
+          lineThickness: 2,
         },
       ],
-      axisX: {
-        title: axisXTitle,
-        valueFormatString: axisXFormat,
-      },
-      axisY: {
-        title: axisYTitle,
-        prefix: axisYPrefix,
-      },
-      legend: {
-        cursor: "pointer",
-      },
-      data: symbols.map((symbol) => ({
-        type: "line",
-        name: symbol,
-        showInLegend: true,
-        dataPoints: [],
-      })),
     });
+    liveCharts[id].render();
+  });
 
+  liveCharts.__historyPoints = historyPoints;
+};
+
+const update = (prices, time, options = {}) => {
+  const historyPoints =
+    options.historyPoints || liveCharts.__historyPoints || CONFIG.CHART.HISTORY_POINTS;
+
+  Object.entries(prices || {}).forEach(([symbol, priceObj]) => {
+    const chart = liveCharts[symbol];
+    const dp = liveChartData[symbol];
+    if (!chart || !dp) return;
+
+    const price = priceObj?.USD;
+    if (price == null) return;
+
+    dp.push({ x: time, y: price });
+    if (dp.length > historyPoints) dp.shift();
     chart.render();
-  },
+  });
+};
 
-  update(prices = {}, time = new Date(), options = {}) {
-    if (!chart) return;
-    const { historyPoints = 30 } = options;
+const clear = () => {
+  destroyAll();
+  $("#chartsGrid").empty();
+};
 
-    chart.options.data.forEach((series) => {
-      const symbol = series.name;
-      const price = prices[symbol]?.USD;
-
-      if (price) {
-        series.dataPoints.push({ x: time, y: price });
-
-        if (series.dataPoints.length > historyPoints) {
-          series.dataPoints.shift();
-        }
-      }
-    });
-
-    chart.render();
-  },
-
-  destroy(containerId) {
-    if (chart && typeof chart.destroy === "function") {
-      chart.destroy();
-    }
-    if (containerId && typeof document !== "undefined") {
-      const el = document.getElementById(containerId);
-      if (el) el.innerHTML = "";
-    }
-    chart = null;
-  },
+export const ChartRenderer = {
+  init,
+  update,
+  clear,
 };
