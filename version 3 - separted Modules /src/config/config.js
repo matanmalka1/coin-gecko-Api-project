@@ -1,89 +1,29 @@
+import { API_CONFIG } from "./api-config.js";
+import { CACHE_CONFIG } from "./cache-config.js";
+import { UI_CONFIG } from "./ui-config.js";
+import { CONTENT_CONFIG } from "./content.js";
+
 export const CONFIG = {
   API: {
-    COINGECKO_BASE: "https://api.coingecko.com/api/v3",
-    CRYPTOCOMPARE_BASE: "https://min-api.cryptocompare.com/data",
+    COINGECKO_BASE: API_CONFIG.COINGECKO_BASE,
+    CRYPTOCOMPARE_BASE: API_CONFIG.CRYPTOCOMPARE_BASE,
   },
-
-  CACHE: {
-    EXPIRY_TIME: 2 * 60 * 1000,
-  },
-
-  REPORTS: {
-    MAX_COINS: 5,
-  },
-
-  CHART: {
-    TITLE: "Live Crypto Prices (USD)",
-    UPDATE_INTERVAL_MS: 2000,
-    HISTORY_POINTS: 70,
-    AXIS_X_TITLE: "Time",
-    AXIS_X_FORMAT: "HH:mm:ss",
-    AXIS_Y_TITLE: "Price (USD)",
-    AXIS_Y_PREFIX: "$",
-  },
-
-  DISPLAY: {
-    COINS_PER_PAGE: 150,
-  },
-
-  CURRENCIES: {
-    USD: { symbol: "$", label: "USD" },
-    EUR: { symbol: "€", label: "EUR" },
-    ILS: { symbol: "₪", label: "ILS" },
-  },
-
-  UI: {
-    GENERIC_ERROR: "An error occurred. Please try again.",
-    LOADING_COINS: "Loading coins...",
-    REPLACE_ALERT: "Please select a coin to replace",
-    COMPARE_TITLE: "Compare Coins",
-    NO_COINS_FOUND: "No coins found.",
-    FAVORITES_EMPTY: "No favorites yet. Tap the star to add coins.",
-    FAVORITES_SHOW_LABEL: "Favorites ⭐",
-    FAVORITES_HIDE_LABEL: "All Coins",
-  },
-
-  STORAGE_KEYS: {
-    THEME: "theme",
-    FAVORITES: "favorites",
-  },
-
-  // [NEWS] NewsData configuration for crypto news
   NEWS: {
-    BASE_URL: "https://newsdata.io/api/1/crypto",
-    API_KEY: "pub_f179a246e66740f4943967a02e0bd77e",
-    DEFAULT_QUERY: "crypto OR cryptocurrency",
-    LANGUAGE: "en",
-    CACHE_TTL_MS: 10 * 60 * 1000,
-    FRESH_WINDOW_MS: 5 * 60 * 60 * 1000,
-    CACHE_KEYS: {
-      GENERAL: "news_cache_general",
-      FAVORITES: "news_cache_favorites",
-    },
+    BASE_URL: API_CONFIG.NEWS_API.BASE_URL,
+    API_KEY: API_CONFIG.NEWS_API.API_KEY,
+    DEFAULT_QUERY: CONTENT_CONFIG.NEWS.DEFAULT_QUERY,
+    LANGUAGE: CONTENT_CONFIG.NEWS.LANGUAGE,
+    CACHE_TTL_MS: CACHE_CONFIG.NEWS_CACHE.TTL_MS,
+    FRESH_WINDOW_MS: CACHE_CONFIG.NEWS_CACHE.FRESH_WINDOW_MS,
+    CACHE_KEYS: CONTENT_CONFIG.NEWS.CACHE_KEYS,
   },
-
-  // [NEWS] UI texts for news feature
-  NEWS_UI: {
-    STATUS_GENERAL: "Showing general crypto news from the last 5 hours.",
-    STATUS_FAVORITES: "Showing news for your favorite coins from the last 5 hours.",
-    STATUS_NO_FAVORITES:
-      "No favorite coins selected. Please add favorites to see related news.",
-    STATUS_FALLBACK_GENERAL:
-      "No articles from the last 5 hours. Showing latest available news.",
-    STATUS_FALLBACK_FAVORITES:
-      "No articles from the last 5 hours. Showing latest available favorites news.",
-    LOADING_GENERAL: "Loading news...",
-    LOADING_FAVORITES: "Loading favorites news...",
-    ERROR_GENERAL: "Failed to load general news. Please try again later.",
-    ERROR_FAVORITES: "Failed to load favorites news. Please try again later.",
-    EMPTY: "No news found for the last 5 hours.",
-    DESC_MAX: 200,
-  },
-
-  // [ABOUT] Static about page data
-  ABOUT: {
-    NAME: "Matan Yehuda Malka",
-    IMAGE: "images/2.jpeg",
-    LINKEDIN: "https://www.linkedin.com/in/matanyehudamalka",
-  },
+  CACHE: CACHE_CONFIG.CACHE,
+  STORAGE_KEYS: CACHE_CONFIG.STORAGE_KEYS,
+  DISPLAY: UI_CONFIG.DISPLAY,
+  REPORTS: UI_CONFIG.REPORTS,
+  CHART: UI_CONFIG.CHART,
+  UI: UI_CONFIG.UI,
+  NEWS_UI: UI_CONFIG.NEWS_UI,
+  CURRENCIES: UI_CONFIG.CURRENCIES,
+  ABOUT: CONTENT_CONFIG.ABOUT,
 };

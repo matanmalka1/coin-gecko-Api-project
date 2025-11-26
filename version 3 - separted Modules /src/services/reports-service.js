@@ -1,6 +1,7 @@
 import { AppState } from "../state/state.js";
 import { coinAPI } from "./api.js";
 import { CONFIG } from "../config/config.js";
+import { normalizeSymbol } from "../utils/general-utils.js";
 
 // Reports domain logic only: no UI/DOM.
 export const ReportsService = (() => {
@@ -8,16 +9,24 @@ export const ReportsService = (() => {
   const hasReport = (symbol) => AppState.hasReport(symbol);
 
   const toggleCoinSelection = (symbol) => {
-    const symbolUpper = symbol.toUpperCase();
+    const symbolUpper = normalizeSymbol(symbol);
 
     if (AppState.hasReport(symbolUpper)) {
       AppState.removeReport(symbolUpper);
-      return { ok: true, selected: AppState.getSelectedReports() };
+      return {
+        ok: true,
+        code: null,
+        selected: AppState.getSelectedReports(),
+      };
     }
 
     if (!AppState.isReportsFull()) {
       AppState.addReport(symbolUpper);
-      return { ok: true, selected: AppState.getSelectedReports() };
+      return {
+        ok: true,
+        code: null,
+        selected: AppState.getSelectedReports(),
+      };
     }
 
     return {
@@ -26,31 +35,60 @@ export const ReportsService = (() => {
       newSymbol: symbolUpper,
       existing: AppState.getSelectedReports(),
       limit: CONFIG.REPORTS.MAX_COINS,
+      selected: AppState.getSelectedReports(),
     };
   };
 
   const replaceReport = (oldSymbol, newSymbol) => {
-    const oldUpper = oldSymbol.toUpperCase();
-    const newUpper = newSymbol.toUpperCase();
+    const oldUpper = normalizeSymbol(oldSymbol);
+    const newUpper = normalizeSymbol(newSymbol);
+
+    if (!AppState.hasReport(oldUpper)) {
+      return {
+        ok: false,
+        code: "NOT_FOUND",
+        selected: AppState.getSelectedReports(),
+      };
+    }
+
+    if (AppState.hasReport(newUpper)) {
+      return {
+        ok: false,
+        code: "DUPLICATE",
+        selected: AppState.getSelectedReports(),
+      };
+    }
+
+    const coinExists = AppState.fetchAllCoins().some((coin) => coin.symbol === newUpper);
+    if (!coinExists) {
+      return {
+        ok: false,
+        code: "INVALID_SYMBOL",
+        selected: AppState.getSelectedReports(),
+      };
+    }
 
     AppState.removeReport(oldUpper);
     AppState.addReport(newUpper);
 
-    return { ok: true, selected: AppState.getSelectedReports() };
+    return { ok: true, code: null, selected: AppState.getSelectedReports() };
   };
 
-  const getCompareData = async (ids) => {
+  const fetchCompareData = async (ids) => {
     const dataPromises = ids.map((id) => coinAPI.getCoinDetails(id));
     const results = await Promise.all(dataPromises);
+    return results.map((result, idx) => ({ result, id: ids[idx] }));
+  };
 
+  const mapCompareResults = (mappedResults) => {
     const coins = [];
     const missing = [];
 
-    results.forEach((result, idx) => {
+    mappedResults.forEach(({ result, id }) => {
       if (result.ok) {
         coins.push(result.data);
       } else {
-        missing.push(ids[idx]);
+        missing.push(id);
       }
     });
 
@@ -59,6 +97,14 @@ export const ReportsService = (() => {
     }
 
     return { ok: true, coins, missing };
+  };
+
+  const getCompareData = async (ids) => {
+    const validIds = Array.isArray(ids)
+      ? ids.filter(Boolean).map((id) => id.toString())
+      : [];
+    const mappedResults = await fetchCompareData(validIds);
+    return mapCompareResults(mappedResults);
   };
 
   return {

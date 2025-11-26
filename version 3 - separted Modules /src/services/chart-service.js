@@ -6,7 +6,7 @@ import { CONFIG } from "../config/config.js";
 export const ChartService = (() => {
   let updateInterval = null;
 
-  const startLiveChart = (callbacks = {}) => {
+  const startLiveChart = (chartCallbacks = {}) => {
     cleanup();
     const symbols = AppState.getSelectedReports();
 
@@ -14,34 +14,45 @@ export const ChartService = (() => {
       return { ok: false, code: "NO_SELECTION" };
     }
 
-    const symbolsString = symbols.join(",");
+    let isUpdating = false;
 
-    const emitData = async () => {
-      const result = await coinAPI.getLivePrices(symbolsString.split(","));
-      if (!result.ok) {
-        callbacks.onError?.({
-          code: result.code || "API_ERROR",
-          error: result.error,
+    const sendPriceUpdates = async () => {
+      if (isUpdating) return;
+
+      isUpdating = true;
+      try {
+        const result = await coinAPI.getLivePrices(symbols);
+
+        if (!result.ok) {
+          chartCallbacks.onError?.({
+            code: result.code ?? "API_ERROR",
+            error: result.error,
+          });
+          cleanup();
+          return;
+        }
+
+        chartCallbacks.onData?.({
+          time: new Date(),
+          prices: result.data,
         });
-        cleanup();
-        return;
+      } finally {
+        isUpdating = false;
       }
-
-      callbacks.onData?.({
-        time: new Date(),
-        prices: result.data,
-      });
     };
 
-    callbacks.onChartReady?.({
+    chartCallbacks.onChartReady?.({
       symbols,
       updateIntervalMs: CONFIG.CHART.UPDATE_INTERVAL_MS,
       historyPoints: CONFIG.CHART.HISTORY_POINTS,
     });
 
-    emitData();
+    sendPriceUpdates();
 
-    updateInterval = setInterval(emitData, CONFIG.CHART.UPDATE_INTERVAL_MS);
+    updateInterval = setInterval(
+      sendPriceUpdates,
+      CONFIG.CHART.UPDATE_INTERVAL_MS
+    );
 
     return { ok: true, symbols };
   };

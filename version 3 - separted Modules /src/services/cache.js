@@ -1,47 +1,41 @@
 import { CONFIG } from "../config/config.js";
 
+// LRU cache with max entries and expiry
 export const CacheManager = (() => {
-  const cache = {};
+  const cacheStore = new Map();
+  const MAX_ENTRIES = CONFIG.CACHE.MAX_ENTRIES || 100;
+  const DEFAULT_EXPIRY = CONFIG.CACHE.EXPIRY_TIME;
 
   const getCache = (key) => {
-    const cached = cache[key];
-    if (!cached) return null;
-
-    const now = Date.now();
-    const isExpired = now - cached.timestamp >= CONFIG.CACHE.EXPIRY_TIME;
-
-    if (isExpired) {
-      delete cache[key];
+    if (!cacheStore.has(key)) return null;
+    const entry = cacheStore.get(key);
+    if (isExpired(entry)) {
+      cacheStore.delete(key);
       return null;
     }
-
-    return cached.data;
+    cacheStore.delete(key);
+    cacheStore.set(key, entry);
+    return entry.data;
   };
 
-  const setCache = (key, data) => {
-    cache[key] = {
-      data,
-      timestamp: Date.now(),
-    };
+  const setCache = (key, data, ttl = DEFAULT_EXPIRY) => {
+    const entry = { data, timestamp: Date.now(), ttl };
+    if (cacheStore.has(key)) cacheStore.delete(key);
+    cacheStore.set(key, entry);
+    manageCacheSize();
   };
 
-  const removeCache = (key) => {
-    delete cache[key];
-  };
+  const isExpired = (entry) => Date.now() - entry.timestamp >= entry.ttl;
 
-  const clearCache = () => {
-    Object.keys(cache).forEach((key) => delete cache[key]);
-  };
-
-  const hasCache = (key) => {
-    return getCache(key) !== null;
+  const manageCacheSize = () => {
+    while (cacheStore.size > MAX_ENTRIES) {
+      const oldestKey = cacheStore.keys().next().value;
+      cacheStore.delete(oldestKey);
+    }
   };
 
   return {
     getCache,
     setCache,
-    removeCache,
-    clearCache,
-    hasCache,
   };
 })();

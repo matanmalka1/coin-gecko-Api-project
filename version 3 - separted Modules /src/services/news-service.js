@@ -1,5 +1,7 @@
-// [NEWS] News service: fetches crypto news from NewsData with 10m cache and 5h freshness filter
+// [NEWS] News service: fetches crypto news from NewsData with cache and freshness filter
 import { CONFIG } from "../config/config.js";
+import { filterLastHours } from "../utils/general-utils.js";
+import { CacheManager } from "./cache.js";
 
 export const NewsService = (() => {
   const {
@@ -12,34 +14,36 @@ export const NewsService = (() => {
     CACHE_KEYS,
   } = CONFIG.NEWS;
 
-  // [NEWS] Filter articles to last 5 hours
-  const filterLastFiveHours = (articles) => {
-    const now = Date.now();
-    return (articles || []).filter((item) => {
-      if (!item.published_at) return false;
-      const publishedTime = Date.parse(item.published_at);
-      if (Number.isNaN(publishedTime)) return false;
-      return now - publishedTime <= FRESH_WINDOW_MS;
-    });
+  const buildFavoritesCacheKey = (symbols = []) => {
+    const normalized = (symbols || [])
+      .filter(Boolean)
+      .map((s) => (typeof s === "string" ? s.trim().toUpperCase() : String(s)))
+      .sort();
+    return `${CACHE_KEYS.FAVORITES}:${normalized.join(",")}`;
   };
 
   const fetchNews = async (cacheKey, params = {}) => {
-    let cached = null;
-    try {
-      const raw = localStorage.getItem(cacheKey);
-      cached = raw ? JSON.parse(raw) : null;
-    } catch (err) {
-      console.warn("NewsService: failed to parse cache", err);
-    }
+    const cached = CacheManager.getCache(cacheKey);
 
     if (cached?.timestamp && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-      const filteredCache = filterLastFiveHours(cached.articles || []);
+      const filteredCache = filterLastHours(
+        cached.articles || [],
+        FRESH_WINDOW_MS
+      );
+
       const usedFallback =
         filteredCache.length === 0 && (cached.articles || []).length > 0;
+
+      const articles = filteredCache.length
+        ? filteredCache
+        : cached.articles || [];
+
       return {
         ok: true,
-        articles: filteredCache.length ? filteredCache : cached.articles || [],
-        usedCacheFallback: usedFallback,
+        articles,
+        usedFreshnessFallback: usedFallback,
+        source: "cache",
+        freshness: usedFallback ? "stale" : "fresh",
       };
     }
 
@@ -68,21 +72,20 @@ export const NewsService = (() => {
         image: article.image_url,
       }));
 
-      try {
-        localStorage.setItem(
-          cacheKey,
-          JSON.stringify({ timestamp: Date.now(), articles: normalized })
-        );
-      } catch (err) {
-        console.warn("NewsService: failed to write cache", err);
-      }
-      const filtered = filterLastFiveHours(normalized);
+      CacheManager.setCache(
+        cacheKey,
+        { timestamp: Date.now(), articles: normalized },
+        CACHE_TTL_MS
+      );
+      const filtered = filterLastHours(normalized, FRESH_WINDOW_MS);
       const usedFallback = filtered.length === 0 && normalized.length > 0;
 
       return {
         ok: true,
         articles: filtered.length ? filtered : normalized,
-        usedCacheFallback: usedFallback,
+        usedFreshnessFallback: usedFallback,
+        source: "api",
+        freshness: usedFallback ? "stale" : "fresh",
       };
     } catch (error) {
       console.error("NewsService: API error", error);
@@ -98,21 +101,21 @@ export const NewsService = (() => {
   const getNewsForFavorites = (favoriteSymbols = []) => {
     const cleaned = (favoriteSymbols || [])
       .filter(Boolean)
-      .map((s) => (typeof s === "string" ? s.trim().toUpperCase() : String(s)));
+      .map((s) => String(s).trim().toUpperCase());
 
     const unique = Array.from(new Set(cleaned));
     if (!unique.length) {
-      return Promise.resolve({
+      return {
         ok: true,
         articles: [],
-        usedCacheFallback: false,
-      });
+        usedFreshnessFallback: false,
+      };
     }
 
-    const query = unique.join(" OR ").trim();
-    const params = query ? { q: query } : {};
+    const query = unique.join(" OR ");
+    const cacheKey = buildFavoritesCacheKey(unique);
 
-    return fetchNews(CACHE_KEYS.FAVORITES, params);
+    return fetchNews(cacheKey, { q: query });
   };
 
   return {

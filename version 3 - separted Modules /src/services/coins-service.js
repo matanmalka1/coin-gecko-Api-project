@@ -1,17 +1,36 @@
 import { coinAPI } from "./api.js";
 import { CacheManager } from "./cache.js";
 import { AppState } from "../state/state.js";
-
-// Services should not touch UI/DOM; return data/status only.
-
-const normalizeCoinSymbols = (coins = []) =>
-  coins.map((coin) => ({
-    ...coin,
-    symbol:
-      typeof coin.symbol === "string" ? coin.symbol.toUpperCase() : coin.symbol,
-  }));
+import { normalizeSymbol } from "../utils/general-utils.js";
 
 export const CoinsService = (() => {
+  const sortList = (coins = [], sortType) => {
+    const sortedCoins = [...coins];
+    switch (sortType) {
+      case "price_desc":
+        sortedCoins.sort((a, b) => b.current_price - a.current_price);
+        break;
+      case "price_asc":
+        sortedCoins.sort((a, b) => a.current_price - b.current_price);
+        break;
+      case "volume_high":
+        sortedCoins.sort((a, b) => b.total_volume - a.total_volume);
+        break;
+      case "volume_low":
+        sortedCoins.sort((a, b) => a.total_volume - b.total_volume);
+        break;
+      case "marketcap_desc":
+        sortedCoins.sort((a, b) => b.market_cap - a.market_cap);
+        break;
+      case "marketcap_asc":
+        sortedCoins.sort((a, b) => a.market_cap - b.market_cap);
+        break;
+      default:
+        return coins;
+    }
+    return sortedCoins;
+  };
+
   const loadAllCoins = async () => {
     const result = await coinAPI.getMarkets();
 
@@ -19,45 +38,29 @@ export const CoinsService = (() => {
       return { ok: false, code: "API_ERROR", error: result.error };
     }
 
-    const coins = normalizeCoinSymbols(result.data);
-    AppState.setAllCoins(coins);
+    const coins = Array.isArray(result.data) ? result.data : [];
+    const filteredCoins = coins
+      .filter((coin) => coin && coin.id && coin.symbol)
+      .map((coin) => ({
+        ...coin,
+        symbol: normalizeSymbol(coin.symbol),
+      }));
 
-    return { ok: true, data: coins };
+    AppState.setAllCoins(filteredCoins);
+
+    return { ok: true, data: filteredCoins };
   };
 
   const sortCoins = (sortType) => {
-    let coins = AppState.getAllCoins();
-
-    switch (sortType) {
-      case "price_desc":
-        coins.sort((a, b) => b.current_price - a.current_price);
-        break;
-      case "price_asc":
-        coins.sort((a, b) => a.current_price - b.current_price);
-        break;
-      case "volume_high":
-        coins.sort((a, b) => b.total_volume - a.total_volume);
-        break;
-      case "volume_low":
-        coins.sort((a, b) => a.total_volume - b.total_volume);
-        break;
-      case "marketcap_desc":
-        coins.sort((a, b) => b.market_cap - a.market_cap);
-        break;
-      case "marketcap_asc":
-        coins.sort((a, b) => a.market_cap - b.market_cap);
-        break;
-      default:
-        coins = AppState.getAllCoins();
-    }
-
-    return { ok: true, data: coins };
+    const coins = AppState.fetchAllCoins();
+    const sorted = sortList(coins, sortType);
+    return { ok: true, data: sorted };
   };
 
   const refreshCoinsDisplay = () => {
     return {
       ok: true,
-      data: AppState.getAllCoins(),
+      data: AppState.fetchAllCoins(),
       selected: AppState.getSelectedReports(),
       favorites: AppState.getFavorites(),
     };
@@ -73,7 +76,11 @@ export const CoinsService = (() => {
 
     if (!result.ok) {
       console.error("getCoinDetails failed", { coinId, error: result.error });
-      return { ok: false, code: result.code || "API_ERROR", error: result.error };
+      return {
+        ok: false,
+        code: result.code || "API_ERROR",
+        error: result.error,
+      };
     }
 
     CacheManager.setCache(cacheKey, result.data);
@@ -81,24 +88,24 @@ export const CoinsService = (() => {
     return { ok: true, data: result.data, fromCache: false };
   };
 
-  const searchCoin = (term) => {
+  const findCoinBySymbol = (term) => {
     const searchTerm = term.trim().toUpperCase();
 
     if (!searchTerm) {
       return { ok: false, code: "EMPTY_TERM" };
     }
 
-    const allCoins = AppState.getAllCoins();
+    const allCoins = AppState.fetchAllCoins();
 
     if (allCoins.length === 0) {
       return { ok: false, code: "LOAD_WAIT" };
     }
 
-    const filtered = allCoins.filter(
+    const filteredCoins = allCoins.filter(
       (coin) => coin.symbol.toUpperCase() === searchTerm
     );
 
-    if (filtered.length === 0) {
+    if (filteredCoins.length === 0) {
       return { ok: false, code: "NO_MATCH", term: searchTerm };
     }
 
@@ -106,7 +113,7 @@ export const CoinsService = (() => {
 
     return {
       ok: true,
-      data: filtered,
+      data: filteredCoins,
       selected: AppState.getSelectedReports(),
       favorites: AppState.getFavorites(),
     };
@@ -119,7 +126,7 @@ export const CoinsService = (() => {
       return { ok: false, code: "NONE_SELECTED" };
     }
 
-    const allCoins = AppState.getAllCoins();
+    const allCoins = AppState.fetchAllCoins();
     const filtered = allCoins.filter((coin) =>
       selectedReports.includes(coin.symbol.toUpperCase())
     );
@@ -141,7 +148,7 @@ export const CoinsService = (() => {
 
     return {
       ok: true,
-      data: AppState.getAllCoins(),
+      data: AppState.fetchAllCoins(),
       selected: AppState.getSelectedReports(),
       favorites: AppState.getFavorites(),
     };
@@ -156,8 +163,15 @@ export const CoinsService = (() => {
     const result = await coinAPI.getCoinMarketChart(coinId, 7);
 
     if (!result.ok) {
-      console.error("getCoinMarketChart failed", { coinId, error: result.error });
-      return { ok: false, code: result.code || "API_ERROR", error: result.error };
+      console.error("getCoinMarketChart failed", {
+        coinId,
+        error: result.error,
+      });
+      return {
+        ok: false,
+        code: result.code || "API_ERROR",
+        error: result.error,
+      };
     }
 
     CacheManager.setCache(cacheKey, result.data);
@@ -168,7 +182,7 @@ export const CoinsService = (() => {
   return {
     loadAllCoins,
     getCoinDetails,
-    searchCoin,
+    searchCoin: findCoinBySymbol,
     filterSelectedCoins,
     clearSearch,
     sortCoins,

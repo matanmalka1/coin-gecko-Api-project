@@ -5,29 +5,37 @@ import { AppState } from "../state/state.js";
 import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
-// [NEWS]
-import { UIComponents } from "../ui/ui-components.js";
-// [NEWS]
-import { NewsService } from "../services/news-service.js";
 
 export const PagesController = (() => {
-  let isLoadingCoins = false;
+  const COINS_REFRESH_INTERVAL = CONFIG.CACHE.COINS_REFRESH_INTERVAL_MS;
 
-  const showCurrenciesPage = async () => {
+  const shouldRefreshCoins = () => {
+    const lastUpdated = AppState.getCoinsLastUpdated();
+    if (!lastUpdated) return true;
+    return Date.now() - lastUpdated >= COINS_REFRESH_INTERVAL;
+  };
+
+  const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     ChartService.cleanup();
     AppState.setCurrentView("currencies");
 
-    UIManager.renderCurrenciesPage();
+    UIManager.displayCurrencyPage();
 
-    if (isLoadingCoins) return;
-
-    if (AppState.getAllCoins().length === 0) {
-      UIManager.showSpinner("#coinsContainer", CONFIG.UI.LOADING_COINS);
+    const cachedCoins = AppState.fetchAllCoins();
+    if (cachedCoins.length) {
+      UIManager.displayCoins(cachedCoins, AppState.getSelectedReports(), {
+        favorites: AppState.getFavorites(),
+      });
+    } else {
+      UIManager.showCoinsLoading();
     }
 
-    isLoadingCoins = true;
+    if (AppState.isLoadingCoins()) return;
+    if (cachedCoins.length && !forceRefresh && !shouldRefreshCoins()) return;
+
+    AppState.setLoadingCoins(true);
     const result = await CoinsService.loadAllCoins();
-    isLoadingCoins = false;
+    AppState.setLoadingCoins(false);
 
     if (!result?.ok) {
       UIManager.showError(
@@ -47,6 +55,7 @@ export const PagesController = (() => {
     AppState.setCurrentView("reports");
 
     UIManager.renderReportsPage();
+    UIManager.showChartSkeleton();
 
     const result = ChartService.startLiveChart({
       onChartReady: ({ symbols, updateIntervalMs, historyPoints }) => {
@@ -88,37 +97,9 @@ export const PagesController = (() => {
     });
   };
 
-  // [NEWS] Render news page and load general feed
-  const showNewsPage = async () => {
-    ChartService.cleanup();
-    AppState.setCurrentView("news");
-
-    UIManager.showPage(UIComponents.newsPage());
-    UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_GENERAL);
-    UIManager.showNewsLoading(CONFIG.NEWS_UI.LOADING_GENERAL);
-
-    try {
-      const result = await NewsService.getGeneralNews();
-      if (!result?.ok) {
-        UIManager.showNewsError(
-          result?.errorMessage || CONFIG.NEWS_UI.ERROR_GENERAL
-        );
-        return;
-      }
-      if (result.usedCacheFallback) {
-        UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_FALLBACK_GENERAL);
-      }
-      UIManager.showNews(result.articles);
-    } catch (err) {
-      UIManager.showNewsError(CONFIG.NEWS_UI.ERROR_GENERAL);
-    }
-  };
-
   return {
     showCurrenciesPage,
     showReportsPage,
     showAboutPage,
-    // [NEWS]
-    showNewsPage,
   };
 })();

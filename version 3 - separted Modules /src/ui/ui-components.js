@@ -1,7 +1,14 @@
 import { CONFIG } from "../config/config.js";
+import { shortenText } from "../utils/general-utils.js";
 
 export const UIComponents = (() => {
   // Loaders & alerts
+  const alertBox = (type, icon, message) => `
+    <div class="alert alert-${type} text-center mt-4">
+      <i class="${icon}"></i> ${message}
+    </div>
+  `;
+
   const spinner = (message = "Loading...") => `
     <div class="text-center my-3">
       <div class="spinner-border text-primary">
@@ -11,99 +18,174 @@ export const UIComponents = (() => {
     </div>
   `;
 
-  const errorAlert = (message) => `
-    <div class="alert alert-danger text-center mt-4">
-      <i class="bi bi-exclamation-triangle-fill"></i> ${message}
-    </div>
-  `;
+  const errorAlert = (message) =>
+    alertBox("danger", "bi bi-exclamation-triangle-fill", message);
 
-  const infoAlert = (message) => `
-    <div class="alert alert-info text-center mt-4">
-      <i class="bi bi-info-circle-fill"></i> ${message}
-    </div>
-  `;
+  const infoAlert = (message) =>
+    alertBox("info", "bi bi-info-circle-fill", message);
 
-  // Coin cards
+  // Skeleton Area
+  const cardShell = (content, classes = "") =>
+    `<div class="${classes}">${content}</div>`;
+
+  const cardContainer = (
+    content,
+    colClasses = "col-md-6 col-lg-4",
+    cardClasses = "card h-100 shadow-sm border-0"
+  ) => `<div class="${colClasses}">${cardShell(content, cardClasses)}</div>`;
+
+  const buildSkeletonGrid = (
+    count,
+    cardBuilder,
+    rowClasses = "row g-4 align-items-stretch"
+  ) => {
+    const cards = Array.from({ length: count }, (_, idx) =>
+      cardBuilder(idx)
+    ).join("");
+    return `<div class="${rowClasses}">${cards}</div>`;
+  };
+
+  const newsSkeleton = (count = 3) =>
+    buildSkeletonGrid(count, () =>
+      cardContainer(
+        `
+        <div class="ratio ratio-16x9 bg-light rounded-top placeholder"></div>
+        <div class="card-body">
+          <h5 class="card-title placeholder-glow">
+            <span class="placeholder col-8"></span>
+          </h5>
+          <p class="placeholder-glow">
+            <span class="placeholder col-7"></span>
+            <span class="placeholder col-4"></span>
+            <span class="placeholder col-6"></span>
+            <span class="placeholder col-8"></span>
+          </p>
+          <span class="placeholder col-3"></span>
+        </div>
+      `,
+        "col-12 col-md-6 col-lg-4 d-flex",
+        "card news-card h-100 border-0 shadow-md placeholder-wave w-100"
+      )
+    );
+
+  const coinsSkeleton = (count = 6) =>
+    buildSkeletonGrid(count, () =>
+      cardContainer(
+        `
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <span class="placeholder bg-light rounded-circle" style="width:50px;height:50px;"></span>
+          <div class="w-100">
+            <span class="placeholder col-7 mb-2"></span>
+            <span class="placeholder col-4"></span>
+          </div>
+        </div>
+        <span class="placeholder col-9 mb-2"></span>
+        <span class="placeholder col-5 mb-2"></span>
+        <div class="d-flex justify-content-between mt-3">
+          <span class="placeholder col-4"></span>
+          <span class="placeholder col-3"></span>
+          <span class="placeholder col-2"></span>
+        </div>
+      `,
+        "col-12 col-md-6 col-lg-4",
+        "card border-0 shadow-sm placeholder-wave h-100 p-3"
+      )
+    );
+
+  const chartsSkeleton = (count = 3) =>
+    buildSkeletonGrid(count, () =>
+      cardContainer(
+        `
+        <div class="d-flex justify-content-between mb-2">
+          <span class="placeholder col-3"></span>
+          <span class="placeholder col-2"></span>
+        </div>
+        <div class="placeholder bg-light rounded" style="height:220px;"></div>
+      `,
+        "col-12 col-md-6 col-lg-4",
+        "card border-0 shadow-sm placeholder-wave h-100 p-3 chartsSkeleton"
+      )
+    );
+  // End Of Skeleton Area
+
   const coinCard = (coin, isSelected = false, options = {}) => {
-    const { id, name, symbol, image, current_price } = coin;
+    const { id, name, symbol, image, current_price, market_cap } = coin;
     const { isFavorite = false } = options;
 
     const price =
       typeof current_price === "number"
-        ? `$${current_price.toLocaleString()}`
+        ? `$${current_price.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}`
         : "N/A";
 
-    const favoriteState = isFavorite === true;
+    const marketCapFormatted =
+      typeof market_cap === "number"
+        ? `$${market_cap.toLocaleString()}`
+        : "N/A";
 
-    return `
-    <div class="col-md-6 col-lg-4">
-      <div class="card border-0 shadow-sm hover-shadow transition p-3 h-100">
-        
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <img src="${image}" alt="${name}" loading="lazy"
-               class="rounded-circle coin-image">
-          <div>
-            <h6 class="fw-bold mb-0">${name}</h6>
-            <small class="text-muted">${symbol.toUpperCase()}</small>
-          </div>
+    const body = `
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <img src="${image}" alt="${symbol}" loading="lazy"
+             class="rounded-circle coin-image">
+        <div>
+          <h6 class="fw-bold mb-0">${name}</h6>
+          <small class="text-muted">${symbol.toUpperCase()}</small>
         </div>
-
-        <p class="mb-2">
-          <strong>Price:</strong> ${price}
-        </p>
-        
-        <p class="mb-2">
-          <strong>Market Cap:</strong> ${
-            typeof coin.market_cap === "number"
-              ? `$${coin.market_cap.toLocaleString()}`
-              : "N/A"
-          }
-        </p>
-
-     
-        <div class="d-flex justify-content-between align-items-center mt-2">
-          <button class="btn btn-sm btn-outline-primary more-info"
-                  data-id="${id}">
-            <i class="fas fa-info-circle"></i> More Info
-          </button>
-
-          <button class="btn btn-sm btn-outline-secondary compare-btn" 
-            data-id="${id}" data-symbol="${symbol.toUpperCase()}">
-            <i class="fas fa-balance-scale"></i> Compare
-          </button>
-
-          <div class="d-flex align-items-center gap-2">
-            <button type="button"
-                    class="btn btn-sm p-0 favorite-btn"
-                    data-symbol="${symbol.toUpperCase()}"
-                    title="${
-                      favoriteState
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                    }">
-              <i class="fas fa-star ${
-                favoriteState ? "text-warning" : "text-muted"
-              }"
-                 style="font-size: 1.2rem;"></i>
-            </button>
-
-            <label class="toggle-switch mb-0" title="Track coin">
-              <input class="coin-toggle" type="checkbox"
-                     data-symbol="${symbol.toUpperCase()}"
-                     ${isSelected ? "checked" : ""}>
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="collapse mt-3" id="collapse-${id}"></div>
       </div>
-    </div>
-  `;
+
+      <p class="mb-2">
+        <strong>Price:</strong> ${price}
+      </p>
+      
+      <p class="mb-2">
+        <strong>Market Cap:</strong> ${marketCapFormatted}
+      </p>
+
+      <div class="d-flex justify-content-between align-items-center mt-2">
+        <button class="btn btn-sm btn-outline-primary more-info"
+                data-id="${id}"
+                aria-label="Show more info about ${symbol}">
+          <i class="fas fa-info-circle"></i> More Info
+        </button>
+
+        <button type="button" class="btn btn-sm btn-outline-secondary compare-btn" 
+          data-id="${id}" data-symbol="${symbol.toUpperCase()}"
+          aria-label="Compare ${symbol}">
+          <i class="fas fa-balance-scale"></i> Compare
+        </button>
+
+        <div class="d-flex align-items-center gap-2">
+          <button type="button"
+                  class="btn btn-sm p-0 favorite-btn"
+                  data-symbol="${symbol.toUpperCase()}">
+            <i class="fas fa-star ${isFavorite ? "text-warning" : "text-muted"}"
+               style="font-size: 1.2rem;"></i>
+          </button>
+
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input coin-toggle"
+             type="checkbox" role="switch"
+             aria-label="Track ${symbol}"
+             data-symbol="${symbol.toUpperCase()}"
+                   ${isSelected ? "checked" : ""}>
+           </div>
+        </div>
+      </div>
+
+      <div class="collapse mt-3" id="collapse-${id}"></div>
+    `;
+
+    return cardContainer(
+      body,
+      "col-12 col-md-6 col-lg-4",
+      "card border-0 shadow-sm hover-shadow transition p-3 h-100"
+    );
   };
 
   // More info panel
-  const coinDetails = (data, currencies = {}) => {
+  const coinDetails = (data = {}, currencies = {}) => {
     const { image, name, symbol, market_data, description, platforms } = data;
     const {
       usd = "N/A",
@@ -114,18 +196,26 @@ export const UIComponents = (() => {
     const { usd: athUsd = "N/A" } = market_data?.ath || {};
 
     const desc = description?.en
-      ? description.en.substring(0, 200) + "..."
+      ? shortenText(description.en, 200)
       : "No description available.";
 
-    const priceItem = (label, value, curr) => `
-      <div class="price-badge mb-2 p-2 bg-white rounded ${
-        value === "N/A" ? "text-muted" : ""
-      }">
-        ${label}: ${curr?.symbol ?? ""}${
-      value !== "N/A" ? value.toLocaleString() : value
-    }
-      </div>
-    `;
+    const priceItem = (label, value, curr) => {
+      const formatted =
+        value !== "N/A" && typeof value === "number"
+          ? value.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : value;
+
+      return `
+    <div class="price-badge mb-2 p-2 bg-white rounded ${
+      value === "N/A" ? "text-muted" : ""
+    }">
+      ${label}: ${curr?.symbol ?? ""}${formatted}
+    </div>
+  `;
+    };
 
     const contractAddress =
       platforms && typeof platforms === "object"
@@ -193,11 +283,11 @@ export const UIComponents = (() => {
       .join("");
 
     return `
-      <div class="modal fade" id="replaceModal">
+      <div class="modal fade" id="replaceModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Replace Coin</h5>
+              <h5 class="modal-title" id="replaceModalLabel">Replace Coin</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -219,18 +309,21 @@ export const UIComponents = (() => {
 
   // Pages
   const currenciesPage = () =>
-    // SEARCH AREA
     `
     <div id="searchArea" class="my-4 text-center">
 
     <input type="text" id="searchInput"
     placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)"
-    class="form-control w-50 d-inline-block">
+    class="form-control w-50 d-inline-block rounded-pill" 
+    />
 
-    <button id="searchBtn" class="btn btn-primary mx-2">Search</button>
-    <button id="filterReportsBtn" class="btn btn-info mx-2">Show Selected</button>
-    <button id="showFavoritesBtn" class="btn btn-warning mx-2">Favorites</button>
-    <button id="clearSearchBtn" class="btn btn-outline-secondary mx-2">Clear</button>
+    <button type="button" id="searchBtn" class="btn mx-2">Search</button>
+    <button type="button" id="filterReportsBtn" class="btn mx-2">Show Selected</button>
+    <button type="button" id="showFavoritesBtn" class="btn mx-2">Favorites</button>
+    <button type="button" id="clearSearchBtn" class="btn mx-2">Clear</button>
+    <button type="button" id="refreshCoinsBtn" class="btn mx-2">
+      <i class="bi bi-arrow-clockwise"></i> Refresh
+    </button>
     </div>
 
     <div id="sortArea" class="my-3">
@@ -253,11 +346,13 @@ export const UIComponents = (() => {
     <div id="chartsGrid" class="row g-3"></div>
   `;
 
-  const aboutPage = (userData) => `
+  const aboutPage = (userData = {}) => {
+    const { image, name, linkedin } = userData;
+    return `
     <div id="aboutSection" class="container my-5">
       <div class="row align-items-center">
         <div class="col-md-6 text-center mb-4 mb-md-0">
-          <img src="${userData.image}" alt="${userData.name}"
+          <img src="${image}" alt="${name}"
             class="img-fluid rounded shadow-lg mb-3" />
         </div>
         <div class="col-md-6">
@@ -270,11 +365,11 @@ export const UIComponents = (() => {
             to display live cryptocurrency market data.
           </p>
           <p class="text-muted">
-            Designed and developed by <strong>${userData.name}</strong>.<br>
+            Designed and developed by <strong>${name}</strong>.<br>
             Built with ❤️, JavaScript, and Bootstrap 5.
           </p>
           <div class="mt-4">
-            <a href="${userData.linkedin}" target="_blank" 
+            <a href="${linkedin}" target="_blank" 
               rel="noopener noreferrer" class="btn btn-outline-primary">
               <i class="fab fa-linkedin"></i> View My LinkedIn
             </a>
@@ -283,46 +378,53 @@ export const UIComponents = (() => {
       </div>
     </div>
   `;
+  };
 
   // [NEWS] News page layout
   const newsPage = () => `
-  <div class="container py-4">
-    <div class="row justify-content-between align-items-center gy-3 mb-3">
-      <div class="col-md-6">
-        <div class="d-flex align-items-center gap-3">
-          <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
-            <i class="fa-solid fa-newspaper"></i>
+  <section class="news-hero mb-4">
+    <div class="container">
+      <div class="row gy-4 align-items-center">
+        <div class="col-lg-7">
+          <p class="text-uppercase small mb-2 text-white-50">Live feed</p>
+          <h1 class="display-5 fw-bold text-white mb-3">Stay ahead with curated crypto headlines</h1>
+          <p class="text-white-75 mb-4">
+            Filter between global coverage or insights tailored to your favorite coins. Updated continuously through the last 5 hours.
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button"  class="btn news-filter active" id="newsGeneralBtn">
+              <i class="bi bi-globe2 me-2"></i>General
+            </button>
+            <button type="button" class="btn news-filter" id="newsFavoritesBtn">
+              <i class="bi bi-star me-2"></i>Favorites
+            </button>
+            <div class="badge bg-white text-dark fw-semibold">
+              <i class="bi bi-clock-history me-1"></i> 5h freshness
+            </div>
           </div>
-          <div>
-            <h2 class="mb-0">Crypto News</h2>
-            <p class="text-muted mb-0 small">Fresh articles from the last 5 hours</p>
+        </div>
+        <div class="col-lg-5">
+          <div class="news-hero-card p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <span class="text-uppercase small text-muted">Status</span>
+              <span class="badge text-bg-light">
+                <i class="bi bi-info-circle me-1"></i>Live monitor
+              </span>
+            </div>
+            <p id="newsStatus" class="mb-0 text-white-75">${CONFIG.NEWS_UI.STATUS_GENERAL}</p>
           </div>
         </div>
       </div>
-      <div class="col-md-6 text-md-end">
-        <div class="btn-group">
-          <button type="button" class="btn btn-dark border-0 active" id="newsGeneralBtn">
-            General
-          </button>
-          <button type="button" class="btn" id="newsFavoritesBtn">
-            Favorites
-          </button>
-        </div>
-      </div>
     </div>
+  </section>
 
-    <div class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 mb-3">
-      <i class="bi bi-info-circle-fill text-primary"></i>
-      <span id="newsStatus" class="small mb-0">${CONFIG.NEWS_UI.STATUS_GENERAL}</span>
-    </div>
-
+  <div class="container">
     <div id="newsList" class="row g-4"></div>
   </div>
 `;
 
   // [NEWS] Single news article card
   const newsArticleCard = (article) => {
-    const NEWS_DESC_MAX = CONFIG.NEWS_UI.DESC_MAX || 200;
     const {
       title,
       description,
@@ -334,40 +436,33 @@ export const UIComponents = (() => {
     } = article || {};
 
     const displayTitle = title || "Untitled";
-    const displayDesc = description || "";
-    const trimmedDesc =
-      displayDesc && displayDesc.length > NEWS_DESC_MAX
-        ? `${displayDesc.slice(0, NEWS_DESC_MAX)}...`
-        : displayDesc;
-    const displaySource = source?.title || source?.domain || "Unknown source";
-    const displayLink = original_url || url || "#";
-    const hasLink = !!(original_url || url);
+    const displayDesc = shortenText(description, CONFIG.NEWS_UI.DESC_MAX);
+    const link = original_url || url || "#";
     const publishedDate = published_at
       ? new Date(published_at).toLocaleString()
       : "Unknown time";
-    const imageUrl =
-      image || "https://via.placeholder.com/400x200?text=Crypto+News";
+    const displaySource = source?.title || source?.domain || "Unknown source";
 
     return `
-    <div class="col-12 col-md-6 col-lg-4">
-      <div class="card h-100 shadow-sm border-0">
+    ${cardContainer(
+      `
         <div class="ratio ratio-16x9 bg-light rounded-top">
-          <img
-            src="${imageUrl}"
+          ${
+            image
+              ? `<img
+            src="${image}"
             class="card-img-top h-100 w-100 object-fit-cover rounded-top"
-            alt="${displayTitle.replace(/"/g, "&quot;")}"
-            onerror="this.style.display='none';"
-          />
+          />`
+              : `<div class="bg-secondary-subtle h-100 w-100 rounded-top d-flex align-items-center justify-content-center text-muted">
+                  <i class="bi bi-image"></i>
+                </div>`
+          }
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title mb-3">
-            ${
-              hasLink
-                ? `<a href="${displayLink}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${displayTitle}</a>`
-                : displayTitle
-            }
+          <h5 class="card-title news-card-title mb-3">
+            <a href="${link}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${displayTitle}</a>
           </h5>
-          <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-3 news-card-meta">
             <span class="badge text-bg-light">
               <i class="bi bi-newspaper"></i> ${displaySource}
             </span>
@@ -377,17 +472,15 @@ export const UIComponents = (() => {
           </div>
           ${
             displayDesc
-              ? `<p class="card-text flex-grow-1 mb-0 news-desc">${trimmedDesc}</p>`
+              ? `<p class="card-text flex-grow-1 mb-0 news-desc">${displayDesc}</p>`
               : `<p class="card-text flex-grow-1 text-muted fst-italic news-desc">No description available.</p>`
           }
-          ${
-            hasLink
-              ? `<a href="${displayLink}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>`
-              : ""
-          }
+          ${`<a href="${link}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>`}
         </div>
-      </div>
-    </div>
+      `,
+      "col-12 col-md-6 col-lg-4 d-flex",
+      "card news-card h-100 shadow-sm border-0"
+    )}
   `;
   };
 
@@ -422,6 +515,9 @@ export const UIComponents = (() => {
     spinner,
     errorAlert,
     infoAlert,
+    newsSkeleton,
+    coinsSkeleton,
+    chartsSkeleton,
     coinCard,
     coinDetails,
     replaceModal,
@@ -434,3 +530,4 @@ export const UIComponents = (() => {
     newsArticleCard,
   };
 })();
+

@@ -26,21 +26,28 @@
 
   <body>
     <nav
-      class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top"
+      class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top"
     >
       <div class="container-fluid">
-        <div class="navbar-brand fw-bold btn p-0" id="brandHome">
+        <button
+          type="button"
+          class="navbar-brand fw-bold btn p-0"
+          id="brandHome"
+          aria-label="Go to currencies"
+        >
           <i class="fas fa-chart-line me-2 text-primary"></i>CryptoTracker
-        </div>
+        </button>
 
-        <div
+        <button
+          type="button"
           class="btn"
           id="themeToggleBtn"
+          aria-label="Toggle theme"
         >
           <i class="bi bi-moon-stars-fill"></i>
-        </div>
+        </button>
 
-        <div
+        <button
           class="navbar-toggler border-0 shadow-none"
           data-bs-toggle="collapse"
           data-bs-target="#navbarMenu"
@@ -48,37 +55,48 @@
           aria-expanded="false"
         >
           <span class="navbar-toggler-icon"></span>
-        </div>
+        </button>
 
         <div
           class="collapse navbar-collapse justify-content-end"
           id="navbarMenu"
         >
           <div class="navbar-nav gap-2">
-            <div
+            <button
+              type="button"
               class="btn"
               id="currenciesBtn"
+              aria-label="Go to currencies page"
             >
               <i class="fas fa-coins me-2"></i>Currencies
-            </div>
+            </button>
 
-            <div
+            <button
+              type="button"
               class="btn"
               id="reportsBtn"
+              aria-label="Go to live reports"
             >
               <i class="fas fa-chart-line me-2"></i>Live Reports
-            </div>
+            </button>
 
-            <div class="btn" id="newsBtn"  >
+            <button
+              type="button"
+              class="btn"
+              id="newsBtn"
+              aria-label="Go to news page"
+            >
               <i class="fa-solid fa-newspaper"></i> News
-            </div>
+            </button>
 
-            <div
+            <button
+              type="button"
               class="btn"
               id="aboutBtn"
+              aria-label="Go to about page"
             >
               <i class="fas fa-info-circle me-2"></i>About
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -103,7 +121,6 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 
     <script type="module" src="./app.js"></script>
