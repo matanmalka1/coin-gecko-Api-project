@@ -158,7 +158,7 @@ const newsArticleCard = (article) => {
               ? `<p class="card-text flex-grow-1 mb-0 news-desc">${displayDesc}</p>`
               : `<p class="card-text flex-grow-1 text-muted fst-italic news-desc">No description available.</p>`
           }
-          ${`<a href="${link}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>`}
+          <a href="${link}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>
         </div>
       `,
       "col-12 col-md-6 col-lg-4 d-flex",
