@@ -21,7 +21,7 @@ export const ChartService = (() => {
 
       isUpdating = true;
       try {
-        const result = await coinAPI.getLivePrices(symbols);
+        const result = await coinAPI.fetchLivePrices(symbols);
 
         if (!result.ok) {
           chartCallbacks.onError?.({

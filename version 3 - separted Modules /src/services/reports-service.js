@@ -59,7 +59,7 @@ export const ReportsService = (() => {
       };
     }
 
-    const coinExists = AppState.fetchAllCoins().some((coin) => coin.symbol === newUpper);
+    const coinExists = AppState.getAllCoins().some((coin) => coin.symbol === newUpper);
     if (!coinExists) {
       return {
         ok: false,

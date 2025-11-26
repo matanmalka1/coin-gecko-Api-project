@@ -3,8 +3,7 @@ import { Storage } from "../utils/storage.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 
 const loadStoredReports = () => {
-  const stored =
-    Storage.readJSON(CONFIG.STORAGE_KEYS.REPORTS, []) || [];
+  const stored = Storage.readJSON(CONFIG.STORAGE_KEYS.REPORTS, []) || [];
   if (!Array.isArray(stored)) return [];
   const normalized = stored
     .filter(Boolean)
@@ -34,12 +33,12 @@ export const AppState = (() => {
     loadingCoins: false,
     theme: Storage.readJSON(CONFIG.STORAGE_KEYS.THEME, "light"),
     favorites: (Storage.readJSON(CONFIG.STORAGE_KEYS.FAVORITES, []) || []).map(
-      (s) => (typeof s === "string" ? s.toUpperCase() : s)
+      (s) => (typeof s === "string" ? normalizeSymbol(s) : s)
     ),
   };
 
   // Coins data
-  const fetchAllCoins = () => [...state.allCoins];
+  const getAllCoins = () => [...state.allCoins];
 
   const setAllCoins = (coins) => {
     if (!Array.isArray(coins)) {
@@ -62,16 +61,17 @@ export const AppState = (() => {
 
   // Favorites
   const addFavorite = (symbol) => {
-    const s = normalizeSymbol(symbol);
-    if (!state.favorites.includes(s)) {
-      state.favorites.push(s);
+    const normalized = normalizeSymbol(symbol);
+    if (!state.favorites.includes(normalized)) {
+      state.favorites.push(normalized);
       Storage.writeJSON(CONFIG.STORAGE_KEYS.FAVORITES, state.favorites);
     }
   };
 
   const removeFavorite = (symbol) => {
-    const s = normalizeSymbol(symbol);
-    state.favorites = state.favorites.filter((x) => x !== s);
+    state.favorites = state.favorites.filter(
+      (favSymbol) => favSymbol !== normalizeSymbol(symbol)
+    );
     Storage.writeJSON(CONFIG.STORAGE_KEYS.FAVORITES, state.favorites);
   };
 
@@ -85,15 +85,15 @@ export const AppState = (() => {
   const getSelectedReports = () => [...state.selectedReports];
   const getCoinsLastUpdated = () => state.coinsLastUpdated;
   const setCoinsLastUpdated = (timestamp) => {
-    state.coinsLastUpdated = typeof timestamp === "number" ? timestamp : Date.now();
+    state.coinsLastUpdated =
+      typeof timestamp === "number" ? timestamp : Date.now();
   };
 
   const addReport = (symbol) => {
-    const symbolUpper = normalizeSymbol(symbol);
-    if (state.selectedReports.includes(symbolUpper)) return false;
+    if (state.selectedReports.includes(normalizeSymbol(symbol))) return false;
     if (state.selectedReports.length >= CONFIG.REPORTS.MAX_COINS) return false;
 
-    state.selectedReports.push(symbolUpper);
+    state.selectedReports.push(normalizeSymbol(symbol));
     persistSelectedReports(state.selectedReports);
     return true;
   };
@@ -106,15 +106,16 @@ export const AppState = (() => {
   const getTheme = () => state.theme;
 
   const removeReport = (symbol) => {
-    const symbolUpper = normalizeSymbol(symbol);
+    const normalized = normalizeSymbol(symbol);
     state.selectedReports = state.selectedReports.filter(
-      (s) => s !== symbolUpper
+      (s) => s !== normalized
     );
     persistSelectedReports(state.selectedReports);
   };
 
   const hasReport = (symbol) => {
-    return state.selectedReports.includes(normalizeSymbol(symbol));
+    const normalized = normalizeSymbol(symbol);
+    return state.selectedReports.includes(normalized);
   };
 
   const isReportsFull = () => {
@@ -137,13 +138,13 @@ export const AppState = (() => {
   // Loading indicators
   const isLoadingCoins = () => state.loadingCoins;
   const setLoadingCoins = (value) => {
-    state.loadingCoins = Boolean(value);
+    state.loadingCoins = !!value;
   };
 
   const isShowingFavoritesOnly = () => state.showFavoritesOnly;
 
   const setShowFavoritesOnly = (value) => {
-    state.showFavoritesOnly = Boolean(value);
+    state.showFavoritesOnly = !!value;
   };
 
   // Compare modal state
@@ -160,11 +161,12 @@ export const AppState = (() => {
   const isCompareModalOpen = () => state.compareModalOpen;
 
   const setCompareModalOpen = (isOpen) => {
-    state.compareModalOpen = Boolean(isOpen);
+    state.compareModalOpen = !!isOpen;
   };
 
   return {
-    fetchAllCoins,
+    fetchAllCoins: getAllCoins,
+    getAllCoins,
     setAllCoins,
     getSelectedReports,
     getCoinsLastUpdated,

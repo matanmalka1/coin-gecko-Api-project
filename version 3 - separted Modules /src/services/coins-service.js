@@ -52,7 +52,7 @@ export const CoinsService = (() => {
   };
 
   const sortCoins = (sortType) => {
-    const coins = AppState.fetchAllCoins();
+    const coins = AppState.getAllCoins();
     const sorted = sortList(coins, sortType);
     return { ok: true, data: sorted };
   };
@@ -60,7 +60,7 @@ export const CoinsService = (() => {
   const refreshCoinsDisplay = () => {
     return {
       ok: true,
-      data: AppState.fetchAllCoins(),
+      data: AppState.getAllCoins(),
       selected: AppState.getSelectedReports(),
       favorites: AppState.getFavorites(),
     };
@@ -89,21 +89,19 @@ export const CoinsService = (() => {
   };
 
   const findCoinBySymbol = (term) => {
-    const searchTerm = term.trim().toUpperCase();
+    const searchTerm = normalizeSymbol(term);
 
     if (!searchTerm) {
       return { ok: false, code: "EMPTY_TERM" };
     }
 
-    const allCoins = AppState.fetchAllCoins();
+    const allCoins = AppState.getAllCoins();
 
     if (allCoins.length === 0) {
       return { ok: false, code: "LOAD_WAIT" };
     }
 
-    const filteredCoins = allCoins.filter(
-      (coin) => coin.symbol.toUpperCase() === searchTerm
-    );
+    const filteredCoins = allCoins.filter((coin) => coin.symbol === searchTerm);
 
     if (filteredCoins.length === 0) {
       return { ok: false, code: "NO_MATCH", term: searchTerm };
@@ -126,9 +124,9 @@ export const CoinsService = (() => {
       return { ok: false, code: "NONE_SELECTED" };
     }
 
-    const allCoins = AppState.fetchAllCoins();
+    const allCoins = AppState.getAllCoins();
     const filtered = allCoins.filter((coin) =>
-      selectedReports.includes(coin.symbol.toUpperCase())
+      selectedReports.includes(coin.symbol)
     );
 
     if (filtered.length === 0) {
@@ -148,7 +146,7 @@ export const CoinsService = (() => {
 
     return {
       ok: true,
-      data: AppState.fetchAllCoins(),
+      data: AppState.getAllCoins(),
       selected: AppState.getSelectedReports(),
       favorites: AppState.getFavorites(),
     };

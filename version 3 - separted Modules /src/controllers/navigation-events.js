@@ -25,11 +25,9 @@ const NavigationEvents = (() => {
   };
 
   const registerNavigation = () => {
-    $("#currenciesBtn").on("click", () => {
+    $("#currenciesBtn, #brandHome").on("click", () => {
       PagesController.showCurrenciesPage();
     });
-
-    $("#brandHome").on("click", () => PagesController.showCurrenciesPage());
 
     $("#reportsBtn").on("click", () => {
       PagesController.showReportsPage();

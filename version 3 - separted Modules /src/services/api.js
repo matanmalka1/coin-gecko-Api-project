@@ -41,7 +41,6 @@ export const coinAPI = (() => {
     });
 
     const coingeckoMarketUrl = `${COINGECKO_BASE}/coins/markets?${params.toString()}`;
-    console.log(coingeckoMarketUrl);
     return fetchWithRetry(coingeckoMarketUrl);
   };
   const fetchCoinDetails = async (coinId) => {
@@ -62,17 +61,19 @@ export const coinAPI = (() => {
     return fetchWithRetry(cryptoCompareUrl);
   };
 
-  
   const fetchCoinMarketChart = async (coinId, days = 7) => {
     const url = `${COINGECKO_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`;
     return fetchWithRetry(url);
   };
   return {
+    fetchMarketData,
+    fetchCoinDetails,
+    fetchLivePrices,
+    fetchCoinMarketChart,
+    // Aliases to align with service usage
     getMarkets: fetchMarketData,
     getCoinDetails: fetchCoinDetails,
     getLivePrices: fetchLivePrices,
     getCoinMarketChart: fetchCoinMarketChart,
   };
-
-  
 })();

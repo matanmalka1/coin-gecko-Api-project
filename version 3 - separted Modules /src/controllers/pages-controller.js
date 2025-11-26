@@ -21,7 +21,7 @@ export const PagesController = (() => {
 
     UIManager.displayCurrencyPage();
 
-    const cachedCoins = AppState.fetchAllCoins();
+    const cachedCoins = AppState.getAllCoins();
     if (cachedCoins.length) {
       UIManager.displayCoins(cachedCoins, AppState.getSelectedReports(), {
         favorites: AppState.getFavorites(),

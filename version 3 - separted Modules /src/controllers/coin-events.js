@@ -87,7 +87,7 @@ const CoinEvents = (() => {
   const handleShowFavorites = () => {
     if (AppState.isShowingFavoritesOnly()) {
       UIManager.displayCoins(
-        AppState.fetchAllCoins(),
+        AppState.getAllCoins(),
         AppState.getSelectedReports(),
         {
           favorites: AppState.getFavorites(),
@@ -99,7 +99,7 @@ const CoinEvents = (() => {
     }
 
     const favoriteSymbols = AppState.getFavorites();
-    const allCoins = AppState.fetchAllCoins();
+    const allCoins = AppState.getAllCoins();
     const filteredCoins = allCoins.filter((c) =>
       favoriteSymbols.includes(c.symbol)
     );
@@ -133,7 +133,7 @@ const CoinEvents = (() => {
     $(document)
       .on("click", "#searchBtn", handleSearch)
       .on("keypress", "#searchInput", (e) => {
-        if (e.which === 13) handleSearch();
+        if (e.key === "Enter") handleSearch();
       })
       .on("click", "#clearSearchBtn", handleClearSearch)
       .on("click", "#showFavoritesBtn", handleShowFavorites)
