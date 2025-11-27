@@ -21,14 +21,14 @@ const modeConfig = {
 };
 
 export const NewsController = (() => {
-  const displayNews = async () => {
+  const showNewsPage = async () => {
     ChartService.cleanup();
     AppState.setCurrentView("news");
     UIManager.showPage(PageComponents.newsPage());
-    await fetchNews("general");
+    await loadNews("general");
   };
 
-  const fetchNews = async (mode = "general") => {
+  const loadNews = async (mode = "general") => {
     const normalizedMode = mode === "favorites" ? "favorites" : "general";
     const config = modeConfig[normalizedMode];
     const favorites = AppState.getFavorites();
@@ -62,9 +62,9 @@ export const NewsController = (() => {
   };
 
   return {
-    showNewsPage: displayNews,
-    loadNews: fetchNews,
-    loadGeneral: () => fetchNews("general"),
-    loadFavorites: () => fetchNews("favorites"),
+    showNewsPage,
+    loadNews,
+    loadGeneral: () => loadNews("general"),
+    loadFavorites: () => loadNews("favorites"),
   };
 })();

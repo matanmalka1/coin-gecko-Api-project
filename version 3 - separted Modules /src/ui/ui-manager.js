@@ -33,7 +33,7 @@ export const UIManager = (() => {
   const showCompareModal = (...args) => CoinUI.showCompareModal(...args);
 
   const initLiveChart = (symbols, options = {}) => {
-    ChartRenderer.init(symbols, options);
+    ChartRenderer.setupCharts(symbols, options);
   };
 
   const updateLiveChart = (prices, time, options = {}) => {
@@ -47,7 +47,7 @@ export const UIManager = (() => {
   const updateToggleStates = (...args) => CoinUI.updateToggleStates(...args);
 
   const drawMiniChart = (...args) => CoinUI.drawMiniChart(...args);
-  
+
   const showChartSkeleton = () => {
     $("#chartsGrid").html(BaseComponents.chartsSkeleton());
   };

@@ -165,7 +165,6 @@ export const AppState = (() => {
   };
 
   return {
-    fetchAllCoins: getAllCoins,
     getAllCoins,
     setAllCoins,
     getSelectedReports,

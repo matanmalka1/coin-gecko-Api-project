@@ -86,7 +86,7 @@ const clear = () => {
 };
 
 export const ChartRenderer = {
-  init: setupCharts,
+  setupCharts,
   update,
   clear,
 };
