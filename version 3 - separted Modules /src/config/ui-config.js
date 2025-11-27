@@ -33,8 +33,6 @@ export const UI_CONFIG = {
     AXIS_X_FORMAT: "HH:mm:ss",
     AXIS_Y_TITLE: "Price (USD)",
     AXIS_Y_PREFIX: "$",
-    CARD_CLASSES: "col-md-6 col-lg-4",
-    CARD_BODY_CLASSES: "card shadow-sm p-3 h-100",
     CARD_BADGE_TEXT: "Live",
     HEIGHT_PX: 220,
     HEIGHT_MOBILE_PX: 180,

@@ -25,9 +25,6 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
     .join("");
 
   container.html(coinCardsHtml);
-
-  const isDarkMode = $("html").hasClass("dark");
-  $(".card").toggleClass("dark", isDarkMode);
 };
 
 const showLoading = () => {

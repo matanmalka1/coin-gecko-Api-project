@@ -131,7 +131,6 @@ const CoinEvents = (() => {
 
   const setupEventListeners = () => {
     $(document)
-      .on("click", "#searchBtn", handleSearch)
       .on("keypress", "#searchInput", (e) => {
         if (e.key === "Enter") handleSearch();
       })

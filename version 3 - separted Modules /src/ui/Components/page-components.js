@@ -7,19 +7,17 @@ const { cardContainer } = BaseComponents;
 // Pages
 const currenciesPage = () => `
   <div id="searchArea" class="my-4 text-center">
-    <input type="text" id="searchInput"
-      placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)"
-      class="form-control w-50 d-inline-block rounded-pill" />
-    <button type="button" id="searchBtn" class="btn mx-2">Search</button>
-    <button type="button" id="filterReportsBtn" class="btn mx-2">Show Selected</button>
-    <button type="button" id="showFavoritesBtn" class="btn mx-2">Favorites</button>
-    <button type="button" id="clearSearchBtn" class="btn mx-2">Clear</button>
-    <button type="button" id="refreshCoinsBtn" class="btn mx-2">
-      <i class="bi bi-arrow-clockwise"></i> Refresh
-    </button>
+    <input type="text" id="searchInput" class="form-control w-50 d-inline-block rounded-pill py-2 px-4"
+        placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
+<button type="button" id="filterReportsBtn" class="btn mx-2">Show Selected</button>
+<button type="button" id="showFavoritesBtn" class="btn mx-2">Favorites</button>
+<button type="button" id="clearSearchBtn" class="btn mx-2">Clear</button>
+<button type="button" id="refreshCoinsBtn" class="btn btn-outline-info mx-2">
+  <i class="bi bi-arrow-clockwise"></i> 
+</button>
   </div>
   <div id="sortArea" class="my-3">
-    <select id="sortSelect" class="form-select d-inline-block">
+    <select id="sortSelect" class="form-select w-auto d-inline-block">
       <option value="">Sort by default</option>
       <option value="price_desc">Price ↓</option>
       <option value="price_asc">Price ↑</option>
@@ -73,33 +71,38 @@ const aboutPage = (userData = {}) => {
 
 // [NEWS] News page layout
 const newsPage = () => `
-  <section class="news-hero mb-4">
+<section class="news-hero mb-4 py-5 rounded-3">
     <div class="container">
       <div class="row gy-4 align-items-center">
         <div class="col-lg-7">
           <p class="text-uppercase small mb-2 text-white-50">Live feed</p>
           <h1 class="display-5 fw-bold text-white mb-3">Stay ahead with curated crypto headlines</h1>
+          
           <p class="text-white-75 mb-4">
             Filter between global coverage or insights tailored to your favorite coins. Updated continuously through the last 5 hours.
           </p>
+          
           <div class="d-flex flex-wrap gap-2">
-            <button type="button"  class="btn news-filter active" id="newsGeneralBtn">
+            <button type="button" class="btn  px-3 py-2 rounded-2 active" id="newsGeneralBtn">              
               <i class="bi bi-globe2 me-2"></i>General
             </button>
-            <button type="button" class="btn news-filter" id="newsFavoritesBtn">
+
+            <button type="button" class="btn  px-3 py-2 rounded-2" id="newsFavoritesBtn">
               <i class="bi bi-star me-2"></i>Favorites
             </button>
+            
             <div class="badge bg-white text-dark fw-semibold">
               <i class="bi bi-clock-history me-1"></i> 5h freshness
             </div>
           </div>
         </div>
-        <div class="col-lg-5">
-          <div class="news-hero-card p-4">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <span class="text-uppercase small text-muted">Status</span>
-              <span class="badge text-bg-light">
-                <i class="bi bi-info-circle me-1"></i>Live monitor
+
+          <div class="col-lg-5">
+            <div class="card news-card h-100 shadow-sm border-0 rounded-3">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="text-uppercase small text-muted">Status</span>
+                <span class="badge text-bg-light">
+                  <i class="bi bi-info-circle me-1"></i>Live monitor
               </span>
             </div>
             <p id="newsStatus" class="mb-0 text-white-75">${CONFIG.NEWS_UI.STATUS_GENERAL}</p>
@@ -107,10 +110,11 @@ const newsPage = () => `
         </div>
       </div>
     </div>
-  </section>
-  <div class="container">
-    <div id="newsList" class="row g-4"></div>
-  </div>
+      </section>
+
+      <div class="container">
+        <div id="newsList" class="row g-4"></div>
+      </div>
 `;
 
 // [NEWS] Single news article card
@@ -142,10 +146,10 @@ const newsArticleCard = (article) => {
           }
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title news-card-title mb-3">
+          <h5 class="card-title mb-3">
             <a href="${link}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${displayTitle}</a>
           </h5>
-          <div class="d-flex justify-content-between align-items-center mb-3 news-card-meta">
+          <div class="d-flex justify-content-between align-items-center mb-3 text-muted">
             <span class="badge text-bg-light">
               <i class="bi bi-newspaper"></i> ${displaySource}
             </span>
@@ -155,8 +159,8 @@ const newsArticleCard = (article) => {
           </div>
           ${
             displayDesc
-              ? `<p class="card-text flex-grow-1 mb-0 news-desc">${displayDesc}</p>`
-              : `<p class="card-text flex-grow-1 text-muted fst-italic news-desc">No description available.</p>`
+              ? `<p class="card-text flex-grow-1 mb-0">${displayDesc}</p>`
+              : `<p class="card-text flex-grow-1 mb-0" fst-italic">No description available.</p>`
           }
           <a href="${link}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>
         </div>

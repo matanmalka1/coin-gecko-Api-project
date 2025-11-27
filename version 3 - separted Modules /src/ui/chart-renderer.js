@@ -27,16 +27,16 @@ const setupCharts = (symbols, options = {}) => {
 
   symbols.forEach((symbol) => {
     grid.append(`
-      <div class="${CONFIG.CHART.CARD_CLASSES}">
-        <div class="${CONFIG.CHART.CARD_BODY_CLASSES}">
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm p-3 h-100 rounded-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">${symbol}</h6>
-            <small class="text-muted">${CONFIG.CHART.CARD_BADGE_TEXT}</small>
+              <small class="text-muted">${CONFIG.CHART.CARD_BADGE_TEXT}</small>
           </div>
           <div id="chart-${symbol}" style="height:${height}px;"></div>
         </div>
       </div>
-    `);
+`);
 
     const dataPoints = [];
     chartData.set(symbol, dataPoints);
