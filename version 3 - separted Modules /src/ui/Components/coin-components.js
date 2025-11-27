@@ -3,7 +3,6 @@ import { shortenText } from "../../utils/general-utils.js";
 import { BaseComponents } from "./base-components.js";
 
 const { cardContainer } = BaseComponents;
-
 const coinCard = (coin, isSelected = false, options = {}) => {
   const { id, name, symbol, image, current_price, market_cap } = coin;
   const { isFavorite = false } = options;
@@ -63,7 +62,7 @@ const coinCard = (coin, isSelected = false, options = {}) => {
   return cardContainer(
     body,
     "col-12 col-md-6 col-lg-4",
-    "card border-0 shadow-sm hover-shadow transition p-3 h-100"
+    "card border shadow-sm p-3 h-100"
   );
 };
 
@@ -92,7 +91,7 @@ const coinDetails = (data = {}, currencies = {}) => {
         : value;
 
     return `
-      <div class="price-badge mb-2 p-2 bg-white rounded ${
+      <div class="price-badge mb-2 p-2 border border-start border-primary border-3 rounded ${
         value === "N/A" ? "text-muted" : ""
       }">
         ${label}: ${curr?.symbol ?? ""}${formatted}
@@ -111,10 +110,10 @@ const coinDetails = (data = {}, currencies = {}) => {
       : "N/A";
 
   return `
-    <div class="more-info-content p-3 bg-light rounded">
+    <div class="more-info-content p-3 bg-light rounded border">
       <div class="d-flex align-items-center gap-3 mb-3">
         <img src="${image.large}" alt="${name}" 
-          class="coin-info-image rounded-circle">
+          class="coin-info-image rounded-circle shadow">
         <div>
           <h6 class="mb-0">${name}</h6>
           <small class="text-muted">${symbol.toUpperCase()}</small>
@@ -166,8 +165,8 @@ const replaceModal = (newSymbol, existingCoins, options = {}) => {
     <div class="modal fade" id="replaceModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="replaceModalLabel">Replace Coin</h5>
+          <div class="modal-header border-bottom">
+            <h5 class="modal-title fw-semibold" id="replaceModalLabel">Replace Coin</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -175,7 +174,7 @@ const replaceModal = (newSymbol, existingCoins, options = {}) => {
             <p>Choose a coin to replace with <strong>${newSymbol}</strong>:</p>
             <ul class="list-group">${listItems}</ul>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer border-top">
             <button type="button" class="btn btn-secondary" 
               data-bs-dismiss="modal">Cancel</button>
             <button type="button" id="confirmReplace" 
@@ -194,14 +193,14 @@ const compareModal = (coinsHTML, options = {}) => {
     <div class="modal fade" id="compareModal">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">${title}</h5> 
+          <div class="modal-header border-bottom">
+            <h5 class="modal-title fw-semibold">${title}</h5> 
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             ${coinsHTML}
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer border-top">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>

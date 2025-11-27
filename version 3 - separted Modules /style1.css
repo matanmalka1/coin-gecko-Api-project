@@ -301,7 +301,7 @@ html.dark .alert-info {
 /* ===== SPINNERS & SKELETONS ===== */
 
 .spinner-border {
-  border-width: 3px;
+  border-width: 20px;
   border-color: var(--color-primary);
 border-right-color: transparent;
   color: var(--color-primary) !important;

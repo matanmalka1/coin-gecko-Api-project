@@ -25,7 +25,7 @@ const cardShell = (content, classes = "") =>
 const cardContainer = (
   content,
   colClasses = "col-md-6 col-lg-4",
-  cardClasses = "card h-100 shadow-sm border-0"
+  cardClasses = "card h-100 shadow-sm border"
 ) => `<div class="${colClasses}">${cardShell(content, cardClasses)}</div>`;
 
 const buildSkeletonGrid = (
@@ -58,7 +58,7 @@ const newsSkeleton = (count = 3) =>
         </div>
       `,
       "col-12 col-md-6 col-lg-4 d-flex",
-      "card news-card h-100 border-0 shadow-md placeholder-wave w-100"
+      "card news-card h-100 border shadow placeholder-wave w-100"
     )
   );
 
@@ -82,7 +82,7 @@ const coinsSkeleton = (count = 6) =>
         </div>
       `,
       "col-12 col-md-6 col-lg-4",
-      "card border-0 shadow-sm placeholder-wave h-100 p-3"
+      "card border shadow-sm placeholder-wave h-100 p-3"
     )
   );
 
@@ -97,7 +97,7 @@ const chartsSkeleton = (count = 3) =>
         <div class="placeholder bg-light rounded" style="height:220px;"></div>
       `,
       "col-12 col-md-6 col-lg-4",
-      "card border-0 shadow-sm placeholder-wave h-100 p-3 chartsSkeleton"
+      "card border shadow-sm placeholder-wave h-100 p-3 chartsSkeleton"
     )
   );
 
