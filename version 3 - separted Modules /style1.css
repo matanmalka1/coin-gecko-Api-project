@@ -79,61 +79,35 @@ a:visited {
   color: var(--color-link);
 }
 
+/* ===== NAVBAR ===== */
+
+  html.dark .navbar {
+    background-color: var(--color-bg-light) !important;
+    border-color: var(--color-border);
+  }
+
+  .navbar .btn:hover,
+  #themeToggleBtn:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
 
 
 /* ===== HEADER & PARALLAX ===== */
 
 header.parallax {
-  background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920");
-  height: 400px;
-  background-attachment: fixed;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 3rem;
-  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
-}
-
-/* ===== NAVBAR ===== */
-
-.navbar {
-  background-color: var(--color-bg-light) !important;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.navbar-brand {
-  color: var(--color-text) !important;
-    transition: color 0.2s ease;
-}
-
-.navbar-brand:hover {
-  color: var(--color-primary) !important;
-}
-
-
-/* html.dark .navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(224, 224, 224, 0.75)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-} */
-
-button {
-  color: var(--color-text);
-}
-
-button:hover{ 
-     box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
-}
+    background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920");
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
+    height: 400px
+  }
 
 /* ===== CONTENT AREAS ===== */
 
-#content {
-  min-height: 500px;
-  padding: 40px;
-}
 
 #searchArea,
 #sortArea {
@@ -419,14 +393,6 @@ html.dark .table-striped tbody tr:nth-of-type(odd) {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* ===== FOOTER ===== */
-
-footer {
-  background-color: var(--color-footer-bg) !important;
-  color: #ffffff;
-  border-top: 1px solid var(--color-border);
-  margin-top: auto;
-}
 
 /* ===== ANIMATIONS ===== */
 
@@ -461,3 +427,11 @@ footer {
   margin: 2rem auto;
   border-radius: var(--radius-md);
 }
+
+
+/* ===== FOOTER ===== */
+
+  html.dark footer {
+    background-color: var(--color-footer-bg) !important;
+    border-color: var(--color-border);
+  }
