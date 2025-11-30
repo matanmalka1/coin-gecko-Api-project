@@ -38,12 +38,6 @@ const ReportsEvents = (() => {
           modal.hide();
         },
         onClose: () => {
-          if (!ReportsService.hasReport(serviceResult.newSymbol)) {
-            $(`.coin-toggle[data-symbol="${serviceResult.newSymbol}"]`).prop(
-              "checked",
-              false
-            );
-          }
           UIManager.updateToggleStates(ReportsService.getSelectedReports());
         },
       }

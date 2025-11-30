@@ -4,7 +4,7 @@ import { NewsService } from "../services/news-service.js";
 import { AppState } from "../state/state.js";
 import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
-import { ChartService } from "../services/chart-service.js";
+import { ChartController } from "./chart-controller.js";
 
 const modeConfig = {
   general: {
@@ -23,7 +23,7 @@ const modeConfig = {
 
 export const NewsController = (() => {
   const showNewsPage = async () => {
-    ChartService.cleanup();
+    ChartController.cleanupAll();
     AppState.setCurrentView("news");
     UIManager.showPage(PageComponents.newsPage());
     await loadNews("general");

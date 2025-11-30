@@ -1,10 +1,10 @@
 import { UIManager } from "../ui/ui-manager.js";
 import { CoinsService } from "../services/coins-service.js";
-import { ChartService } from "../services/chart-service.js";
 import { AppState } from "../state/state.js";
 import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
+import { ChartController } from "./chart-controller.js";
 
 export const PagesController = (() => {
   const COINS_REFRESH_INTERVAL = CONFIG.CACHE.COINS_REFRESH_INTERVAL_MS;
@@ -16,7 +16,7 @@ export const PagesController = (() => {
   };
 
   const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
-    ChartService.cleanup();
+    ChartController.cleanupAll();
     AppState.setCurrentView("currencies");
 
     UIManager.displayCurrencyPage();
@@ -51,13 +51,13 @@ export const PagesController = (() => {
   };
 
   const showReportsPage = () => {
-    ChartService.cleanup();
+    ChartController.cleanupAll();
     AppState.setCurrentView("reports");
 
     UIManager.renderReportsPage();
     UIManager.showChartSkeleton();
 
-    const result = ChartService.startLiveChart({
+    const result = ChartController.startLiveChart({
       onChartReady: ({ symbols, updateIntervalMs, historyPoints }) => {
         UIManager.clearLiveChart();
         UIManager.initLiveChart(symbols, {
@@ -67,7 +67,7 @@ export const PagesController = (() => {
       },
       onData: ({ prices, time }) => {
         UIManager.updateLiveChart(prices, time, {
-          historyPoints: 30,
+          historyPoints: CONFIG.CHART.HISTORY_POINTS,
         });
       },
       onError: ({ code, error }) => {
@@ -87,7 +87,7 @@ export const PagesController = (() => {
   };
 
   const showAboutPage = () => {
-    ChartService.cleanup();
+    ChartController.cleanupAll();
     AppState.setCurrentView("about");
 
     UIManager.renderAboutPage({
