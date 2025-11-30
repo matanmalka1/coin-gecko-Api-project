@@ -45,7 +45,7 @@ export const UI_CONFIG = {
   // Reports settings
   REPORTS: {
     MAX_COINS: 5,
-    MAX_COMPARE: 5,
+    MAX_COMPARE: 4,
   },
 
   // Currencies

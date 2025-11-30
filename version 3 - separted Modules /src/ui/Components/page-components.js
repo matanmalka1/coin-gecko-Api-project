@@ -160,7 +160,7 @@ const newsArticleCard = (article) => {
           ${
             displayDesc
               ? `<p class="card-text flex-grow-1 mb-0">${displayDesc}</p>`
-              : `<p class="card-text flex-grow-1 mb-0" fst-italic">No description available.</p>`
+              : `<p class="card-text flex-grow-1 mb-0 fst-italic">No description available.</p>`
           }
           <a href="${link}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>
         </div>

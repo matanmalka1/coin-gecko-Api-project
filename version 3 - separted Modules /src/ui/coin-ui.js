@@ -161,9 +161,9 @@ const showCompareModal = (coins, options = {}) => {
 };
 
 const updateToggleStates = (selectedReports) => {
-  $(".coin-toggle").each((e) => {
-    const symbol = $(e.currentTarget).data("symbol");
-    $(e.currentTarget).prop("checked", selectedReports.includes(symbol));
+  $(".coin-toggle").each(function () {
+    const symbol = $(this).data("symbol");
+    $(this).prop("checked", selectedReports.includes(symbol));
   });
 };
 

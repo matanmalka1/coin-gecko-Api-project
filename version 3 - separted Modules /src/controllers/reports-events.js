@@ -3,6 +3,7 @@ import { ReportsService } from "../services/reports-service.js";
 import { UIManager } from "../ui/ui-manager.js";
 import { AppState } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
+import { CONFIG } from "../config/config.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
 
 const ReportsEvents = (() => {
@@ -65,7 +66,11 @@ const ReportsEvents = (() => {
     const currentSelection = AppState.getCompareSelection();
     const alreadySelected = currentSelection.includes(coinIdForAction);
 
-    if (!alreadySelected && currentSelection.length >= 2) return;
+    if (
+      !alreadySelected &&
+      currentSelection.length >= CONFIG.REPORTS.MAX_COMPARE
+    )
+      return;
 
     let nextSelection = currentSelection;
     if (!alreadySelected) {
@@ -73,7 +78,7 @@ const ReportsEvents = (() => {
       AppState.setCompareSelection(nextSelection);
     }
 
-    if (nextSelection.length >= 2) {
+    if (nextSelection.length >= CONFIG.REPORTS.MAX_COMPARE) {
       const serviceResult = await ReportsService.getCompareData(nextSelection);
 
       if (!serviceResult?.ok) {

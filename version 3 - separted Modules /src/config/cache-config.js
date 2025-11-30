@@ -7,7 +7,7 @@ export const CACHE_CONFIG = {
 
   NEWS_CACHE: {
     TTL_MS: 10 * 60 * 1000,
-    FRESH_WINDOW_MS: 2 * 60 * 1000,
+    FRESH_WINDOW_MS: 5 * 60 * 60 * 1000,
   },
 
   STORAGE_KEYS: {
