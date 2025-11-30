@@ -6,6 +6,7 @@ export const CacheManager = (() => {
   const MAX_ENTRIES = CONFIG.CACHE.MAX_ENTRIES || 100;
   const DEFAULT_EXPIRY = CONFIG.CACHE.EXPIRY_TIME;
 
+  // Returns a cached entry if it exists and hasn't expired.
   const getCache = (key) => {
     if (!cacheStore.has(key)) return null;
     const entry = cacheStore.get(key);
@@ -18,6 +19,7 @@ export const CacheManager = (() => {
     return entry.data;
   };
 
+  // Stores a value in the cache and enforces LRU policy.
   const setCache = (key, data, ttl = DEFAULT_EXPIRY) => {
     const entry = { data, timestamp: Date.now(), ttl };
     if (cacheStore.has(key)) cacheStore.delete(key);

@@ -22,6 +22,7 @@ const modeConfig = {
 };
 
 export const NewsController = (() => {
+  // Renders the news page and loads default news.
   const showNewsPage = async () => {
     ChartService.cleanup();
     AppState.setCurrentView("news");
@@ -29,6 +30,7 @@ export const NewsController = (() => {
     await loadNews("general");
   };
 
+  // Generic news-loading helper, handles general/favorites modes.
   const loadNews = async (mode = "general") => {
     const normalizedMode = mode === "favorites" ? "favorites" : "general";
     const config = modeConfig[normalizedMode];

@@ -2,11 +2,13 @@ import { API_CONFIG } from "./api-config.js";
 import { CACHE_CONFIG } from "./cache-config.js";
 import { UI_CONFIG } from "./ui-config.js";
 
+// Master configuration object that merges API/cache/UI settings.
 export const CONFIG = {
   // API endpoints
   API: {
     COINGECKO_BASE: API_CONFIG.COINGECKO_BASE,
     CRYPTOCOMPARE_BASE: API_CONFIG.CRYPTOCOMPARE_BASE,
+    CHART_HISTORY_DAYS: API_CONFIG.CHART_HISTORY_DAYS,
   },
 
   // (API + Cache)

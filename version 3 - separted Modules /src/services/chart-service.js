@@ -6,6 +6,7 @@ import { CONFIG } from "../config/config.js";
 export const ChartService = (() => {
   let updateInterval = null;
 
+  // Starts polling live prices for the selected reports.
   const startLiveChart = (chartCallbacks = {}) => {
     cleanup();
     const symbols = AppState.getSelectedReports();
@@ -57,6 +58,7 @@ export const ChartService = (() => {
     return { ok: true, symbols };
   };
 
+  // Stops the polling interval and resets state.
   const cleanup = () => {
     if (updateInterval) {
       clearInterval(updateInterval);

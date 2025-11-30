@@ -1,12 +1,15 @@
+// Trims text to a maximum length (adds ellipsis when exceeding max).
 export const shortenText = (text = "", max = 200) => {
   if (!text) return "";
   return text.length > max ? `${text.slice(0, max)}...` : text;
 };
 
+// Normalizes coin symbols to uppercase trimmed strings.
 export const normalizeSymbol = (symbol = "") =>
   String(symbol).trim().toUpperCase();
 
 // News-Utils -
+// Filters articles that fall within the last `maxAgeInMs` window.
 export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
   if (!maxAgeInMs) return articles;
   

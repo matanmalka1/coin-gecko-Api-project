@@ -1,9 +1,11 @@
+// Builds a Bootstrap alert block with icon + text.
 const alertBox = (type, icon, message) => `
   <div class="alert alert-${type} text-center mt-4">
     <i class="${icon}"></i> ${message}
   </div>
 `;
 
+// Returns a spinner block with an accessible status message.
 const spinner = (message = "Loading...") => `
   <div class="text-center my-3">
     <div class="spinner-border text-primary">
@@ -13,21 +15,26 @@ const spinner = (message = "Loading...") => `
   </div>
 `;
 
+// Specialized variant for danger alerts.
 const errorAlert = (message) =>
   alertBox("danger", "bi bi-exclamation-triangle-fill", message);
 
+// Specialized variant for informational alerts.
 const infoAlert = (message) =>
   alertBox("info", "bi bi-info-circle-fill", message);
 
+// Wraps arbitrary content inside a styled div.
 const cardShell = (content, classes = "") =>
   `<div class="${classes}">${content}</div>`;
 
+// Renders a responsive column with a Bootstrap card inside.
 const cardContainer = (
   content,
   colClasses = "col-md-6 col-lg-4",
   cardClasses = "card h-100 shadow-sm border"
 ) => `<div class="${colClasses}">${cardShell(content, cardClasses)}</div>`;
 
+// Builds a grid of placeholder cards using a provided builder.
 const buildSkeletonGrid = (
   count,
   cardBuilder,
@@ -39,6 +46,7 @@ const buildSkeletonGrid = (
   return `<div class="${rowClasses}">${cards}</div>`;
 };
 
+// Generates placeholder cards for the news page while loading.
 const newsSkeleton = (count = 3) =>
   buildSkeletonGrid(count, () =>
     cardContainer(
@@ -62,6 +70,7 @@ const newsSkeleton = (count = 3) =>
     )
   );
 
+// Generates placeholder cards for the currencies page.
 const coinsSkeleton = (count = 6) =>
   buildSkeletonGrid(count, () =>
     cardContainer(
@@ -86,6 +95,7 @@ const coinsSkeleton = (count = 6) =>
     )
   );
 
+// Generates placeholder cards for the live charts grid.
 const chartsSkeleton = (count = 3) =>
   buildSkeletonGrid(count, () =>
     cardContainer(

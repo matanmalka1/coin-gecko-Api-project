@@ -22,21 +22,25 @@ export const NewsService = (() => {
     return `${CACHE_KEYS.FAVORITES}:${normalized.join(",")}`;
   };
 
+  // Fetches news articles (with caching) for either general or favorites queries.
   const fetchNews = async (cacheKey, params = {}) => {
     const cached = CacheManager.getCache(cacheKey);
 
-    if (cached?.timestamp && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    if (cached) {
+      const cachedArticles = Array.isArray(cached)
+        ? cached
+        : cached.articles || [];
       const filteredCache = filterLastHours(
-        cached.articles || [],
+        cachedArticles,
         FRESH_WINDOW_MS
       );
 
       const usedFallback =
-        filteredCache.length === 0 && (cached.articles || []).length > 0;
+        filteredCache.length === 0 && cachedArticles.length > 0;
 
       const articles = filteredCache.length
         ? filteredCache
-        : cached.articles || [];
+        : cachedArticles;
 
       return {
         ok: true,
@@ -72,11 +76,7 @@ export const NewsService = (() => {
         image: article.image_url,
       }));
 
-      CacheManager.setCache(
-        cacheKey,
-        { timestamp: Date.now(), articles: normalized },
-        CACHE_TTL_MS
-      );
+      CacheManager.setCache(cacheKey, normalized, CACHE_TTL_MS);
       const filtered = filterLastHours(normalized, FRESH_WINDOW_MS);
       const usedFallback = filtered.length === 0 && normalized.length > 0;
 
@@ -96,8 +96,10 @@ export const NewsService = (() => {
     }
   };
 
+  // Returns general crypto news (last 5 hours).
   const getGeneralNews = () => fetchNews(CACHE_KEYS.GENERAL);
 
+  // Returns crypto news filtered by the user's favorite symbols.
   const getNewsForFavorites = (favoriteSymbols = []) => {
     const cleaned = (favoriteSymbols || [])
       .filter(Boolean)

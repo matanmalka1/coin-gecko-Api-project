@@ -1,5 +1,6 @@
 import { ERRORS } from "../config/error.js";
 
+// Maps specific error codes to user-facing messages.
 const handlers = {
   EMPTY_TERM: ({ term }) => ERRORS.SEARCH.EMPTY_TERM,
   FULL: () => ERRORS.REPORTS.LIMIT,
@@ -16,6 +17,7 @@ const handlers = {
 };
 
 export const ErrorResolver = {
+  // Resolves an error code to its message or falls back to default.
   resolve(code, options = {}) {
     const handler = handlers[code];
     return handler

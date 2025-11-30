@@ -4,6 +4,7 @@ import { BaseComponents } from "./Components/base-components.js";
 
 let selectorCache = {};
 
+// Returns cached jQuery selector references to reduce repeated queries.
 const getCached = (selector) => {
   if (!selectorCache[selector]) {
     selectorCache[selector] = $(selector);
@@ -11,31 +12,38 @@ const getCached = (selector) => {
   return selectorCache[selector];
 };
 
+// Clears the HTML content of a container (defaults to #content).
 const clearContent = (containerSelector = "#content") => {
   const el = getCached(containerSelector);
   el.empty();
 };
 
+// Replaces the entire page container with provided HTML and resets cache.
 const showPage = (html, containerSelector = "#content") => {
   selectorCache = {};
   clearContent(containerSelector);
   getCached(containerSelector).html(html);
 };
 
+// Reads the current .val() from an input safely.
 const getInputValue = (selector) => {
   const el = getCached(selector);
   return el.length ? el.val() : "";
 };
 
+// Sets a value into an input if it exists.
 const setInputValue = (selector, value = "") => {
   const el = getCached(selector);
   if (el.length) el.val(value);
 };
 
+// Safe wrapper for reading data-* attributes.
 const getDataAttr = (element, key) => $(element).data(key);
 
+// Checks whether a collapse element currently has the show class.
 const isCollapseOpen = (collapseId) => $(`#${collapseId}`).hasClass("show");
 
+// Applies light/dark theme classes to root + themed buttons.
 const applyTheme = (theme) => {
   const isDarkMode = theme === "dark";
   $("html").toggleClass("dark", isDarkMode);
@@ -53,6 +61,7 @@ const applyTheme = (theme) => {
   }
 };
 
+// Renders an alert error message inside a container.
 const showError = (container, message) => {
   const errorMsg =
     message && message.trim().length ? message : ERRORS.UI.GENERIC;
@@ -60,11 +69,13 @@ const showError = (container, message) => {
   getCached(container).html(BaseComponents.errorAlert(errorMsg));
 };
 
+// Shows a spinner placeholder with optional text.
 const showSpinner = (container, message) => {
   const el = getCached(container);
   if (el.length) el.html(BaseComponents.spinner(message));
 };
 
+// Opens/closes a collapse region with a smooth slide animation.
 const toggleCollapse = (collapseId, show) => {
   const element = $(`#${collapseId}`);
   if (!element.length) return;
@@ -73,10 +84,12 @@ const toggleCollapse = (collapseId, show) => {
   show ? element.slideDown() : element.slideUp();
 };
 
+// Removes d-none to reveal hidden elements.
 const showElement = (selector) => {
   getCached(selector).removeClass("d-none");
 };
 
+// Updates the favorites toggle button caption based on mode.
 const setFavoritesButtonLabel = (showingFavorites) => {
   const label = showingFavorites
     ? CONFIG.UI.FAVORITES_HIDE_LABEL

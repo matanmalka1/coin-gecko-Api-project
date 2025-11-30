@@ -3,24 +3,43 @@ import { shortenText } from "../../utils/general-utils.js";
 import { BaseComponents } from "./base-components.js";
 
 const { cardContainer } = BaseComponents;
+
+// Formats numeric price values into USD with fraction digits.
+const formatPrice = (value, options = {}) => {
+  if (typeof value !== "number") return "N/A";
+  const { minimumFractionDigits = 2, maximumFractionDigits = 2 } = options;
+  return `$${value.toLocaleString("en-US", {
+    minimumFractionDigits,
+    maximumFractionDigits,
+  })}`;
+};
+
+// Formats large monetary values with locale separators.
+const formatLargeNumber = (value) => {
+  if (typeof value !== "number") return "N/A";
+  return `$${value.toLocaleString("en-US")}`;
+};
+
+// Builds a coin summary card (price, market cap, actions, toggle states).
 const coinCard = (coin, isSelected = false, options = {}) => {
   const { id, name, symbol, image, current_price, market_cap } = coin;
   const { isFavorite = false, isInCompare = false } = options;
+  const normalizedData = coin.normalized || {};
+  const normalizedImage =
+    normalizedData.image?.thumb || image || "https://via.placeholder.com/50";
+  const normalizedPrice =
+    normalizedData.prices?.usd ??
+    (typeof current_price === "number" ? current_price : null);
+  const normalizedMarketCap =
+    normalizedData.marketCapUsd ??
+    (typeof market_cap === "number" ? market_cap : null);
 
-  const price =
-    typeof current_price === "number"
-      ? `$${current_price.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`
-      : "N/A";
-
-  const marketCapFormatted =
-    typeof market_cap === "number" ? `$${market_cap.toLocaleString()}` : "N/A";
+  const price = formatPrice(normalizedPrice);
+  const marketCapFormatted = formatLargeNumber(normalizedMarketCap);
 
   const body = `
     <div class="d-flex align-items-center gap-3 mb-3">
-      <img src="${image}" alt="${symbol}" loading="lazy"
+      <img src="${normalizedImage}" alt="${symbol}" loading="lazy"
            class="rounded-circle coin-image">
       <div>
         <h6 class="fw-bold mb-0">${name}</h6>
@@ -65,36 +84,48 @@ const coinCard = (coin, isSelected = false, options = {}) => {
     isInCompare ? "compare-card-active" : ""
   }`;
 
-  return cardContainer(body, "col-12 col-md-6 col-lg-4", cardClasses);
+  return `
+    <div class="col-12 col-md-6 col-lg-4" data-coin-id="${id}">
+      <div class="${cardClasses}">
+        ${body}
+      </div>
+    </div>
+  `;
 };
 
 // More info panel
+// Renders the expanded "more info" panel with normalized coin data.
 const coinDetails = (data = {}, currencies = {}) => {
-  const { image, name, symbol, market_data, description, platforms } = data;
-  const {
-    usd = "N/A",
-    eur = "N/A",
-    ils = "N/A",
-  } = market_data?.current_price || {};
-
-  const { usd: athUsd = "N/A" } = market_data?.ath || {};
-
+  const { image, name, symbol, description, platforms } = data;
+  const normalizedData = data.normalized || {};
+  const prices = normalizedData.prices || {};
   const desc = description?.en
-    ? shortenText(description.en, 200)
+    ? shortenText(description.en, CONFIG.COIN_DETAILS.DESCRIPTION_MAX_CHARS)
     : "No description available.";
+  const priceUsd = prices.usd ?? null;
+  const priceEur = prices.eur ?? null;
+  const priceIls = prices.ils ?? null;
+  const athUsd = normalizedData.athUsd ?? null;
+  const imageSrc =
+    normalizedData.image?.large ||
+    image?.large ||
+    image?.small ||
+    image ||
+    "https://via.placeholder.com/80";
 
+  // Helper for rendering a badge showing a specific currency value.
   const priceItem = (label, value, curr) => {
     const formatted =
-      value !== "N/A" && typeof value === "number"
+      typeof value === "number"
         ? value.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : value;
+        : "N/A";
 
     return `
       <div class="price-badge mb-2 p-2 border-left rounded ${
-        value === "N/A" ? "text-muted" : ""
+        typeof value !== "number" ? "text-muted" : ""
       }">
         ${label}: ${curr?.symbol ?? ""}${formatted}
       </div>
@@ -114,7 +145,7 @@ const coinDetails = (data = {}, currencies = {}) => {
   return `
     <div class="more-info-content p-3 bg-light rounded border">
       <div class="d-flex align-items-center gap-3 mb-3">
-        <img src="${image.large}" alt="${name}" 
+        <img src="${imageSrc}" alt="${name}" 
           class="coin-info-image rounded-circle shadow">
         <div>
           <h6 class="mb-0">${name}</h6>
@@ -123,9 +154,9 @@ const coinDetails = (data = {}, currencies = {}) => {
         </div>
       </div>
       <div class="mb-2"><strong>Current Prices:</strong></div>
-      ${priceItem("USD", usd, currencies.USD)}
-      ${priceItem("EUR", eur, currencies.EUR)}
-      ${priceItem("ILS", ils, currencies.ILS)}
+      ${priceItem("USD", priceUsd, currencies.USD)}
+      ${priceItem("EUR", priceEur, currencies.EUR)}
+      ${priceItem("ILS", priceIls, currencies.ILS)}
       <div class="mb-2 mt-3"><strong>All-Time High (USD):</strong></div>
       ${priceItem("ATH", athUsd, currencies.USD)}
       <div class="mt-2">
@@ -140,11 +171,13 @@ const coinDetails = (data = {}, currencies = {}) => {
   `;
 };
 
+// Placeholder container for attaching a small inline chart per coin.
 const coinMiniChart = (id) => `
   <div id="miniChart-${id}" class="mini-chart-container mt-3"></div>
 `;
 
 // Modals
+// Modal for replacing an existing report when the max selection limit is hit.
 const replaceModal = (newSymbol, existingCoins, options = {}) => {
   const { maxCoins } = options;
   const limit =

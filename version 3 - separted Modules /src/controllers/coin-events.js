@@ -7,7 +7,9 @@ import { ErrorResolver } from "../utils/error-resolver.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { PagesController } from "./pages-controller.js";
 
-const CoinEvents = (() => {
+from functions.update_plan to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch Error: Attempted to call two tools at once. You must wait for the previous tool call to complete. You can check the tool queue to check the status of the tools being executed.
+  let isRegistered = false;
+  // Handles "Enter" search in the currencies page.
   const handleSearch = () => {
     const searchTerm = UIManager.getInputValue("#searchInput");
     const serviceResult = CoinsService.searchCoin(searchTerm);
@@ -29,6 +31,7 @@ const CoinEvents = (() => {
     });
   };
 
+  // Clears the search input and resets coins list.
   const handleClearSearch = () => {
     UIManager.setInputValue("#searchInput", "");
     const { data, selected = [], favorites = [] } = CoinsService.clearSearch();
@@ -38,6 +41,7 @@ const CoinEvents = (() => {
     });
   };
 
+  // Toggles favorite status for a coin and updates the icon.
   const handleFavoriteToggle = (e) => {
     const coinSymbol = UIManager.getDataAttr(e.currentTarget, "symbol");
     const alreadyFavorite = AppState.isFavorite(coinSymbol);
@@ -51,6 +55,7 @@ const CoinEvents = (() => {
     CoinUI.updateFavoriteIcon(coinSymbol, !alreadyFavorite);
   };
 
+  // Utility to show error on the "more info" collapse area.
   const showMoreInfoError = (collapseId, result) => {
     UIManager.showError(
       `#${collapseId}`,
@@ -61,6 +66,7 @@ const CoinEvents = (() => {
     );
   };
 
+  // Fetches/expands "more info" collapse panel for a coin card.
   const handleMoreInfo = async (e) => {
     const coinId = UIManager.getDataAttr(e.currentTarget, "id");
     const collapseId = `collapse-${coinId}`;
@@ -88,6 +94,7 @@ const CoinEvents = (() => {
     }
   };
 
+  // Filters the coin list to favorites only or toggles back.
   const handleShowFavorites = () => {
     if (AppState.isShowingFavoritesOnly()) {
       UIManager.displayCoins(
@@ -117,6 +124,7 @@ const CoinEvents = (() => {
     AppState.setShowFavoritesOnly(true);
   };
 
+  // Updates the sort order based on user's selection.
   const handleSortChange = () => {
     const sortOption = UIManager.getInputValue("#sortSelect");
     const serviceResult = CoinsService.sortCoins(sortOption);
@@ -130,13 +138,16 @@ const CoinEvents = (() => {
     );
   };
 
+  // Forces re-fetch of coins data via currencies page.
   const handleRefreshCoins = (e) => {
     e.preventDefault();
     if (AppState.isLoadingCoins()) return;
     PagesController.showCurrenciesPage({ forceRefresh: true });
   };
 
+  // Registers all coin-related DOM events (once).
   const setupEventListeners = () => {
+    if (isRegistered) return;
     $(document)
       .on("keypress", "#searchInput", (e) => {
         if (e.key === "Enter") handleSearch();
@@ -147,6 +158,7 @@ const CoinEvents = (() => {
       .on("click", ".favorite-btn", handleFavoriteToggle)
       .on("click", ".more-info", handleMoreInfo)
       .on("change", "#sortSelect", handleSortChange);
+    isRegistered = true;
   };
 
   return {

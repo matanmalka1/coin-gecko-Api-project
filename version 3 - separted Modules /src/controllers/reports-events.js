@@ -7,6 +7,8 @@ import { CONFIG } from "../config/config.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
 
 const ReportsEvents = (() => {
+  let isRegistered = false;
+  // Syncs compare status indicator with AppState.
   const updateCompareIndicator = (
     selected = AppState.getCompareSelection()
   ) => {
@@ -26,6 +28,7 @@ const ReportsEvents = (() => {
     }
   };
 
+  // Filters coins list to currently selected reports.
   const handleFilterReports = () => {
     const serviceResult = CoinsService.filterSelectedCoins();
     UIManager.showElement("#clearSearchBtn");
@@ -44,6 +47,7 @@ const ReportsEvents = (() => {
     });
   };
 
+  // Opens the replace flow modal when reaching MAX reports.
   const openReplaceFlow = (serviceResult) => {
     UIManager.showReplaceModal(
       serviceResult.newSymbol,
@@ -65,6 +69,7 @@ const ReportsEvents = (() => {
     );
   };
 
+  // Adds/removes a coin from the reports selection via toggle switch.
   const handleCoinToggle = function () {
     const coinSymbol = UIManager.getDataAttr(this, "symbol");
     const serviceResult = ReportsService.toggleCoinSelection(coinSymbol);
@@ -79,9 +84,18 @@ const ReportsEvents = (() => {
     }
   };
 
+  // Handles clicks on compare buttons and opens the compare modal.
   const handleCompareClick = async function () {
     if (AppState.isCompareModalOpen()) return;
-    const coinIdForAction = UIManager.getDataAttr(this, "id");
+    const coinIdRaw = UIManager.getDataAttr(this, "id");
+    const coinIdForAction = String(coinIdRaw);
+    const coinExists = AppState.getAllCoins().some(
+      (coin) => String(coin.id) === coinIdForAction
+    );
+    if (!coinExists) {
+      UIManager.showError("#coinsContainer", ERRORS.REPORTS.NOT_FOUND);
+      return;
+    }
 
     const currentSelection = AppState.getCompareSelection();
     const alreadySelected = currentSelection.includes(coinIdForAction);
@@ -140,11 +154,14 @@ const ReportsEvents = (() => {
     }
   };
 
+  // Registers report-related DOM events once.
   const setupEventListeners = () => {
+    if (isRegistered) return;
     $(document)
       .on("click", "#filterReportsBtn", handleFilterReports)
       .on("change", ".coin-toggle", handleCoinToggle)
       .on("click", ".compare-btn", handleCompareClick);
+    isRegistered = true;
   };
 
   return {

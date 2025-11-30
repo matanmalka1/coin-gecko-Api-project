@@ -1,3 +1,4 @@
+// Centralized user-facing error messages for the app.
 export const ERRORS = {
   API: {
     DEFAULT: "Failed to load data. Please try again.",

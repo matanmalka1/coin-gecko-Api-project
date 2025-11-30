@@ -4,6 +4,9 @@ import { PagesController } from "./pages-controller.js";
 import { NewsController } from "./news-controller.js";
 
 const NavigationEvents = (() => {
+  let documentEventsRegistered = false;
+  let navigationRegistered = false;
+  // Handles toggling between light and dark themes.
   const handleThemeToggle = () => {
     const currentTheme = AppState.getTheme();
     const nextTheme = currentTheme === "light" ? "dark" : "light";
@@ -11,7 +14,9 @@ const NavigationEvents = (() => {
     UIManager.applyTheme(nextTheme);
   };
 
+  // Registers document-level handlers (theme/news buttons) once.
   const registerDocumentEvents = () => {
+    if (documentEventsRegistered) return;
     $(document)
       .on("click", "#themeToggleBtn", handleThemeToggle)
       .on("click", "#newsGeneralBtn", (e) => {
@@ -22,9 +27,12 @@ const NavigationEvents = (() => {
         e.preventDefault();
         NewsController.loadFavorites();
       });
+    documentEventsRegistered = true;
   };
 
+  // Binds navbar navigation buttons to their respective pages.
   const registerNavigation = () => {
+    if (navigationRegistered) return;
     $("#currenciesBtn, #brandHome").on("click", () => {
       PagesController.showCurrenciesPage();
     });
@@ -40,6 +48,7 @@ const NavigationEvents = (() => {
     $("#aboutBtn").on("click", () => {
       PagesController.showAboutPage();
     });
+    navigationRegistered = true;
   };
 
   return {

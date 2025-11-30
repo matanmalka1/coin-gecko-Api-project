@@ -1,6 +1,8 @@
+// Converts a raw value into a finite number or null.
 const toNumberOrNull = (value) =>
   typeof value === "number" && Number.isFinite(value) ? value : null;
 
+// Normalizes raw coin data from various APIs into a shared structure.
 export const normalizeCoinMarketData = (coin = {}, source = "coingecko") => {
   const marketData = coin.market_data || {};
   const currentPrice = marketData.current_price || coin.current_price || {};

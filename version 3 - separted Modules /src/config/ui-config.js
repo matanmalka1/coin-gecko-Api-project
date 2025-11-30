@@ -1,3 +1,4 @@
+// UI texts and view-related constants.
 export const UI_CONFIG = {
   // General UI messages
   UI: {
@@ -35,6 +36,10 @@ export const UI_CONFIG = {
     CARD_BADGE_TEXT: "Live",
     HEIGHT_PX: 220,
     HEIGHT_MOBILE_PX: 180,
+  },
+
+  COIN_DETAILS: {
+    DESCRIPTION_MAX_CHARS: 200,
   },
 
   // Display settings

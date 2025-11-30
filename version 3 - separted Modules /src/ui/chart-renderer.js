@@ -4,6 +4,7 @@ const charts = new Map();
 const chartData = new Map();
 let maxHistoryPoints = CONFIG.CHART.HISTORY_POINTS;
 
+// Disposes all existing CanvasJS chart instances and cached data.
 const destroyAll = () => {
   charts.forEach((chart) => chart?.destroy?.());
   charts.clear();
@@ -11,6 +12,7 @@ const destroyAll = () => {
   maxHistoryPoints = CONFIG.CHART.HISTORY_POINTS;
 };
 
+// Creates chart containers + CanvasJS objects for each selected symbol.
 const setupCharts = (symbols, options = {}) => {
   const grid = $("#chartsGrid");
   if (!grid.length) return;
@@ -62,6 +64,7 @@ const setupCharts = (symbols, options = {}) => {
   });
 };
 
+// Streams new price points into the charts, enforcing history limits.
 const update = (prices, time, options = {}) => {
   const limit = options.historyPoints ?? maxHistoryPoints;
 
@@ -80,6 +83,7 @@ const update = (prices, time, options = {}) => {
   });
 };
 
+// Clears charts and removes DOM placeholders.
 const clear = () => {
   destroyAll();
   $("#chartsGrid").empty();

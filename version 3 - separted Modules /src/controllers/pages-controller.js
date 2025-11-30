@@ -9,12 +9,14 @@ import { ErrorResolver } from "../utils/error-resolver.js";
 export const PagesController = (() => {
   const COINS_REFRESH_INTERVAL = CONFIG.CACHE.COINS_REFRESH_INTERVAL_MS;
 
+  // Checks whether cached coins should be refreshed based on timestamp.
   const shouldRefreshCoins = () => {
     const lastUpdated = AppState.getCoinsLastUpdated();
     if (!lastUpdated) return true;
     return Date.now() - lastUpdated >= COINS_REFRESH_INTERVAL;
   };
 
+  // Entry point for rendering the currencies page and refreshing coins if needed.
   const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     ChartService.cleanup();
     AppState.setCurrentView("currencies");
@@ -55,6 +57,7 @@ export const PagesController = (() => {
     });
   };
 
+  // Shows the live reports page (charts) and starts the live polling.
   const showReportsPage = () => {
     ChartService.cleanup();
     AppState.setCurrentView("reports");
@@ -91,6 +94,7 @@ export const PagesController = (() => {
     }
   };
 
+  // Static "about" page renderer.
   const showAboutPage = () => {
     ChartService.cleanup();
     AppState.setCurrentView("about");

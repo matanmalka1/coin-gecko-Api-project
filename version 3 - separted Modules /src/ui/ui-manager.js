@@ -6,14 +6,17 @@ import { CoinUI } from "./coin-ui.js";
 import { BaseUI } from "./base-ui.js";
 
 export const UIManager = (() => {
+  // Mounts the currencies page template into #content.
   const renderCurrenciesPage = () => {
     BaseUI.showPage(PageComponents.currenciesPage());
   };
 
+  // Renders live reports (charts) shell.
   const renderReportsPage = () => {
     BaseUI.showPage(PageComponents.reportsPage());
   };
 
+  // Shows the About page with user metadata.
   const renderAboutPage = (userData) => {
     BaseUI.showPage(PageComponents.aboutPage(userData));
   };
@@ -32,14 +35,17 @@ export const UIManager = (() => {
   const showReplaceModal = (...args) => CoinUI.showReplaceModal(...args);
   const showCompareModal = (...args) => CoinUI.showCompareModal(...args);
 
+  // Initializes live charts for selected symbols.
   const initLiveChart = (symbols, options = {}) => {
     ChartRenderer.setupCharts(symbols, options);
   };
 
+  // Pushes new datapoints into the CanvasJS charts.
   const updateLiveChart = (prices, time, options = {}) => {
     ChartRenderer.update(prices, time, options);
   };
 
+  // Removes all chart instances from the DOM and memory.
   const clearLiveChart = () => {
     ChartRenderer.clear();
   };
@@ -48,10 +54,12 @@ export const UIManager = (() => {
 
   const drawMiniChart = (...args) => CoinUI.drawMiniChart(...args);
 
+  // Shows skeleton placeholders before actual chart creation.
   const showChartSkeleton = () => {
     $("#chartsGrid").html(BaseComponents.chartsSkeleton());
   };
 
+  // Updates the compare status alert text and styling.
   const updateCompareStatus = (selectedCount, maxCount) => {
     const $status = $("#compareStatus");
     if (!$status.length) return;
@@ -72,6 +80,7 @@ export const UIManager = (() => {
     }
   };
 
+  // Hides/shows the compare status alert.
   const setCompareStatusVisibility = (isVisible) => {
     const $status = $("#compareStatus");
     if (!$status.length) return;
@@ -79,6 +88,7 @@ export const UIManager = (() => {
     $status.toggleClass("d-none", !isVisible);
   };
 
+  // Pass-through helpers for coin card highlighting.
   const setCompareHighlight = (coinId, isActive) => {
     CoinUI.setCompareHighlight(coinId, isActive);
   };

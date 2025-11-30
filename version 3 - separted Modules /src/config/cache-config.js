@@ -1,3 +1,4 @@
+// Cache and persistence configuration used across services.
 export const CACHE_CONFIG = {
   CACHE: {
     EXPIRY_TIME: 2 * 60 * 1000,

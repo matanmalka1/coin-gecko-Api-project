@@ -1,4 +1,6 @@
+// Simple wrapper around localStorage with JSON helpers.
 export const Storage = (() => {
+  // Reads and parses JSON from localStorage with fallback on failures.
   const readJSON = (key, fallback) => {
     try {
       const storedValue = localStorage.getItem(key);
@@ -9,6 +11,7 @@ export const Storage = (() => {
     }
   };
 
+  // Stringifies and stores JSON in localStorage safely.
   const writeJSON = (key, storedValue) => {
     try {
       localStorage.setItem(key, JSON.stringify(storedValue));

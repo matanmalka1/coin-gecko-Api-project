@@ -9,6 +9,7 @@ export const ReportsService = (() => {
   const getSelectedReports = () => AppState.getSelectedReports();
   const hasReport = (symbol) => AppState.hasReport(symbol);
 
+  // Adds or removes a symbol from the tracked reports list.
   const toggleCoinSelection = (symbol) => {
     const symbolUpper = normalizeSymbol(symbol);
 
@@ -40,6 +41,7 @@ export const ReportsService = (() => {
     };
   };
 
+  // Swaps one tracked symbol with another if possible.
   const replaceReport = (oldSymbol, newSymbol) => {
     const oldUpper = normalizeSymbol(oldSymbol);
     const newUpper = normalizeSymbol(newSymbol);
@@ -83,12 +85,14 @@ export const ReportsService = (() => {
     return { ok: true, code: null, selected: AppState.getSelectedReports() };
   };
 
+  // Fetches coin details for compare modal (parallel requests).
   const fetchCompareData = async (ids) => {
     const dataPromises = ids.map((id) => coinAPI.fetchCoinDetails(id));
     const results = await Promise.all(dataPromises);
     return results.map((result, idx) => ({ result, id: ids[idx] }));
   };
 
+  // Maps API responses to normalized compare data and tracks missing ids.
   const mapCompareResults = (mappedResults) => {
     const coins = [];
     const missing = [];
@@ -108,6 +112,7 @@ export const ReportsService = (() => {
     return { ok: true, coins, missing };
   };
 
+  // Public helper that validates ids and returns normalized compare data.
   const getCompareData = async (ids) => {
     const validIds = Array.isArray(ids)
       ? ids.filter(Boolean).map((id) => id.toString())

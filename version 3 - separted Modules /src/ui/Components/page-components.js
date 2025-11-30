@@ -4,7 +4,7 @@ import { BaseComponents } from "./base-components.js";
 
 const { cardContainer } = BaseComponents;
 
-// Pages
+// Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `
   <div id="searchArea" class="my-4 text-center">
     <input type="text" id="searchInput" class="form-control-md w-25 rounded-pill py-2 px-4"
@@ -31,11 +31,13 @@ const currenciesPage = () => `
   <div id="coinsContainer" class="row g-3"></div>
 `;
 
+// Builds the container for the live reports (charts) page.
 const reportsPage = () => `
   <h3 class="mb-4">Live Reports</h3>
   <div id="chartsGrid" class="row g-3"></div>
 `;
 
+// Static about page with author details pulled from CONFIG.
 const aboutPage = (userData = {}) => {
   const { image, name, linkedin } = userData;
   return `
@@ -70,7 +72,7 @@ const aboutPage = (userData = {}) => {
   `;
 };
 
-// [NEWS] News page layout
+// News landing page hero + list container (general/favorites modes).
 const newsPage = () => `
 <section class="news-hero mb-2 py-3 rounded-3">
     <div class="container">
@@ -118,7 +120,7 @@ const newsPage = () => `
       </div>
 `;
 
-// [NEWS] Single news article card
+// Generates a single article card including metadata and CTA link.
 const newsArticleCard = (article) => {
   const { title, description, published_at, source, original_url, url, image } =
     article || {};

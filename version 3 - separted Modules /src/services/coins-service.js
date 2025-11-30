@@ -6,6 +6,7 @@ import { normalizeCoinMarketData } from "./data-normalizer.js";
 import { CONFIG } from "../config/config.js";
 
 export const CoinsService = (() => {
+  // Helper for sorting coins array according to sortType.
   const sortList = (coins = [], sortType) => {
     const sortedCoins = [...coins];
     switch (sortType) {
@@ -33,6 +34,7 @@ export const CoinsService = (() => {
     return sortedCoins;
   };
 
+  // Fetches full market list and stores it in AppState.
   const loadAllCoins = async () => {
     const result = await coinAPI.fetchMarketData();
 
@@ -56,6 +58,7 @@ export const CoinsService = (() => {
     return { ok: true, data: filteredCoins };
   };
 
+  // Sorts coins according to sortType and persists the new order.
   const sortCoins = (sortType) => {
     const coins = AppState.getAllCoins();
     const sorted = sortList(coins, sortType);
@@ -64,6 +67,7 @@ export const CoinsService = (() => {
     return { ok: true, data: sorted };
   };
 
+  // Retrieves detailed information for a single coin (with cache).
   const getCoinDetails = async (coinId) => {
     const cacheKey = coinId;
     const cached = CacheManager.getCache(cacheKey);
@@ -87,6 +91,7 @@ export const CoinsService = (() => {
     return { ok: true, data: normalizedData, fromCache: false };
   };
 
+  // Performs a fuzzy search by symbol/name on the in-memory coins list.
   const searchCoin = (term) => {
     const normalizedTerm = typeof term === "string" ? term.trim() : "";
     if (!normalizedTerm) {
@@ -121,6 +126,7 @@ export const CoinsService = (() => {
     };
   };
 
+  // Returns the coins that are selected for reports, cleaning stale symbols.
   const filterSelectedCoins = () => {
     const selectedReports = AppState.getSelectedReports();
 
@@ -151,6 +157,7 @@ export const CoinsService = (() => {
     };
   };
 
+  // Resets the stored search term and returns the full coins list.
   const clearSearch = () => {
     AppState.setSearchTerm("");
 
@@ -162,6 +169,7 @@ export const CoinsService = (() => {
     };
   };
 
+  // Fetches historical price chart data for a coin (with caching).
   const getCoinMarketChart = async (coinId) => {
     const cacheKey = `chart:${coinId}`;
     const cached = CacheManager.getCache(cacheKey);
