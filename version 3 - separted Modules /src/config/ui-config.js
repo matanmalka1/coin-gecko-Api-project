@@ -1,6 +1,5 @@
 export const UI_CONFIG = {
   UI: {
-    GENERIC_ERROR: "An error occurred. Please try again.",
     LOADING_COINS: "Loading coins...",
     REPLACE_ALERT: "Please select a coin to replace",
     COMPARE_TITLE: "Compare Coins",
@@ -11,7 +10,8 @@ export const UI_CONFIG = {
   },
   NEWS_UI: {
     STATUS_GENERAL: "Showing general crypto news from the last 5 hours.",
-    STATUS_FAVORITES: "Showing news for your favorite coins from the last 5 hours.",
+    STATUS_FAVORITES:
+      "Showing news for your favorite coins from the last 5 hours.",
     STATUS_NO_FAVORITES:
       "No favorite coins selected. Please add favorites to see related news.",
     STATUS_FALLBACK_GENERAL:
@@ -20,9 +20,6 @@ export const UI_CONFIG = {
       "No articles from the last 5 hours. Showing latest available favorites news.",
     LOADING_GENERAL: "Loading news...",
     LOADING_FAVORITES: "Loading favorites news...",
-    ERROR_GENERAL: "Failed to load general news. Please try again later.",
-    ERROR_FAVORITES: "Failed to load favorites news. Please try again later.",
-    EMPTY: "No news found for the last 5 hours.",
     DESC_MAX: 200,
   },
   CHART: {
@@ -48,5 +45,18 @@ export const UI_CONFIG = {
     USD: { symbol: "$", label: "USD" },
     EUR: { symbol: "€", label: "EUR" },
     ILS: { symbol: "₪", label: "ILS" },
+  },
+  ABOUT: {
+    NAME: "Matan Yehuda Malka",
+    IMAGE: "images/2.jpeg",
+    LINKEDIN: "https://www.linkedin.com/in/matanyehudamalka",
+  },
+  NEWS: {
+    DEFAULT_QUERY: "crypto OR cryptocurrency",
+    LANGUAGE: "en",
+    CACHE_KEYS: {
+      GENERAL: "news_cache_general",
+      FAVORITES: "news_cache_favorites",
+    },
   },
 };

@@ -20,4 +20,14 @@ export const ERRORS = {
     SELECT_REPLACEMENT: "Please select a coin to replace",
     MISSING_DATA: (symbols) => `Failed to load data for: ${symbols}`,
   },
+
+  NEWS: {
+    GENERAL_ERROR: "Failed to load general news. Please try again later.",
+    FAVORITES_ERROR: "Failed to load favorites news. Please try again later.",
+    EMPTY: "No news found for the last 5 hours.",
+  },
+
+  UI: {
+    GENERIC: "An error occurred. Please try again.",
+  },
 };

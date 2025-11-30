@@ -7,9 +7,9 @@ const { cardContainer } = BaseComponents;
 // Pages
 const currenciesPage = () => `
   <div id="searchArea" class="my-4 text-center">
-    <input type="text" id="searchInput" class="form-control w-50 d-inline-block rounded-pill py-2 px-4"
+    <input type="text" id="searchInput" class="form-control-md w-25 rounded-pill py-2 px-4"
         placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
-<button type="button" id="filterReportsBtn" class="btn mx-2">Show Selected</button>
+<button type="button" id="filterReportsBtn" class="btn mx-2 color">Show Selected</button>
 <button type="button" id="showFavoritesBtn" class="btn mx-2">Favorites</button>
 <button type="button" id="clearSearchBtn" class="btn mx-2">Clear</button>
 <button type="button" id="refreshCoinsBtn" class="btn btn-outline-info mx-2">
@@ -71,7 +71,7 @@ const aboutPage = (userData = {}) => {
 
 // [NEWS] News page layout
 const newsPage = () => `
-<section class="news-hero mb-4 py-5 rounded-3">
+<section class="news-hero mb-2 py-3 rounded-3">
     <div class="container">
       <div class="row gy-4 align-items-center">
         <div class="col-lg-7">

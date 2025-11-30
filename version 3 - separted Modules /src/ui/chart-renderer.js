@@ -46,7 +46,7 @@ const setupCharts = (symbols, options = {}) => {
         valueFormatString: CONFIG.CHART.AXIS_X_FORMAT,
         labelFontSize: 10,
       },
-      axisY: { prefix: CONFIG.CHART.AXIS_Y_PREFIX ?? "$", labelFontSize: 10 },
+      axisY: { prefix: CONFIG.CHART.AXIS_Y_PREFIX , labelFontSize: 10 },
       data: [
         {
           type: "line",
