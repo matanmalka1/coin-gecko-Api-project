@@ -7,6 +7,24 @@ import { CONFIG } from "../config/config.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
 
 const ReportsEvents = (() => {
+  const updateCompareIndicator = (
+    selected = AppState.getCompareSelection()
+  ) => {
+    const selectionArray = Array.isArray(selected) ? selected : [];
+    const selectedCount = selectionArray.length;
+
+    UIManager.updateCompareStatus(
+      selectedCount,
+      CONFIG.REPORTS.MAX_COMPARE
+    );
+
+    if (selectedCount === 0) {
+      UIManager.setCompareStatusVisibility(false);
+    } else {
+      UIManager.setCompareStatusVisibility(true);
+    }
+  };
+
   const handleFilterReports = () => {
     const serviceResult = CoinsService.filterSelectedCoins();
     UIManager.showElement("#clearSearchBtn");
@@ -66,17 +84,25 @@ const ReportsEvents = (() => {
     const currentSelection = AppState.getCompareSelection();
     const alreadySelected = currentSelection.includes(coinIdForAction);
 
-    if (
-      !alreadySelected &&
-      currentSelection.length >= CONFIG.REPORTS.MAX_COMPARE
-    )
+    if (alreadySelected) {
+      const filteredSelection = currentSelection.filter(
+        (id) => id !== coinIdForAction
+      );
+      AppState.setCompareSelection(filteredSelection);
+      updateCompareIndicator(filteredSelection);
       return;
-
-    let nextSelection = currentSelection;
-    if (!alreadySelected) {
-      nextSelection = [...currentSelection, coinIdForAction];
-      AppState.setCompareSelection(nextSelection);
     }
+
+    if (
+      currentSelection.length >= CONFIG.REPORTS.MAX_COMPARE
+    ) {
+      updateCompareIndicator(currentSelection);
+      return;
+    }
+
+    let nextSelection = [...currentSelection, coinIdForAction];
+    AppState.setCompareSelection(nextSelection);
+    updateCompareIndicator(nextSelection);
 
     if (nextSelection.length >= CONFIG.REPORTS.MAX_COMPARE) {
       const serviceResult = await ReportsService.getCompareData(nextSelection);
@@ -90,6 +116,7 @@ const ReportsEvents = (() => {
         );
         AppState.resetCompareSelection();
         AppState.setCompareModalOpen(false);
+        updateCompareIndicator();
         return;
       }
 
@@ -99,6 +126,7 @@ const ReportsEvents = (() => {
         onClose: () => {
           AppState.resetCompareSelection();
           AppState.setCompareModalOpen(false);
+          updateCompareIndicator();
         },
       });
     }

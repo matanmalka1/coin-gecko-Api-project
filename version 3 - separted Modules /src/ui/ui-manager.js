@@ -52,6 +52,33 @@ export const UIManager = (() => {
     $("#chartsGrid").html(BaseComponents.chartsSkeleton());
   };
 
+  const updateCompareStatus = (selectedCount, maxCount) => {
+    const $status = $("#compareStatus");
+    if (!$status.length) return;
+
+    const remaining = Math.max(maxCount - selectedCount, 0);
+    const baseText = `Selected: ${selectedCount} / ${maxCount}`;
+
+    if (remaining === 0) {
+      $status
+        .removeClass("alert-info text-white")
+        .addClass("alert-warning")
+        .text(`${baseText} – maximum reached`);
+    } else {
+      $status
+        .removeClass("alert-warning")
+        .addClass("alert-info text-white")
+        .text(`${baseText} – you can select ${remaining} more`);
+    }
+  };
+
+  const setCompareStatusVisibility = (isVisible) => {
+    const $status = $("#compareStatus");
+    if (!$status.length) return;
+
+    $status.toggleClass("d-none", !isVisible);
+  };
+
   return {
     showPage: BaseUI.showPage,
     displayCurrencyPage: renderCurrenciesPage,
@@ -83,5 +110,7 @@ export const UIManager = (() => {
     setInputValue: BaseUI.setInputValue,
     getDataAttr: BaseUI.getDataAttr,
     isCollapseOpen: BaseUI.isCollapseOpen,
+    updateCompareStatus,
+    setCompareStatusVisibility,
   };
 })();

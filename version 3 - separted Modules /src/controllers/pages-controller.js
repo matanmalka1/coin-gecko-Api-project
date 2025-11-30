@@ -20,6 +20,8 @@ export const PagesController = (() => {
     AppState.setCurrentView("currencies");
 
     UIManager.displayCurrencyPage();
+    UIManager.setCompareStatusVisibility(false);
+    UIManager.updateCompareStatus(0, CONFIG.REPORTS.MAX_COMPARE);
 
     const cachedCoins = AppState.getAllCoins();
     if (cachedCoins.length) {

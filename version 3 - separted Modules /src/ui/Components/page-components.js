@@ -9,10 +9,10 @@ const currenciesPage = () => `
   <div id="searchArea" class="my-4 text-center">
     <input type="text" id="searchInput" class="form-control-md w-25 rounded-pill py-2 px-4"
         placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
-<button type="button" id="filterReportsBtn" class="btn mx-2 color">Show Selected</button>
-<button type="button" id="showFavoritesBtn" class="btn mx-2">Favorites</button>
-<button type="button" id="clearSearchBtn" class="btn mx-2">Clear</button>
-<button type="button" id="refreshCoinsBtn" class="btn btn-outline-info mx-2">
+<button type="button" id="filterReportsBtn" class="btn btn-light btn-theme-switch mx-2">Show Selected</button>
+<button type="button" id="showFavoritesBtn" class="btn btn-light btn-theme-switch mx-2">Favorites</button>
+<button type="button" id="clearSearchBtn" class="btn btn-light btn-theme-switch mx-2">Clear</button>
+<button type="button" id="refreshCoinsBtn" class="btn btn-light btn-theme-switch mx-2">
   <i class="bi bi-arrow-clockwise"></i> 
 </button>
   </div>
@@ -27,6 +27,7 @@ const currenciesPage = () => `
       <option value="volume_low">Volume Low</option>
     </select>
   </div>
+  <div id="compareStatus" class="alert alert-info py-2 px-3 small d-none"></div>
   <div id="coinsContainer" class="row g-3"></div>
 `;
 

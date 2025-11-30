@@ -40,6 +40,17 @@ const applyTheme = (theme) => {
   const isDarkMode = theme === "dark";
   $("html").toggleClass("dark", isDarkMode);
   $("body").toggleClass("dark", isDarkMode);
+
+  const themeButtons = $(".btn-theme-switch");
+  if (isDarkMode) {
+    themeButtons
+      .removeClass("btn-light btn-outline-light")
+      .addClass("btn-link text-white");
+  } else {
+    themeButtons
+      .removeClass("btn-link text-white btn-outline-light")
+      .addClass("btn-light");
+  }
 };
 
 const showError = (container, message) => {

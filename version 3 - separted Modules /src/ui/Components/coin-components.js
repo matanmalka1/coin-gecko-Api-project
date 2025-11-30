@@ -91,7 +91,7 @@ const coinDetails = (data = {}, currencies = {}) => {
         : value;
 
     return `
-      <div class="price-badge mb-2 p-2 border border-start border-primary border-3 rounded ${
+      <div class="price-badge mb-2 p-2 border-left rounded ${
         value === "N/A" ? "text-muted" : ""
       }">
         ${label}: ${curr?.symbol ?? ""}${formatted}

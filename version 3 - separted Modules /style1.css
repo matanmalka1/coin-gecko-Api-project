@@ -104,6 +104,12 @@ header.parallax {
   padding: 1rem;
 }
 
+html.dark #compareStatus.alert-info {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+}
+
 #aboutSection {
   color: var(--color-text);
 }
