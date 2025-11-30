@@ -2,6 +2,7 @@ import { AppState } from "../state/state.js";
 import { coinAPI } from "./api.js";
 import { CONFIG } from "../config/config.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
+import { normalizeCoinMarketData } from "./data-normalizer.js";
 
 // Reports domain logic only: no UI/DOM.
 export const ReportsService = (() => {
@@ -42,6 +43,14 @@ export const ReportsService = (() => {
   const replaceReport = (oldSymbol, newSymbol) => {
     const oldUpper = normalizeSymbol(oldSymbol);
     const newUpper = normalizeSymbol(newSymbol);
+
+    if (oldUpper === newUpper) {
+      return {
+        ok: true,
+        code: null,
+        selected: AppState.getSelectedReports(),
+      };
+    }
 
     if (!AppState.hasReport(oldUpper)) {
       return {
@@ -86,7 +95,7 @@ export const ReportsService = (() => {
 
     mappedResults.forEach(({ result, id }) => {
       if (result.ok) {
-        coins.push(result.data);
+        coins.push(normalizeCoinMarketData(result.data));
       } else {
         missing.push(id);
       }

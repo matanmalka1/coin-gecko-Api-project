@@ -2,6 +2,8 @@ import { coinAPI } from "./api.js";
 import { CacheManager } from "./cache.js";
 import { AppState } from "../state/state.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
+import { normalizeCoinMarketData } from "./data-normalizer.js";
+import { CONFIG } from "../config/config.js";
 
 export const CoinsService = (() => {
   const sortList = (coins = [], sortType) => {
@@ -41,10 +43,13 @@ export const CoinsService = (() => {
     const coins = Array.isArray(result.data) ? result.data : [];
     const filteredCoins = coins
       .filter((coin) => coin && coin.id && coin.symbol)
-      .map((coin) => ({
-        ...coin,
-        symbol: normalizeSymbol(coin.symbol),
-      }));
+      .map((coin) => {
+        const withNormalizedSymbol = {
+          ...coin,
+          symbol: normalizeSymbol(coin.symbol),
+        };
+        return normalizeCoinMarketData(withNormalizedSymbol);
+      });
 
     AppState.setAllCoins(filteredCoins);
 
@@ -54,17 +59,9 @@ export const CoinsService = (() => {
   const sortCoins = (sortType) => {
     const coins = AppState.getAllCoins();
     const sorted = sortList(coins, sortType);
+    AppState.setAllCoins(sorted);
+    AppState.setSortOrder(sortType);
     return { ok: true, data: sorted };
-  };
-
-  const refreshCoinsDisplay = () => {
-    return {
-      ok: true,
-      data: AppState.getAllCoins(),
-      selected: AppState.getSelectedReports(),
-      favorites: AppState.getFavorites(),
-      compareSelection: AppState.getCompareSelection(),
-    };
   };
 
   const getCoinDetails = async (coinId) => {
@@ -84,28 +81,34 @@ export const CoinsService = (() => {
       };
     }
 
-    CacheManager.setCache(cacheKey, result.data);
+    const normalizedData = normalizeCoinMarketData(result.data);
+    CacheManager.setCache(cacheKey, normalizedData);
 
-    return { ok: true, data: result.data, fromCache: false };
+    return { ok: true, data: normalizedData, fromCache: false };
   };
 
   const searchCoin = (term) => {
-    const searchTerm = normalizeSymbol(term);
-
-    if (!searchTerm) {
+    const normalizedTerm = typeof term === "string" ? term.trim() : "";
+    if (!normalizedTerm) {
       return { ok: false, code: "EMPTY_TERM" };
     }
 
+    const searchTerm = normalizedTerm.toLowerCase();
     const allCoins = AppState.getAllCoins();
 
     if (allCoins.length === 0) {
       return { ok: false, code: "LOAD_WAIT" };
     }
 
-    const filteredCoins = allCoins.filter((coin) => coin.symbol === searchTerm);
+    const filteredCoins = allCoins.filter((coin = {}) => {
+      const symbolMatch =
+        coin.symbol?.toLowerCase().includes(searchTerm) ?? false;
+      const nameMatch = coin.name?.toLowerCase().includes(searchTerm) ?? false;
+      return symbolMatch || nameMatch;
+    });
 
-    if (filteredCoins.length === 0) {
-      return { ok: false, code: "NO_MATCH", term: searchTerm };
+    if (!filteredCoins.length) {
+      return { ok: false, code: "NO_MATCH", term: normalizedTerm };
     }
 
     AppState.setSearchTerm(searchTerm);
@@ -131,13 +134,19 @@ export const CoinsService = (() => {
     );
 
     if (filtered.length === 0) {
+      AppState.setSelectedReports([]);
       return { ok: false, code: "NOT_FOUND" };
     }
+
+    const cleanedSelection = selectedReports.filter((symbol) =>
+      filtered.some((coin) => coin.symbol === symbol)
+    );
+    AppState.setSelectedReports(cleanedSelection);
 
     return {
       ok: true,
       data: filtered,
-      selected: selectedReports,
+      selected: cleanedSelection,
       favorites: AppState.getFavorites(),
     };
   };
@@ -154,12 +163,15 @@ export const CoinsService = (() => {
   };
 
   const getCoinMarketChart = async (coinId) => {
-    const cacheKey = `${coinId}-chart`;
+    const cacheKey = `chart:${coinId}`;
     const cached = CacheManager.getCache(cacheKey);
 
     if (cached) return { ok: true, data: cached, fromCache: true };
 
-    const result = await coinAPI.fetchCoinMarketChart(coinId, 7);
+    const result = await coinAPI.fetchCoinMarketChart(
+      coinId,
+      CONFIG.API.CHART_HISTORY_DAYS
+    );
 
     if (!result.ok) {
       console.error("getCoinMarketChart failed", {
@@ -185,7 +197,6 @@ export const CoinsService = (() => {
     filterSelectedCoins,
     clearSearch,
     sortCoins,
-    refreshCoinsDisplay,
     getCoinMarketChart,
   };
 })();
