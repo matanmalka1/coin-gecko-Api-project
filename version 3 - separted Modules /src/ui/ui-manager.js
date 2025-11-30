@@ -61,13 +61,13 @@ export const UIManager = (() => {
 
     if (remaining === 0) {
       $status
-        .removeClass("alert-info text-white")
+        .removeClass("alert-info")
         .addClass("alert-warning")
         .text(`${baseText} – maximum reached`);
     } else {
       $status
         .removeClass("alert-warning")
-        .addClass("alert-info text-white")
+        .addClass("alert-info")
         .text(`${baseText} – you can select ${remaining} more`);
     }
   };
@@ -77,6 +77,14 @@ export const UIManager = (() => {
     if (!$status.length) return;
 
     $status.toggleClass("d-none", !isVisible);
+  };
+
+  const setCompareHighlight = (coinId, isActive) => {
+    CoinUI.setCompareHighlight(coinId, isActive);
+  };
+
+  const clearCompareHighlights = () => {
+    CoinUI.clearCompareHighlights();
   };
 
   return {
@@ -112,5 +120,7 @@ export const UIManager = (() => {
     isCollapseOpen: BaseUI.isCollapseOpen,
     updateCompareStatus,
     setCompareStatusVisibility,
+    setCompareHighlight,
+    clearCompareHighlights,
   };
 })();

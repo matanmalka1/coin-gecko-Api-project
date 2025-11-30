@@ -5,7 +5,7 @@ import { BaseComponents } from "./base-components.js";
 const { cardContainer } = BaseComponents;
 const coinCard = (coin, isSelected = false, options = {}) => {
   const { id, name, symbol, image, current_price, market_cap } = coin;
-  const { isFavorite = false } = options;
+  const { isFavorite = false, isInCompare = false } = options;
 
   const price =
     typeof current_price === "number"
@@ -29,7 +29,9 @@ const coinCard = (coin, isSelected = false, options = {}) => {
     </div>
     <p class="mb-2"><strong>Price:</strong> ${price}</p>
     <p class="mb-2"><strong>Market Cap:</strong> ${marketCapFormatted}</p>
-    <div class="d-flex justify-content-between align-items-center mt-2">
+    <div class="d-flex justify-content-between align-items-center mt-2 compare-row ${
+      isInCompare ? "compare-row-active" : ""
+    }" data-id="${id}">
       <button class="btn btn-sm btn-outline-primary more-info"
               data-id="${id}"
               aria-label="Show more info about ${symbol}">
@@ -59,11 +61,11 @@ const coinCard = (coin, isSelected = false, options = {}) => {
     <div class="collapse mt-3" id="collapse-${id}"></div>
   `;
 
-  return cardContainer(
-    body,
-    "col-12 col-md-6 col-lg-4",
-    "card border shadow-sm p-3 h-100"
-  );
+  const cardClasses = `card border shadow-sm p-3 h-100 ${
+    isInCompare ? "compare-card-active" : ""
+  }`;
+
+  return cardContainer(body, "col-12 col-md-6 col-lg-4", cardClasses);
 };
 
 // More info panel

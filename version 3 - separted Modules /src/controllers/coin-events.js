@@ -25,13 +25,17 @@ const CoinEvents = (() => {
 
     UIManager.displayCoins(serviceResult.data, serviceResult.selected, {
       favorites: serviceResult.favorites,
+      compareSelection: AppState.getCompareSelection(),
     });
   };
 
   const handleClearSearch = () => {
     UIManager.setInputValue("#searchInput", "");
     const { data, selected = [], favorites = [] } = CoinsService.clearSearch();
-    UIManager.displayCoins(data, selected, { favorites });
+    UIManager.displayCoins(data, selected, {
+      favorites,
+      compareSelection: AppState.getCompareSelection(),
+    });
   };
 
   const handleFavoriteToggle = (e) => {
@@ -91,6 +95,7 @@ const CoinEvents = (() => {
         AppState.getSelectedReports(),
         {
           favorites: AppState.getFavorites(),
+          compareSelection: AppState.getCompareSelection(),
         }
       );
       UIManager.setFavoritesButtonLabel(false);
@@ -106,6 +111,7 @@ const CoinEvents = (() => {
     UIManager.displayCoins(filteredCoins, AppState.getSelectedReports(), {
       favorites: favoriteSymbols,
       emptyMessage: CONFIG.UI.FAVORITES_EMPTY,
+      compareSelection: AppState.getCompareSelection(),
     });
     UIManager.setFavoritesButtonLabel(true);
     AppState.setShowFavoritesOnly(true);
@@ -119,6 +125,7 @@ const CoinEvents = (() => {
       serviceResult.selected || AppState.getSelectedReports(),
       {
         favorites: serviceResult.favorites || AppState.getFavorites(),
+        compareSelection: AppState.getCompareSelection(),
       }
     );
   };

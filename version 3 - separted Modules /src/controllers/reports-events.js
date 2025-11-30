@@ -20,6 +20,7 @@ const ReportsEvents = (() => {
 
     if (selectedCount === 0) {
       UIManager.setCompareStatusVisibility(false);
+      UIManager.clearCompareHighlights();
     } else {
       UIManager.setCompareStatusVisibility(true);
     }
@@ -39,6 +40,7 @@ const ReportsEvents = (() => {
 
     UIManager.displayCoins(serviceResult.data, serviceResult.selected, {
       favorites: serviceResult.favorites,
+      compareSelection: AppState.getCompareSelection(),
     });
   };
 
@@ -90,6 +92,7 @@ const ReportsEvents = (() => {
       );
       AppState.setCompareSelection(filteredSelection);
       updateCompareIndicator(filteredSelection);
+      UIManager.setCompareHighlight(coinIdForAction, false);
       return;
     }
 
@@ -103,6 +106,7 @@ const ReportsEvents = (() => {
     let nextSelection = [...currentSelection, coinIdForAction];
     AppState.setCompareSelection(nextSelection);
     updateCompareIndicator(nextSelection);
+    UIManager.setCompareHighlight(coinIdForAction, true);
 
     if (nextSelection.length >= CONFIG.REPORTS.MAX_COMPARE) {
       const serviceResult = await ReportsService.getCompareData(nextSelection);
@@ -124,9 +128,13 @@ const ReportsEvents = (() => {
       UIManager.showCompareModal(serviceResult.coins, {
         missingSymbols: serviceResult.missing,
         onClose: () => {
+          const previousSelection = AppState.getCompareSelection();
           AppState.resetCompareSelection();
           AppState.setCompareModalOpen(false);
           updateCompareIndicator();
+          previousSelection.forEach((id) =>
+            UIManager.setCompareHighlight(id, false)
+          );
         },
       });
     }

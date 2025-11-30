@@ -5,7 +5,11 @@ import { ERRORS } from "../config/error.js";
 import { CoinsService } from "../services/coins-service.js";
 
 const displayCoins = (coins, selectedReports = [], options = {}) => {
-  const { favorites = [], emptyMessage } = options;
+  const {
+    favorites = [],
+    emptyMessage,
+    compareSelection = [],
+  } = options;
   const container = $("#coinsContainer");
   if (!container.length) return;
 
@@ -16,11 +20,21 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
     return;
   }
 
+  const compareSet = new Set(
+    Array.isArray(compareSelection)
+      ? compareSelection.map((id) => String(id))
+      : []
+  );
+
   const coinCardsHtml = coins
     .map((coin) => {
       const isSelected = selectedReports.includes(coin.symbol);
       const isFavorite = favorites.includes(coin.symbol);
-      return CoinComponents.coinCard(coin, isSelected, { isFavorite });
+      const isInCompare = compareSet.has(String(coin.id));
+      return CoinComponents.coinCard(coin, isSelected, {
+        isFavorite,
+        isInCompare,
+      });
     })
     .join("");
 
@@ -210,4 +224,13 @@ export const CoinUI = {
   updateToggleStates,
   drawMiniChart,
   updateFavoriteIcon,
+  setCompareHighlight: (coinId, isActive) => {
+    const $rows = $(`.compare-row[data-id="${coinId}"]`);
+    $rows.toggleClass("compare-row-active", !!isActive);
+    $rows.closest(".card").toggleClass("compare-card-active", !!isActive);
+  },
+  clearCompareHighlights: () => {
+    $(".compare-row").removeClass("compare-row-active");
+    $(".card.compare-card-active").removeClass("compare-card-active");
+  },
 };

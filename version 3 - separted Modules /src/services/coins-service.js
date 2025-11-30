@@ -63,6 +63,7 @@ export const CoinsService = (() => {
       data: AppState.getAllCoins(),
       selected: AppState.getSelectedReports(),
       favorites: AppState.getFavorites(),
+      compareSelection: AppState.getCompareSelection(),
     };
   };
 

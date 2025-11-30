@@ -22,11 +22,13 @@ export const PagesController = (() => {
     UIManager.displayCurrencyPage();
     UIManager.setCompareStatusVisibility(false);
     UIManager.updateCompareStatus(0, CONFIG.REPORTS.MAX_COMPARE);
+    UIManager.clearCompareHighlights();
 
     const cachedCoins = AppState.getAllCoins();
     if (cachedCoins.length) {
       UIManager.displayCoins(cachedCoins, AppState.getSelectedReports(), {
         favorites: AppState.getFavorites(),
+        compareSelection: AppState.getCompareSelection(),
       });
     } else {
       UIManager.showCoinsLoading();
@@ -49,6 +51,7 @@ export const PagesController = (() => {
 
     UIManager.displayCoins(result.data, AppState.getSelectedReports(), {
       favorites: AppState.getFavorites(),
+      compareSelection: AppState.getCompareSelection(),
     });
   };
 
