@@ -1,9 +1,9 @@
-import { CONFIG } from "../config/config.js";
+import { ERRORS } from "../config/error.js";
 import { BaseComponents } from "./Components/base-components.js";
 import { PageComponents } from "./Components/page-components.js";
 
 const showNews = (articles = [], options = {}) => {
-  const emptyMessage = options.emptyMessage || CONFIG.NEWS_UI.EMPTY;
+  const emptyMessage = options.emptyMessage || ERRORS.NEWS.EMPTY;
   const list = $("#newsList");
 
   if (!articles.length) {

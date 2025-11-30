@@ -1,4 +1,5 @@
 import { CONFIG } from "../config/config.js";
+import { ERRORS } from "../config/error.js";
 import { BaseComponents } from "./Components/base-components.js";
 
 let selectorCache = {};
@@ -43,7 +44,7 @@ const applyTheme = (theme) => {
 
 const showError = (container, message) => {
   const errorMsg =
-    message && message.trim().length ? message : CONFIG.UI.GENERIC_ERROR;
+    message && message.trim().length ? message : ERRORS.UI.GENERIC;
 
   getCached(container).html(BaseComponents.errorAlert(errorMsg));
 };

@@ -75,7 +75,7 @@ export const ReportsService = (() => {
   };
 
   const fetchCompareData = async (ids) => {
-    const dataPromises = ids.map((id) => coinAPI.getCoinDetails(id));
+    const dataPromises = ids.map((id) => coinAPI.fetchCoinDetails(id));
     const results = await Promise.all(dataPromises);
     return results.map((result, idx) => ({ result, id: ids[idx] }));
   };

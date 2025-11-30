@@ -9,11 +9,12 @@ export const normalizeSymbol = (symbol = "") =>
 // News-Utils -
 export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
   if (!maxAgeInMs) return articles;
-  const now = Date.now();
+  
   return articles.filter((item) => {
     if (!item?.published_at) return false;
     const publishedTime = Date.parse(item.published_at);
+
     if (Number.isNaN(publishedTime)) return false;
-    return now - publishedTime <= maxAgeInMs;
+    return Date.now() - publishedTime <= maxAgeInMs;
   });
 };

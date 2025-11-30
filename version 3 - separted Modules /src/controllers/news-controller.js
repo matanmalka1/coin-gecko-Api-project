@@ -3,6 +3,7 @@ import { PageComponents } from "../ui/Components/page-components.js";
 import { NewsService } from "../services/news-service.js";
 import { AppState } from "../state/state.js";
 import { CONFIG } from "../config/config.js";
+import { ERRORS } from "../config/error.js";
 import { ChartService } from "../services/chart-service.js";
 
 const modeConfig = {
@@ -10,13 +11,13 @@ const modeConfig = {
     status: CONFIG.NEWS_UI.STATUS_GENERAL,
     fallback: CONFIG.NEWS_UI.STATUS_FALLBACK_GENERAL,
     loading: CONFIG.NEWS_UI.LOADING_GENERAL,
-    error: CONFIG.NEWS_UI.ERROR_GENERAL,
+    error: ERRORS.NEWS.GENERAL_ERROR,
   },
   favorites: {
     status: CONFIG.NEWS_UI.STATUS_FAVORITES,
     fallback: CONFIG.NEWS_UI.STATUS_FALLBACK_FAVORITES,
     loading: CONFIG.NEWS_UI.LOADING_FAVORITES,
-    error: CONFIG.NEWS_UI.ERROR_FAVORITES,
+    error: ERRORS.NEWS.FAVORITES_ERROR,
   },
 };
 
@@ -37,7 +38,7 @@ export const NewsController = (() => {
 
     if (normalizedMode === "favorites" && !favorites.length) {
       UIManager.updateNewsStatus(CONFIG.NEWS_UI.STATUS_NO_FAVORITES);
-      UIManager.showNews([], { emptyMessage: CONFIG.NEWS_UI.EMPTY });
+      UIManager.showNews([], { emptyMessage: ERRORS.NEWS.EMPTY });
       return;
     }
 

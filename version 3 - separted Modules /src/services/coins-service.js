@@ -32,7 +32,7 @@ export const CoinsService = (() => {
   };
 
   const loadAllCoins = async () => {
-    const result = await coinAPI.getMarkets();
+    const result = await coinAPI.fetchMarketData();
 
     if (!result.ok) {
       return { ok: false, code: "API_ERROR", error: result.error };
@@ -72,7 +72,7 @@ export const CoinsService = (() => {
 
     if (cached) return { ok: true, data: cached, fromCache: true };
 
-    const result = await coinAPI.getCoinDetails(coinId);
+    const result = await coinAPI.fetchCoinDetails(coinId);
 
     if (!result.ok) {
       console.error("getCoinDetails failed", { coinId, error: result.error });
@@ -88,7 +88,7 @@ export const CoinsService = (() => {
     return { ok: true, data: result.data, fromCache: false };
   };
 
-  const findCoinBySymbol = (term) => {
+  const searchCoin = (term) => {
     const searchTerm = normalizeSymbol(term);
 
     if (!searchTerm) {
@@ -158,7 +158,7 @@ export const CoinsService = (() => {
 
     if (cached) return { ok: true, data: cached, fromCache: true };
 
-    const result = await coinAPI.getCoinMarketChart(coinId, 7);
+    const result = await coinAPI.fetchCoinMarketChart(coinId, 7);
 
     if (!result.ok) {
       console.error("getCoinMarketChart failed", {
@@ -180,7 +180,7 @@ export const CoinsService = (() => {
   return {
     loadAllCoins,
     getCoinDetails,
-    searchCoin: findCoinBySymbol,
+    searchCoin,
     filterSelectedCoins,
     clearSearch,
     sortCoins,

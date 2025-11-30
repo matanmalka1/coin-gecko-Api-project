@@ -70,10 +70,5 @@ export const coinAPI = (() => {
     fetchCoinDetails,
     fetchLivePrices,
     fetchCoinMarketChart,
-    // Aliases to align with service usage
-    getMarkets: fetchMarketData,
-    getCoinDetails: fetchCoinDetails,
-    getLivePrices: fetchLivePrices,
-    getCoinMarketChart: fetchCoinMarketChart,
   };
 })();

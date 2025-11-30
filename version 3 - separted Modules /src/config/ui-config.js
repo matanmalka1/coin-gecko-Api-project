@@ -1,4 +1,5 @@
 export const UI_CONFIG = {
+  // General UI messages
   UI: {
     LOADING_COINS: "Loading coins...",
     REPLACE_ALERT: "Please select a coin to replace",
@@ -8,6 +9,8 @@ export const UI_CONFIG = {
     FAVORITES_SHOW_LABEL: "Favorites ⭐",
     FAVORITES_HIDE_LABEL: "All Coins",
   },
+
+  // News UI messages
   NEWS_UI: {
     STATUS_GENERAL: "Showing general crypto news from the last 5 hours.",
     STATUS_FAVORITES:
@@ -22,35 +25,44 @@ export const UI_CONFIG = {
     LOADING_FAVORITES: "Loading favorites news...",
     DESC_MAX: 200,
   },
+
+  // Chart settings
   CHART: {
-    TITLE: "Live Crypto Prices (USD)",
     UPDATE_INTERVAL_MS: 2000,
     HISTORY_POINTS: 70,
-    AXIS_X_TITLE: "Time",
     AXIS_X_FORMAT: "HH:mm:ss",
-    AXIS_Y_TITLE: "Price (USD)",
     AXIS_Y_PREFIX: "$",
     CARD_BADGE_TEXT: "Live",
     HEIGHT_PX: 220,
     HEIGHT_MOBILE_PX: 180,
   },
+
+  // Display settings
   DISPLAY: {
     COINS_PER_PAGE: 150,
   },
+
+  // Reports settings
   REPORTS: {
     MAX_COINS: 5,
     MAX_COMPARE: 5,
   },
+
+  // Currencies
   CURRENCIES: {
     USD: { symbol: "$", label: "USD" },
     EUR: { symbol: "€", label: "EUR" },
     ILS: { symbol: "₪", label: "ILS" },
   },
+
+  // About page content
   ABOUT: {
     NAME: "Matan Yehuda Malka",
     IMAGE: "images/2.jpeg",
     LINKEDIN: "https://www.linkedin.com/in/matanyehudamalka",
   },
+
+  // News default preferences
   NEWS: {
     DEFAULT_QUERY: "crypto OR cryptocurrency",
     LANGUAGE: "en",
