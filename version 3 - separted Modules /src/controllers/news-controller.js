@@ -25,7 +25,6 @@ export const NewsController = (() => {
   // Renders the news page and loads default news.
   const showNewsPage = async () => {
     ChartService.cleanup();
-    AppState.setCurrentView("news");
     UIManager.showPage(PageComponents.newsPage());
     await loadNews("general");
   };

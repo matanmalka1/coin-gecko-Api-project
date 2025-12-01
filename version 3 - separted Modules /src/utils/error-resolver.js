@@ -4,8 +4,10 @@ import { ERRORS } from "../config/error.js";
 const handlers = {
   EMPTY_TERM: ({ term }) => ERRORS.SEARCH.EMPTY_TERM,
   FULL: () => ERRORS.REPORTS.LIMIT,
-  HTTP_ERROR: ({ status }) =>
-    status ? ERRORS.API.REQUEST_FAILED(status) : ERRORS.API.DEFAULT,
+  HTTP_ERROR: ({ status, defaultMessage }) =>
+    status
+      ? ERRORS.API.REQUEST_FAILED(status)
+      : defaultMessage || ERRORS.API.DEFAULT,
   LOAD_WAIT: () => ERRORS.SEARCH.LOAD_WAIT,
   NETWORK_ERROR: () => ERRORS.API.DEFAULT,
   NO_MATCH: ({ term }) => ERRORS.SEARCH.NO_MATCH(term || ""),

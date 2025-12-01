@@ -60,6 +60,7 @@ const CoinEvents = (() => {
     UIManager.showError(
       `#${collapseId}`,
       ErrorResolver.resolve(result?.code, {
+        status: result?.status,
         defaultMessage:
           typeof result?.error === "string" ? result.error : ERRORS.API.DEFAULT,
       })

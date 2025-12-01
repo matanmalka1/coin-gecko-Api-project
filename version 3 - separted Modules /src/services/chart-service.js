@@ -28,6 +28,7 @@ export const ChartService = (() => {
           chartCallbacks.onError?.({
             code: result.code ?? "API_ERROR",
             error: result.error,
+            status: result.status,
           });
           cleanup();
           return;

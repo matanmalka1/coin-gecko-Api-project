@@ -27,8 +27,6 @@ export const AppState = (() => {
     allCoins: [],
     coinsLastUpdated: 0,
     selectedReports: loadStoredReports(),
-    currentView: "currencies",
-    searchTerm: "",
     showFavoritesOnly: false,
     compareSelection: [],
     compareModalOpen: false,
@@ -146,23 +144,6 @@ export const AppState = (() => {
     return state.selectedReports.length >= CONFIG.REPORTS.MAX_COINS;
   };
 
-  // View / filters / search
-  // Updates the name of the currently visible page.
-  const setCurrentView = (view) => {
-    state.currentView = view;
-  };
-
-  // Returns the identifier of the current page.
-  const getCurrentView = () => state.currentView;
-
-  // Persists the latest search term typed by the user.
-  const setSearchTerm = (term) => {
-    state.searchTerm = term;
-  };
-
-  // Returns the last search term used within currencies.
-  const getSearchTerm = () => state.searchTerm;
-
   // Loading indicators
   // Whether a coins fetch request is in-flight.
   const isLoadingCoins = () => state.loadingCoins;
@@ -214,10 +195,6 @@ export const AppState = (() => {
     removeReport,
     hasReport,
     isReportsFull,
-    setCurrentView,
-    getCurrentView,
-    setSearchTerm,
-    getSearchTerm,
     setTheme,
     getTheme,
     addFavorite,

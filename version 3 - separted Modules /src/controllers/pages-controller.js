@@ -19,7 +19,6 @@ export const PagesController = (() => {
   // Entry point for rendering the currencies page and refreshing coins if needed.
   const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     ChartService.cleanup();
-    AppState.setCurrentView("currencies");
 
     UIManager.displayCurrencyPage();
     UIManager.setCompareStatusVisibility(false);
@@ -46,7 +45,10 @@ export const PagesController = (() => {
     if (!result?.ok) {
       UIManager.showError(
         "#coinsContainer",
-        ErrorResolver.resolve(result.code, { defaultMessage: result?.error })
+        ErrorResolver.resolve(result.code, {
+          defaultMessage: result?.error,
+          status: result?.status,
+        })
       );
       return;
     }
@@ -60,7 +62,6 @@ export const PagesController = (() => {
   // Shows the live reports page (charts) and starts the live polling.
   const showReportsPage = () => {
     ChartService.cleanup();
-    AppState.setCurrentView("reports");
 
     UIManager.renderReportsPage();
     UIManager.showChartSkeleton();
@@ -78,9 +79,10 @@ export const PagesController = (() => {
           historyPoints: CONFIG.CHART.HISTORY_POINTS,
         });
       },
-      onError: ({ code, error }) => {
+      onError: ({ code, error, status }) => {
         const message = ErrorResolver.resolve(code, {
           defaultMessage: error,
+          status,
         });
         UIManager.showError("#chartsGrid", message);
       },
@@ -97,7 +99,6 @@ export const PagesController = (() => {
   // Static "about" page renderer.
   const showAboutPage = () => {
     ChartService.cleanup();
-    AppState.setCurrentView("about");
 
     UIManager.renderAboutPage({
       name: CONFIG.ABOUT.NAME,

@@ -15,6 +15,7 @@ export const coinAPI = (() => {
         return {
           ok: false,
           code: response.status === 429 ? "RATE_LIMIT" : "HTTP_ERROR",
+          status: response.status,
           error:
             response.status === 429
               ? ERRORS.API.RATE_LIMIT
@@ -28,6 +29,7 @@ export const coinAPI = (() => {
       return {
         ok: false,
         code: "NETWORK_ERROR",
+        status: null,
         error: ERRORS.API.DEFAULT,
       };
     }

@@ -40,7 +40,12 @@ export const CoinsService = (() => {
     const result = await coinAPI.fetchMarketData();
 
     if (!result.ok) {
-      return { ok: false, code: "API_ERROR", error: result.error };
+      return {
+        ok: false,
+        code: "API_ERROR",
+        error: result.error,
+        status: result.status,
+      };
     }
 
     const coins = Array.isArray(result.data) ? result.data : [];
@@ -87,6 +92,7 @@ export const CoinsService = (() => {
         ok: false,
         code: result.code || "API_ERROR",
         error: result.error,
+        status: result.status,
       };
     }
 
@@ -138,8 +144,6 @@ export const CoinsService = (() => {
       return { ok: false, code: "NO_MATCH", term: normalizedTerm };
     }
 
-    AppState.setSearchTerm(normalizedTerm);
-
     return {
       ok: true,
       data: filteredCoins,
@@ -181,8 +185,6 @@ export const CoinsService = (() => {
 
   // Resets the stored search term and returns the full coins list.
   const clearSearch = () => {
-    AppState.setSearchTerm("");
-
     return {
       ok: true,
       data: AppState.getAllCoins(),
@@ -212,6 +214,7 @@ export const CoinsService = (() => {
         ok: false,
         code: result.code || "API_ERROR",
         error: result.error,
+        status: result.status,
       };
     }
 
