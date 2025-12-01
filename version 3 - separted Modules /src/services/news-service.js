@@ -1,5 +1,6 @@
 // [NEWS] News service: fetches crypto news from NewsData with cache and freshness filter
 import { CONFIG } from "../config/config.js";
+import { ERRORS } from "../config/error.js";
 import { filterLastHours } from "../utils/general-utils.js";
 import { CacheManager } from "./cache.js";
 
@@ -84,7 +85,7 @@ export const NewsService = (() => {
       console.error("NewsService: API error", error);
       return {
         ok: false,
-        errorMessage: "Failed to load news. Please try again later.",
+        errorMessage: ERRORS.NEWS.GENERAL_ERROR,
       };
     }
   };

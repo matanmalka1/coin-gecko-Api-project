@@ -3,7 +3,6 @@ import { ERRORS } from "../config/error.js";
 // Maps specific error codes to user-facing messages.
 const handlers = {
   EMPTY_TERM: ({ term }) => ERRORS.SEARCH.EMPTY_TERM,
-  FULL: () => ERRORS.REPORTS.LIMIT,
   HTTP_ERROR: ({ status, defaultMessage }) =>
     status
       ? ERRORS.API.REQUEST_FAILED(status)

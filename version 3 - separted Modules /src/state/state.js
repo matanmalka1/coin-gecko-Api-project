@@ -91,12 +91,6 @@ export const AppState = (() => {
   // Exposes the timestamp of the last successful coins fetch.
   const getCoinsLastUpdated = () => state.coinsLastUpdated;
 
-  // Stores the timestamp for the last coins refresh (or now if invalid).
-  const setCoinsLastUpdated = (timestamp) => {
-    state.coinsLastUpdated =
-      typeof timestamp === "number" ? timestamp : Date.now();
-  };
-
   // Fully replaces the reports selection list and persists it.
   const setSelectedReports = (reports = []) => {
     state.selectedReports = Array.isArray(reports)
@@ -190,7 +184,6 @@ export const AppState = (() => {
     setAllCoins,
     getSelectedReports,
     getCoinsLastUpdated,
-    setCoinsLastUpdated,
     addReport,
     removeReport,
     hasReport,
