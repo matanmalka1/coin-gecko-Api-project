@@ -42,7 +42,6 @@ export const UI_CONFIG = {
     CARD_BADGE_TEXT: "Live",
     HEIGHT_PX: 220,
     HEIGHT_MOBILE_PX: 180,
-    CHART_HISTORY_DAYS: 7,
   },
 
   COIN_DETAILS: {
