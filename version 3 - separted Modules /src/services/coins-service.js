@@ -6,6 +6,7 @@ import { normalizeCoinMarketData } from "./data-normalizer.js";
 import { CONFIG } from "../config/config.js";
 
 export const CoinsService = (() => {
+  const SEARCH_SETTINGS = CONFIG.SEARCH || {};
   // Helper for sorting coins array according to sortType.
   const sortList = (coins = [], sortType) => {
     const sortedCoins = [...coins];
@@ -93,11 +94,28 @@ export const CoinsService = (() => {
 
   // Performs a fuzzy search by symbol/name on the in-memory coins list.
   const searchCoin = (term) => {
-    const normalizedTerm = typeof term === "string" ? term.trim() : "";
-    if (!normalizedTerm) {
+    const trimmedTerm = typeof term === "string" ? term.trim() : "";
+    if (!trimmedTerm) {
       return { ok: false, code: "EMPTY_TERM" };
     }
 
+    const minLength = SEARCH_SETTINGS.MIN_LENGTH ?? 1;
+    const maxLength = SEARCH_SETTINGS.MAX_LENGTH ?? 50;
+    const allowedPattern = SEARCH_SETTINGS.ALLOWED_PATTERN;
+
+    if (trimmedTerm.length < minLength) {
+      return { ok: false, code: "TERM_TOO_SHORT", min: minLength };
+    }
+
+    if (trimmedTerm.length > maxLength) {
+      return { ok: false, code: "TERM_TOO_LONG", limit: maxLength };
+    }
+
+    if (allowedPattern && !allowedPattern.test(trimmedTerm)) {
+      return { ok: false, code: "INVALID_TERM" };
+    }
+
+    const normalizedTerm = trimmedTerm.replace(/\s+/g, " ");
     const searchTerm = normalizedTerm.toLowerCase();
     const allCoins = AppState.getAllCoins();
 
@@ -116,7 +134,7 @@ export const CoinsService = (() => {
       return { ok: false, code: "NO_MATCH", term: normalizedTerm };
     }
 
-    AppState.setSearchTerm(searchTerm);
+    AppState.setSearchTerm(normalizedTerm);
 
     return {
       ok: true,
