@@ -14,6 +14,9 @@ const handlers = {
   NO_SYMBOLS: () => ERRORS.API.NO_SYMBOLS,
   NOT_FOUND: () => ERRORS.REPORTS.NOT_FOUND,
   RATE_LIMIT: () => ERRORS.API.RATE_LIMIT,
+  TERM_TOO_SHORT: ({ min }) => ERRORS.SEARCH.TERM_TOO_SHORT(min),
+  TERM_TOO_LONG: ({ limit }) => ERRORS.SEARCH.TERM_TOO_LONG(limit),
+  INVALID_TERM: () => ERRORS.SEARCH.INVALID_TERM,
 };
 
 export const ErrorResolver = {

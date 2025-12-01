@@ -2,7 +2,8 @@ import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
 
 export const coinAPI = (() => {
-  const { COINGECKO_BASE, CRYPTOCOMPARE_BASE } = CONFIG.API;
+  const { COINGECKO_BASE, CRYPTOCOMPARE_BASE, CHART_HISTORY_DAYS } =
+    CONFIG.API;
   const { COINS_PER_PAGE } = CONFIG.DISPLAY;
 
   // Generic fetch wrapper for CoinGecko/CryptoCompare with basic error handling.
@@ -66,7 +67,7 @@ export const coinAPI = (() => {
   };
 
   // Fetches historical market chart data for a coin id.
-  const fetchCoinMarketChart = async (coinId, days = 7) => {
+  const fetchCoinMarketChart = async (coinId, days = CHART_HISTORY_DAYS) => {
     const url = `${COINGECKO_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`;
     return fetchWithRetry(url);
   };

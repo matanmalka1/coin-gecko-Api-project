@@ -2,7 +2,6 @@
 export const API_CONFIG = {
   COINGECKO_BASE: "https://api.coingecko.com/api/v3",
   CRYPTOCOMPARE_BASE: "https://min-api.cryptocompare.com/data",
-  CHART_HISTORY_DAYS: 7,
 
   NEWS: {
     BASE_URL: "https://newsdata.io/api/1/crypto",

@@ -10,6 +10,12 @@ export const UI_CONFIG = {
     FAVORITES_SHOW_LABEL: "Favorites ⭐",
     FAVORITES_HIDE_LABEL: "All Coins",
   },
+  // Search constraints for currencies page.
+  SEARCH: {
+    MIN_LENGTH: 2,
+    MAX_LENGTH: 40,
+    ALLOWED_PATTERN: /^[a-z0-9\s.-]+$/i,
+  },
 
   // News UI messages
   NEWS_UI: {
@@ -36,6 +42,7 @@ export const UI_CONFIG = {
     CARD_BADGE_TEXT: "Live",
     HEIGHT_PX: 220,
     HEIGHT_MOBILE_PX: 180,
+    CHART_HISTORY_DAYS: 7,
   },
 
   COIN_DETAILS: {

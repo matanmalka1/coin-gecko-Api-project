@@ -7,7 +7,7 @@ import { ErrorResolver } from "../utils/error-resolver.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { PagesController } from "./pages-controller.js";
 
-from functions.update_plan to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch to=functions.shell_command to=functions.apply_patch Error: Attempted to call two tools at once. You must wait for the previous tool call to complete. You can check the tool queue to check the status of the tools being executed.
+const CoinEvents = (() => {
   let isRegistered = false;
   // Handles "Enter" search in the currencies page.
   const handleSearch = () => {
