@@ -12,7 +12,7 @@ export const CACHE_CONFIG = {
   },
 
   STORAGE_KEYS: {
-    THEME: "themeמתן",
+    THEME: "theme",
     FAVORITES: "favorites",
     REPORTS: "reportsSelection",
   },
