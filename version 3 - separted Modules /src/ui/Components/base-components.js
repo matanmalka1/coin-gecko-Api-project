@@ -23,13 +23,17 @@ const errorAlert = (message) =>
 const infoAlert = (message) =>
   alertBox("info", "bi bi-info-circle-fill", message);
 
-// Wraps arbitrary content inside a styled div.
+// // Wraps arbitrary content inside a styled div.
+// const cardShell = (content, classes = "") =>
+//   `<div class="${classes}">${content}</div>`;
+
 // Renders a responsive column with a Bootstrap card inside.
 const cardContainer = (
   content,
   colClasses = "col-md-6 col-lg-4",
   cardClasses = "card h-100 shadow-sm border"
-) => `<div class="${colClasses}">${cardShell(content, cardClasses)}</div>`;
+) =>
+  `<div class="${colClasses}"><div class="${cardClasses}">${content}</div></div>`;
 
 // Builds a grid of placeholder cards using a provided builder.
 const buildSkeletonGrid = (

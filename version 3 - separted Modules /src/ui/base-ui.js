@@ -7,8 +7,8 @@ let selectorCache = {};
 // Returns cached jQuery selector references to reduce repeated queries.
 // Re-queries if the cached element is detached or missing.
 const getCached = (selector) => {
-  const isAttached =
-    selectorCache[selector]?.length && selectorCache[selector][0].isConnected;
+  const cached = selectorCache[selector];
+  const isAttached = cached?.length && cached[0].isConnected;
 
   if (!cached || !isAttached) {
     selectorCache[selector] = $(selector);
