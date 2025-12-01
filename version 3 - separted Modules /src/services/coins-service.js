@@ -68,7 +68,7 @@ export const CoinsService = (() => {
   const sortCoins = (sortType) => {
     const coins = AppState.getAllCoins();
     const sorted = sortList(coins, sortType);
-    AppState.setAllCoins(sorted);
+    AppState.setAllCoins(sorted, { updateTimestamp: false });
     return {
       ok: true,
       data: AppState.getAllCoins(),

@@ -5,10 +5,15 @@ import { BaseComponents } from "./Components/base-components.js";
 let selectorCache = {};
 
 // Returns cached jQuery selector references to reduce repeated queries.
+// Re-queries if the cached element is detached or missing.
 const getCached = (selector) => {
-  if (!selectorCache[selector]) {
+  const isAttached =
+    selectorCache[selector]?.length && selectorCache[selector][0].isConnected;
+
+  if (!cached || !isAttached) {
     selectorCache[selector] = $(selector);
   }
+
   return selectorCache[selector];
 };
 

@@ -24,9 +24,6 @@ const infoAlert = (message) =>
   alertBox("info", "bi bi-info-circle-fill", message);
 
 // Wraps arbitrary content inside a styled div.
-const cardShell = (content, classes = "") =>
-  `<div class="${classes}">${content}</div>`;
-
 // Renders a responsive column with a Bootstrap card inside.
 const cardContainer = (
   content,
@@ -115,7 +112,6 @@ export const BaseComponents = {
   spinner,
   errorAlert,
   infoAlert,
-  cardShell,
   cardContainer,
   buildSkeletonGrid,
   newsSkeleton,

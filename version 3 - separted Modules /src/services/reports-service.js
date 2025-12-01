@@ -7,7 +7,6 @@ import { normalizeCoinMarketData } from "./data-normalizer.js";
 // Reports domain logic only: no UI/DOM.
 export const ReportsService = (() => {
   const getSelectedReports = () => AppState.getSelectedReports();
-  const hasReport = (symbol) => AppState.hasReport(symbol);
 
   // Adds or removes a symbol from the tracked reports list.
   const toggleCoinSelection = (symbol) => {
@@ -124,7 +123,6 @@ export const ReportsService = (() => {
   return {
     toggleCoinSelection,
     replaceReport,
-    hasReport,
     getSelectedReports,
     getCompareData,
   };

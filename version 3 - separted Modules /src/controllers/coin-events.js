@@ -53,6 +53,24 @@ const CoinEvents = (() => {
     }
 
     CoinUI.updateFavoriteIcon(coinSymbol, !alreadyFavorite);
+
+    // If currently showing favorites-only, refresh the filtered view.
+    if (AppState.isShowingFavoritesOnly()) {
+      renderFavoritesList();
+    }
+  };
+
+  // Renders the favorites-only list based on current favorites state.
+  const renderFavoritesList = () => {
+    const favoriteSymbols = AppState.getFavorites();
+    const allCoins = AppState.getAllCoins();
+    const filteredCoins = allCoins.filter((c) => favoriteSymbols.includes(c.symbol));
+
+    UIManager.displayCoins(filteredCoins, AppState.getSelectedReports(), {
+      favorites: favoriteSymbols,
+      emptyMessage: CONFIG.UI.FAVORITES_EMPTY,
+      compareSelection: AppState.getCompareSelection(),
+    });
   };
 
   // Utility to show error on the "more info" collapse area.
@@ -111,16 +129,7 @@ const CoinEvents = (() => {
       return;
     }
 
-    const favoriteSymbols = AppState.getFavorites();
-    const allCoins = AppState.getAllCoins();
-    const filteredCoins = allCoins.filter((c) =>
-      favoriteSymbols.includes(c.symbol)
-    );
-    UIManager.displayCoins(filteredCoins, AppState.getSelectedReports(), {
-      favorites: favoriteSymbols,
-      emptyMessage: CONFIG.UI.FAVORITES_EMPTY,
-      compareSelection: AppState.getCompareSelection(),
-    });
+    renderFavoritesList();
     UIManager.setFavoritesButtonLabel(true);
     AppState.setShowFavoritesOnly(true);
   };

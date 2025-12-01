@@ -6,11 +6,7 @@ import { CoinsService } from "../services/coins-service.js";
 
 // Efficiently renders coins list (with caching) including favorites/compare state.
 const displayCoins = (coins, selectedReports = [], options = {}) => {
-  const {
-    favorites = [],
-    emptyMessage,
-    compareSelection = [],
-  } = options;
+  const { favorites = [], emptyMessage, compareSelection = [] } = options;
   const container = $("#coinsContainer");
   if (!container.length) return;
 
@@ -83,7 +79,12 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
 const showLoading = () => {
   const container = $("#coinsContainer");
   if (!container.length) return;
-  container.html(BaseComponents.coinsSkeleton());
+
+  container.html(
+    `${BaseComponents.spinner(
+      CONFIG.UI.LOADING_COINS
+    )}${BaseComponents.coinsSkeleton()}`
+  );
 };
 
 // Toggles the star icon state when marking/unmarking favorites.

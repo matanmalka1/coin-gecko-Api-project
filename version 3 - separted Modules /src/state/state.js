@@ -40,10 +40,10 @@ export const AppState = (() => {
   const getAllCoins = () => [...state.allCoins];
 
   // Replaces the cached coins list while deduplicating by normalized symbol.
-  const setAllCoins = (coins) => {
+  const setAllCoins = (coins, { updateTimestamp = true } = {}) => {
     if (!Array.isArray(coins)) {
       state.allCoins = [];
-      state.coinsLastUpdated = 0;
+      if (updateTimestamp) state.coinsLastUpdated = 0;
       return;
     }
 
@@ -56,7 +56,9 @@ export const AppState = (() => {
       acc.push({ ...coin, symbol });
       return acc;
     }, []);
-    state.coinsLastUpdated = Date.now();
+    if (updateTimestamp) {
+      state.coinsLastUpdated = Date.now();
+    }
   };
 
   // Favorites
