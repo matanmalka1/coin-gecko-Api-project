@@ -26,7 +26,6 @@ export const ERRORS = {
   REPORTS: {
     NONE_SELECTED: "No coins selected. Please choose coins first.",
     NOT_FOUND: "Selected coins not found. Try refreshing data.",
-    LIMIT: "Please select up to 5 coins first from the Currencies page.",
     MISSING_DATA: (symbols) => `Failed to load data for: ${symbols}`,
   },
 
