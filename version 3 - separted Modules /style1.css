@@ -173,8 +173,7 @@ html.dark #compareStatus.alert-info {
   transform: translateY(-5px);
 }
 
-.news-hero,
-.news-hero-card {
+.news-hero {
   background-color: var(--color-card-bg);
   border-color: var(--color-border);
 }
@@ -182,12 +181,6 @@ html.dark #compareStatus.alert-info {
 /* ===== NEWS HERO ===== */
 .news-hero {
   background: linear-gradient(135deg, var(--color-primary) 0%, #0a58ca 100%);
-}
-
-.news-hero-card {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 html.dark .news-hero {

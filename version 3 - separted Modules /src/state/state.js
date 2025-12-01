@@ -26,7 +26,6 @@ export const AppState = (() => {
   let state = {
     allCoins: [],
     coinsLastUpdated: 0,
-    sortOrder: "",
     selectedReports: loadStoredReports(),
     currentView: "currencies",
     searchTerm: "",
@@ -39,14 +38,6 @@ export const AppState = (() => {
       (s) => (typeof s === "string" ? normalizeSymbol(s) : s)
     ),
   };
-  // Active sort order for the coins list.
-  const getSortOrder = () => state.sortOrder;
-
-  // Updates the current sort order flag used by the UI/service layer.
-  const setSortOrder = (sortType = "") => {
-    state.sortOrder = typeof sortType === "string" ? sortType : "";
-  };
-
   // Returns all cached coins (in their current sorted order).
   const getAllCoins = () => [...state.allCoins];
 
@@ -238,8 +229,6 @@ export const AppState = (() => {
     isShowingFavoritesOnly,
     setShowFavoritesOnly,
     setSelectedReports,
-    getSortOrder,
-    setSortOrder,
     getCompareSelection,
     setCompareSelection,
     resetCompareSelection,

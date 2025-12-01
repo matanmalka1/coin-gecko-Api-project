@@ -27,20 +27,13 @@ export const NewsService = (() => {
     const cached = CacheManager.getCache(cacheKey);
 
     if (cached) {
-      const cachedArticles = Array.isArray(cached)
-        ? cached
-        : cached.articles || [];
-      const filteredCache = filterLastHours(
-        cachedArticles,
-        FRESH_WINDOW_MS
-      );
+      const cachedArticles = Array.isArray(cached) ? cached : [];
+      const filteredCache = filterLastHours(cachedArticles, FRESH_WINDOW_MS);
 
       const usedFallback =
         filteredCache.length === 0 && cachedArticles.length > 0;
 
-      const articles = filteredCache.length
-        ? filteredCache
-        : cachedArticles;
+      const articles = filteredCache.length ? filteredCache : cachedArticles;
 
       return {
         ok: true,
@@ -106,13 +99,6 @@ export const NewsService = (() => {
       .map((s) => String(s).trim().toUpperCase());
 
     const unique = Array.from(new Set(cleaned));
-    if (!unique.length) {
-      return {
-        ok: true,
-        articles: [],
-        usedFreshnessFallback: false,
-      };
-    }
 
     const query = unique.join(" OR ");
     const cacheKey = buildFavoritesCacheKey(unique);

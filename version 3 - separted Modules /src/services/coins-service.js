@@ -64,8 +64,12 @@ export const CoinsService = (() => {
     const coins = AppState.getAllCoins();
     const sorted = sortList(coins, sortType);
     AppState.setAllCoins(sorted);
-    AppState.setSortOrder(sortType);
-    return { ok: true, data: sorted };
+    return {
+      ok: true,
+      data: AppState.getAllCoins(),
+      selected: AppState.getSelectedReports(),
+      favorites: AppState.getFavorites(),
+    };
   };
 
   // Retrieves detailed information for a single coin (with cache).
