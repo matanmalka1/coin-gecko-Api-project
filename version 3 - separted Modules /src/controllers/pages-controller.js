@@ -50,8 +50,8 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   AppState.setLoadingCoins(false);
 
   if (!result?.ok) {
-    BaseUI.showError("#coinsContainer", result.code, {
-      defaultMessage: result?.error || ERRORS.API.API_ERROR,
+    BaseUI.showError("#coinsContainer", "COIN_LIST_ERROR", {
+      defaultMessage: result?.error || ERRORS.API.COIN_LIST_ERROR,
       status: result?.status,
     });
     return;
@@ -79,16 +79,15 @@ export const showReportsPage = () => {
       });
     },
     onError: ({ code, error, status }) => {
-      BaseUI.showError("#chartsGrid", code, {
-        defaultMessage: error,
-        status,
+      BaseUI.showError("#chartsGrid", code || "LIVE_CHART_ERROR", {
+        defaultMessage: error || ERRORS.API.LIVE_CHART_ERROR,
       });
     },
   });
 
   if (!result?.ok) {
-    BaseUI.showError("#chartsGrid", result.code, {
-      defaultMessage: ERRORS.API.DEFAULT,
+    BaseUI.showError("#chartsGrid", "LIVE_CHART_ERROR", {
+      defaultMessage: ERRORS.API.LIVE_CHART_ERROR,
       status: result.status,
     });
   }

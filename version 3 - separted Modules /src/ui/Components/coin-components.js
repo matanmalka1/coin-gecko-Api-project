@@ -188,6 +188,7 @@ const replaceModal = (newSymbol, existingCoins, options = {}) => {
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+           <div id="replaceModalError"></div>
             <p>You've reached the limit of ${limit} coins.</p>
             <p>Choose a coin to replace with <strong>${newSymbol}</strong>:</p>
             <ul class="list-group">${listItems}</ul>

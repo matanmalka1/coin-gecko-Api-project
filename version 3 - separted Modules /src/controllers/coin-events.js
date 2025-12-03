@@ -69,10 +69,12 @@ const renderFavoritesList = () => {
 
 // Utility to show error on the "more info" collapse area.
 const showMoreInfoError = (collapseId, result = {}) => {
-  BaseUI.showError(`#${collapseId}`, result.code || "API_ERROR", {
+  BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
     status: result.status,
     defaultMessage:
-      typeof result.error === "string" ? result.error : ERRORS.API.DEFAULT,
+      typeof result.error === "string"
+        ? result.error
+        : ERRORS.API.COIN_DETAILS_ERROR,
   });
 };
 

@@ -4,6 +4,9 @@ export const ERRORS = {
   API: {
     DEFAULT: "Failed to load data. Please try again.",
     API_ERROR: "Failed to load data. Please try again.",
+    COIN_LIST_ERROR: "Failed to load coins data. Please try again.",
+    COIN_DETAILS_ERROR: "Failed to load coin details. Please try again.",
+    LIVE_CHART_ERROR: "Failed to load live price data. Please try again.",
     RATE_LIMIT: "Rate limit exceeded. Please wait and try again.",
     REQUEST_FAILED: (status) => `Error ${status}: Request failed.`,
     HTTP_STATUS: (status) => `HTTP ${status}`,
@@ -33,6 +36,8 @@ export const ERRORS = {
     DUPLICATE: "This coin is already selected.",
     INVALID_SYMBOL: "Coin not found in the current list. Please refresh.",
     NO_DATA: "No data available for the selected coins.",
+    REPLACE_SELECTION_REQUIRED:
+      "Please choose a coin to replace before confirming.",
   },
 
   // Errors specific to the news feed module

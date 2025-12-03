@@ -5,6 +5,12 @@ const handlers = {
   EMPTY_TERM: ({ term }) => ERRORS.SEARCH.EMPTY_TERM,
   API_ERROR: ({ defaultMessage }) =>
     defaultMessage || ERRORS.API.API_ERROR || ERRORS.API.DEFAULT,
+  COIN_LIST_ERROR: ({ defaultMessage, status }) =>
+    defaultMessage || ERRORS.API.REQUEST_FAILED(status) || ERRORS.API.DEFAULT,
+  COIN_DETAILS_ERROR: ({ defaultMessage, status }) =>
+    defaultMessage || ERRORS.API.REQUEST_FAILED(status) || ERRORS.API.DEFAULT,
+  LIVE_CHART_ERROR: ({ defaultMessage, status }) =>
+    defaultMessage || ERRORS.API.REQUEST_FAILED(status) || ERRORS.API.DEFAULT,
   HTTP_ERROR: ({ status, defaultMessage }) =>
     status
       ? ERRORS.API.REQUEST_FAILED(status)
@@ -23,6 +29,8 @@ const handlers = {
   DUPLICATE: () => ERRORS.REPORTS.DUPLICATE,
   INVALID_SYMBOL: () => ERRORS.REPORTS.INVALID_SYMBOL,
   NO_DATA: () => ERRORS.REPORTS.NO_DATA,
+  REPLACE_SELECTION_REQUIRED: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.REPORTS.REPLACE_SELECTION_REQUIRED,
   NEWS_ERROR: ({ defaultMessage }) =>
     defaultMessage || ERRORS.NEWS.GENERAL_ERROR,
 };

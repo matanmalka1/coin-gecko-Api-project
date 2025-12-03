@@ -2,6 +2,7 @@ import { BaseComponents } from "./Components/base-components.js";
 import { CoinComponents } from "./Components/coin-components.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
+import { BaseUI } from "./base-ui.js";
 import { CoinsService } from "../services/coins-service.js";
 
 // Efficiently renders coins list (with caching) including favorites/compare state.
@@ -87,7 +88,9 @@ const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
       if (!selectedToRemove) {
-        alert(UI_CONFIG.UI.REPLACE_ALERT);
+        BaseUI.showError("#replaceModalError", "REPLACE_SELECTION_REQUIRED", {
+          defaultMessage: ERRORS.REPORTS.REPLACE_SELECTION_REQUIRED,
+        });
         return;
       }
 
