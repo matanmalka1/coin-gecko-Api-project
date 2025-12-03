@@ -1,4 +1,4 @@
-import { CONFIG } from "../../config/config.js";
+import { UI_CONFIG } from "../../config/ui-config.js";
 import { shortenText } from "../../utils/general-utils.js";
 import { BaseComponents } from "./base-components.js";
 
@@ -100,7 +100,7 @@ const coinDetails = (data = {}, currencies = {}) => {
   const normalizedData = data.normalized || {};
   const prices = normalizedData.prices || {};
   const desc = description?.en
-    ? shortenText(description.en, CONFIG.COIN_DETAILS.DESCRIPTION_MAX_CHARS)
+    ? shortenText(description.en, UI_CONFIG.COIN_DETAILS.DESCRIPTION_MAX_CHARS)
     : "No description available.";
   const priceUsd = prices.usd ?? null;
   const priceEur = prices.eur ?? null;

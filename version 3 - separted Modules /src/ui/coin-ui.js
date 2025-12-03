@@ -1,6 +1,6 @@
 import { BaseComponents } from "./Components/base-components.js";
 import { CoinComponents } from "./Components/coin-components.js";
-import { CONFIG } from "../config/config.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { CoinsService } from "../services/coins-service.js";
 
@@ -12,7 +12,7 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
 
   if (!coins.length) {
     container.html(
-      BaseComponents.infoAlert(emptyMessage || CONFIG.UI.NO_COINS_FOUND)
+      BaseComponents.infoAlert(emptyMessage || UI_CONFIG.UI.NO_COINS_FOUND)
     );
     container.data("coinCardCache", new Map());
     return;
@@ -82,7 +82,7 @@ const showLoading = () => {
 
   container.html(
     `${BaseComponents.spinner(
-      CONFIG.UI.LOADING_COINS
+      UI_CONFIG.UI.LOADING_COINS
     )}${BaseComponents.coinsSkeleton()}`
   );
 };
@@ -127,7 +127,7 @@ const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
       if (!selectedToRemove) {
-        alert(CONFIG.UI.REPLACE_ALERT);
+        alert(UI_CONFIG.UI.REPLACE_ALERT);
         return;
       }
 
@@ -197,7 +197,7 @@ const showCompareModal = (coins, options = {}) => {
   const modalHTML = CoinComponents.compareModal(
     compareTableHtml + missingNotice,
     {
-      title: options.title || CONFIG.UI.COMPARE_TITLE,
+      title: options.title || UI_CONFIG.UI.COMPARE_TITLE,
     }
   );
   $("body").append(modalHTML);

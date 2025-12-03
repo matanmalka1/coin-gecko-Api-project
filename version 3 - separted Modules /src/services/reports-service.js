@@ -1,8 +1,10 @@
 import { AppState } from "../state/state.js";
 import { coinAPI } from "./api.js";
-import { CONFIG } from "../config/config.js";
-import { normalizeSymbol } from "../utils/general-utils.js";
-import { normalizeCoinMarketData } from "./data-normalizer.js";
+import {
+  normalizeSymbol,
+  normalizeCoinMarketData,
+} from "../utils/general-utils.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 
 // Reports domain logic only: no UI/DOM.
 export const ReportsService = (() => {
@@ -35,7 +37,7 @@ export const ReportsService = (() => {
       code: "FULL",
       newSymbol: symbolUpper,
       existing: AppState.getSelectedReports(),
-      limit: CONFIG.REPORTS.MAX_COINS,
+      limit: UI_CONFIG.REPORTS.MAX_COINS,
       selected: AppState.getSelectedReports(),
     };
   };
