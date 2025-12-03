@@ -83,7 +83,7 @@ const showLoading = () => {
   container.html(
     `${BaseComponents.spinner(
       UI_CONFIG.UI.LOADING_COINS
-    )}${BaseComponents.coinsSkeleton()}`
+    )}${BaseComponents.skeleton("coins", 6)}`
   );
 };
 

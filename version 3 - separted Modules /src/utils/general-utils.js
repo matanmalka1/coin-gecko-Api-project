@@ -21,3 +21,35 @@ export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
     return Date.now() - publishedTime <= maxAgeInMs;
   });
 };
+
+// Formats numeric price values into USD with fraction digits.
+export const formatCurrency = (value, options = {}) => {
+  if (typeof value !== "number" || isNaN(value)) return "N/A";
+  const {
+    prefix = "$",
+    minimumFractionDigits = 2,
+    maximumFractionDigits = 2,
+  } = options;
+  return `${prefix}${value.toLocaleString("en-US", {
+    minimumFractionDigits,
+    maximumFractionDigits,
+  })}`;
+};
+
+export const formatDate = (dateString) => {
+  if (!dateString) return "Unknown time";
+  try {
+    return new Date(dateString).toLocaleString();
+  } catch {
+    return "Invalid date";
+  }
+};
+
+export const isValidUrl = (string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch {
+    return false;
+  }
+};
