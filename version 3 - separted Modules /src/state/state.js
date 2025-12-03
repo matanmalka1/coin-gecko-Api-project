@@ -1,210 +1,194 @@
-import { CONFIG } from "../config/config.js";
+import { CACHE_CONFIG } from "../config/api-cache-config.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 import { Storage } from "../utils/storage.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 
-// Loads persisted reports selection and normalizes/sanitizes the symbols.
-const loadStoredReports = () => {
-  const stored = Storage.readJSON(CONFIG.STORAGE_KEYS.REPORTS, []) || [];
+const { STORAGE_KEYS } = CACHE_CONFIG;
+const { MAX_COINS } = UI_CONFIG.REPORTS;
+
+const loadStoredSymbols = (key, maxItems = null) => {
+  const stored = Storage.readJSON(key, []) || [];
   if (!Array.isArray(stored)) return [];
+
   const normalized = stored
     .filter(Boolean)
-    .map((symbol) => normalizeSymbol(symbol))
+    .map(normalizeSymbol)
     .filter(Boolean);
+
   const unique = [...new Set(normalized)];
-  return unique.slice(0, CONFIG.REPORTS.MAX_COINS);
+  return maxItems ? unique.slice(0, maxItems) : unique;
 };
 
-// Persists the selected reports array into storage.
-const persistSelectedReports = (reports) => {
-  Storage.writeJSON(
-    CONFIG.STORAGE_KEYS.REPORTS,
-    Array.isArray(reports) ? reports : []
-  );
+let state = {
+  allCoins: [],
+  coinsLastUpdated: 0,
+  selectedReports: loadStoredSymbols(STORAGE_KEYS.REPORTS, MAX_COINS),
+  favorites: loadStoredSymbols(STORAGE_KEYS.FAVORITES),
+  showFavoritesOnly: false,
+  compareSelection: [],
+  compareModalOpen: false,
+  loadingCoins: false,
+  theme: Storage.readJSON(STORAGE_KEYS.THEME, "light"),
 };
 
-export const AppState = (() => {
-  let state = {
-    allCoins: [],
-    coinsLastUpdated: 0,
-    selectedReports: loadStoredReports(),
-    showFavoritesOnly: false,
-    compareSelection: [],
-    compareModalOpen: false,
-    loadingCoins: false,
-    theme: Storage.readJSON(CONFIG.STORAGE_KEYS.THEME, "light"),
-    favorites: (Storage.readJSON(CONFIG.STORAGE_KEYS.FAVORITES, []) || []).map(
-      (s) => (typeof s === "string" ? normalizeSymbol(s) : s)
-    ),
-  };
-  // Returns all cached coins (in their current sorted order).
-  const getAllCoins = () => [...state.allCoins];
+// ===== Coins =====
+const getAllCoins = () => [...state.allCoins];
 
-  // Replaces the cached coins list while deduplicating by normalized symbol.
-  const setAllCoins = (coins, { updateTimestamp = true } = {}) => {
-    if (!Array.isArray(coins)) {
-      state.allCoins = [];
-      if (updateTimestamp) state.coinsLastUpdated = 0;
-      return;
-    }
+const setAllCoins = (coins, { updateTimestamp = true } = {}) => {
+  if (!Array.isArray(coins)) {
+    state.allCoins = [];
+    if (updateTimestamp) state.coinsLastUpdated = 0;
+    return;
+  }
 
-    const seen = new Set();
-    state.allCoins = coins.reduce((acc, coin) => {
-      if (!coin || !coin.id || !coin.symbol) return acc;
-      const symbol = normalizeSymbol(coin.symbol);
-      if (seen.has(symbol)) return acc;
-      seen.add(symbol);
-      acc.push({ ...coin, symbol });
-      return acc;
-    }, []);
-    if (updateTimestamp) {
-      state.coinsLastUpdated = Date.now();
-    }
-  };
+  const seen = new Set();
+  state.allCoins = coins.reduce((acc, coin) => {
+    if (!coin?.id || !coin?.symbol) return acc;
 
-  // Favorites
-  // Adds a coin symbol to the favorites list and persists it.
-  const addFavorite = (symbol) => {
-    const normalized = normalizeSymbol(symbol);
-    if (!state.favorites.includes(normalized)) {
-      state.favorites.push(normalized);
-      Storage.writeJSON(CONFIG.STORAGE_KEYS.FAVORITES, state.favorites);
-    }
-  };
+    const symbol = normalizeSymbol(coin.symbol);
+    if (!symbol || seen.has(symbol)) return acc;
 
-  // Removes a coin symbol from the persisted favorites list.
-  const removeFavorite = (symbol) => {
-    state.favorites = state.favorites.filter(
-      (favSymbol) => favSymbol !== normalizeSymbol(symbol)
-    );
-    Storage.writeJSON(CONFIG.STORAGE_KEYS.FAVORITES, state.favorites);
-  };
+    seen.add(symbol);
+    acc.push({ ...coin, symbol });
+    return acc;
+  }, []);
 
-  // Checks if a given symbol is currently favorite.
-  const isFavorite = (symbol) => {
-    return state.favorites.includes(normalizeSymbol(symbol));
-  };
+  if (updateTimestamp) {
+    state.coinsLastUpdated = Date.now();
+  }
+};
 
-  // Returns the favorites list clone for external use.
-  const getFavorites = () => [...state.favorites];
+const getCoinsLastUpdated = () => state.coinsLastUpdated;
 
-  // Exposes the normalized reports selection used for live charts.
-  const getSelectedReports = () => [...state.selectedReports];
+// ===== Reports =====
+const getSelectedReports = () => [...state.selectedReports];
 
-  // Exposes the timestamp of the last successful coins fetch.
-  const getCoinsLastUpdated = () => state.coinsLastUpdated;
+const setSelectedReports = (reports = []) => {
+  state.selectedReports = Array.isArray(reports)
+    ? reports
+        .filter(Boolean)
+        .map(normalizeSymbol)
+        .filter(Boolean)
+        .slice(0, MAX_COINS)
+    : [];
 
-  // Fully replaces the reports selection list and persists it.
-  const setSelectedReports = (reports = []) => {
-    state.selectedReports = Array.isArray(reports)
-      ? reports.map((symbol) => normalizeSymbol(symbol)).filter(Boolean)
-      : [];
-    persistSelectedReports(state.selectedReports);
-  };
+  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
+};
 
-  // Adds a symbol to the reports selection (if available).
-  const addReport = (symbol) => {
-    if (state.selectedReports.includes(normalizeSymbol(symbol))) return false;
-    if (state.selectedReports.length >= CONFIG.REPORTS.MAX_COINS) return false;
+const addReport = (symbol) => {
+  const normalized = normalizeSymbol(symbol);
+  if (
+    !normalized ||
+    state.selectedReports.includes(normalized) ||
+    state.selectedReports.length >= MAX_COINS
+  ) {
+    return false;
+  }
 
-    state.selectedReports.push(normalizeSymbol(symbol));
-    persistSelectedReports(state.selectedReports);
-    return true;
-  };
-  // Theme
-  // Persists the UI theme preference (light/dark).
-  const setTheme = (theme) => {
-    state.theme = theme;
-    Storage.writeJSON(CONFIG.STORAGE_KEYS.THEME, theme);
-  };
+  state.selectedReports.push(normalized);
+  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
+  return true;
+};
 
-  // Returns the current theme selection.
-  const getTheme = () => state.theme;
+const removeReport = (symbol) => {
+  const normalized = normalizeSymbol(symbol);
+  if (!normalized) return;
 
-  // Removes a symbol from the reports list and persists the change.
-  const removeReport = (symbol) => {
-    const normalized = normalizeSymbol(symbol);
-    state.selectedReports = state.selectedReports.filter(
-      (s) => s !== normalized
-    );
-    persistSelectedReports(state.selectedReports);
-  };
+  state.selectedReports = state.selectedReports.filter((s) => s !== normalized);
+  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
+};
 
-  // Checks if a given symbol is part of the reports selection.
-  const hasReport = (symbol) => {
-    const normalized = normalizeSymbol(symbol);
-    return state.selectedReports.includes(normalized);
-  };
+const hasReport = (symbol) => {
+  const normalized = normalizeSymbol(symbol);
+  return !!normalized && state.selectedReports.includes(normalized);
+};
 
-  // Indicates if selected reports already reached the configured maximum.
-  const isReportsFull = () => {
-    return state.selectedReports.length >= CONFIG.REPORTS.MAX_COINS;
-  };
+const isReportsFull = () => state.selectedReports.length >= MAX_COINS;
 
-  // Loading indicators
-  // Whether a coins fetch request is in-flight.
-  const isLoadingCoins = () => state.loadingCoins;
+// ===== Favorites =====
+const addFavorite = (symbol) => {
+  const normalized = normalizeSymbol(symbol);
+  if (!normalized || state.favorites.includes(normalized)) return;
 
-  // Toggles the loading state for coins requests.
-  const setLoadingCoins = (value) => {
-    state.loadingCoins = !!value;
-  };
+  state.favorites.push(normalized);
+  Storage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
+};
 
-  // True if only favorites should be shown in the list.
-  const isShowingFavoritesOnly = () => state.showFavoritesOnly;
+const removeFavorite = (symbol) => {
+  const normalized = normalizeSymbol(symbol);
+  if (!normalized) return;
 
-  // Toggles the favorites-only filter.
-  const setShowFavoritesOnly = (value) => {
-    state.showFavoritesOnly = !!value;
-  };
+  state.favorites = state.favorites.filter((s) => s !== normalized);
+  Storage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
+};
 
-  // Compare modal state
-  // Returns the current compare selection array clone.
-  const getCompareSelection = () => [...state.compareSelection];
+const isFavorite = (symbol) => {
+  const normalized = normalizeSymbol(symbol);
+  return !!normalized && state.favorites.includes(normalized);
+};
 
-  // Overrides the compare selection with sanitized string identifiers.
-  const setCompareSelection = (selection = []) => {
-    state.compareSelection = Array.isArray(selection)
-      ? selection.map((id) => String(id)).filter(Boolean)
-      : [];
-  };
+const getFavorites = () => [...state.favorites];
 
-  // Clears the compare selection entirely.
-  const resetCompareSelection = () => {
-    state.compareSelection = [];
-  };
+// ===== Theme =====
+const setTheme = (theme) => {
+  state.theme = theme;
+  Storage.writeJSON(STORAGE_KEYS.THEME, theme);
+};
 
-  // Indicates if the compare modal is currently open.
-  const isCompareModalOpen = () => state.compareModalOpen;
+const getTheme = () => state.theme;
 
-  // Sets the open/closed flag for the compare modal.
-  const setCompareModalOpen = (isOpen) => {
-    state.compareModalOpen = !!isOpen;
-  };
+// ===== Loading / filters =====
+const isLoadingCoins = () => state.loadingCoins;
+const setLoadingCoins = (value) => {
+  state.loadingCoins = !!value;
+};
 
-  return {
-    getAllCoins,
-    setAllCoins,
-    getSelectedReports,
-    getCoinsLastUpdated,
-    addReport,
-    removeReport,
-    hasReport,
-    isReportsFull,
-    setTheme,
-    getTheme,
-    addFavorite,
-    removeFavorite,
-    isFavorite,
-    getFavorites,
-    isLoadingCoins,
-    setLoadingCoins,
-    isShowingFavoritesOnly,
-    setShowFavoritesOnly,
-    setSelectedReports,
-    getCompareSelection,
-    setCompareSelection,
-    resetCompareSelection,
-    isCompareModalOpen,
-    setCompareModalOpen,
-  };
-})();
+const isShowingFavoritesOnly = () => state.showFavoritesOnly;
+const setShowFavoritesOnly = (value) => {
+  state.showFavoritesOnly = !!value;
+};
+
+// ===== Compare =====
+const getCompareSelection = () => [...state.compareSelection];
+
+const setCompareSelection = (selection = []) => {
+  state.compareSelection = Array.isArray(selection)
+    ? selection.map(String).filter(Boolean)
+    : [];
+};
+
+const resetCompareSelection = () => {
+  state.compareSelection = [];
+};
+
+const isCompareModalOpen = () => state.compareModalOpen;
+const setCompareModalOpen = (isOpen) => {
+  state.compareModalOpen = !!isOpen;
+};
+
+export const AppState = {
+  getAllCoins,
+  setAllCoins,
+  getCoinsLastUpdated,
+  getSelectedReports,
+  setSelectedReports,
+  addReport,
+  removeReport,
+  hasReport,
+  isReportsFull,
+  addFavorite,
+  removeFavorite,
+  isFavorite,
+  getFavorites,
+  setTheme,
+  getTheme,
+  isLoadingCoins,
+  setLoadingCoins,
+  isShowingFavoritesOnly,
+  setShowFavoritesOnly,
+  getCompareSelection,
+  setCompareSelection,
+  resetCompareSelection,
+  isCompareModalOpen,
+  setCompareModalOpen,
+};

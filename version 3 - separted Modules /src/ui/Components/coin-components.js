@@ -3,6 +3,8 @@ import { shortenText } from "../../utils/general-utils.js";
 import { BaseComponents } from "./base-components.js";
 
 const { cardContainer } = BaseComponents;
+const PLACEHOLDER_THUMB = "https://via.placeholder.com/50";
+const PLACEHOLDER_LARGE = "https://via.placeholder.com/80";
 
 // Formats numeric price values into USD with fraction digits.
 const formatPrice = (value, options = {}) => {
@@ -24,26 +26,21 @@ const formatLargeNumber = (value) => {
 const coinCard = (coin, isSelected = false, options = {}) => {
   const { id, name, symbol, image, current_price, market_cap } = coin;
   const { isFavorite = false, isInCompare = false } = options;
-  const normalizedData = coin.normalized || {};
-  const normalizedImage =
-    normalizedData.image?.thumb || image || "https://via.placeholder.com/50";
-  const normalizedPrice =
-    normalizedData.prices?.usd ??
-    (typeof current_price === "number" ? current_price : null);
-  const normalizedMarketCap =
-    normalizedData.marketCapUsd ??
-    (typeof market_cap === "number" ? market_cap : null);
-
-  const price = formatPrice(normalizedPrice);
-  const marketCapFormatted = formatLargeNumber(normalizedMarketCap);
+  const price = formatPrice(current_price);
+  const marketCapFormatted = formatLargeNumber(market_cap);
+  const displaySymbol = symbol ? symbol.toUpperCase() : "";
+  const imageThumb =
+    (typeof image === "string"
+      ? image
+      : image?.thumb || image?.small || image?.large) || PLACEHOLDER_THUMB;
 
   const body = `
     <div class="d-flex align-items-center gap-3 mb-3">
-      <img src="${normalizedImage}" alt="${symbol}" loading="lazy"
+      <img src="${imageThumb}" alt="${symbol || ""}" loading="lazy"
            class="rounded-circle coin-image">
       <div>
         <h6 class="fw-bold mb-0">${name}</h6>
-        <small class="text-muted">${symbol.toUpperCase()}</small>
+        <small class="text-muted">${displaySymbol}</small>
       </div>
     </div>
     <p class="mb-2"><strong>Price:</strong> ${price}</p>
@@ -53,26 +50,26 @@ const coinCard = (coin, isSelected = false, options = {}) => {
     }" data-id="${id}">
       <button class="btn btn-sm btn-outline-primary more-info"
               data-id="${id}"
-              aria-label="Show more info about ${symbol}">
+              aria-label="Show more info about ${displaySymbol}">
         <i class="fas fa-info-circle"></i> More Info
       </button>
       <button type="button" class="btn btn-sm btn-outline-secondary compare-btn" 
-        data-id="${id}" data-symbol="${symbol.toUpperCase()}"
-        aria-label="Compare ${symbol}">
+        data-id="${id}" data-symbol="${displaySymbol}"
+        aria-label="Compare ${displaySymbol}">
         <i class="fas fa-balance-scale"></i> Compare
       </button>
       <div class="d-flex align-items-center gap-2">
         <button type="button"
                 class="btn btn-sm p-0 favorite-btn"
-                data-symbol="${symbol.toUpperCase()}">
+                data-symbol="${displaySymbol}">
           <i class="fas fa-star ${isFavorite ? "text-warning" : "text-muted"}"
              style="font-size: 1.2rem;"></i>
         </button>
         <div class="form-check form-switch mb-0">
           <input class="form-check-input coin-toggle"
            type="checkbox" role="switch"
-           aria-label="Track ${symbol}"
-           data-symbol="${symbol.toUpperCase()}"
+           aria-label="Track ${displaySymbol}"
+           data-symbol="${displaySymbol}"
                  ${isSelected ? "checked" : ""}>
          </div>
       </div>
@@ -94,24 +91,23 @@ const coinCard = (coin, isSelected = false, options = {}) => {
 };
 
 // More info panel
-// Renders the expanded "more info" panel with normalized coin data.
+// Renders the expanded "more info" panel with fields from the API response.
 const coinDetails = (data = {}, currencies = {}) => {
-  const { image, name, symbol, description, platforms } = data;
-  const normalizedData = data.normalized || {};
-  const prices = normalizedData.prices || {};
+  const { image, name, symbol, description, platforms, market_data } = data;
   const desc = description?.en
     ? shortenText(description.en, UI_CONFIG.COIN_DETAILS.DESCRIPTION_MAX_CHARS)
     : "No description available.";
-  const priceUsd = prices.usd ?? null;
-  const priceEur = prices.eur ?? null;
-  const priceIls = prices.ils ?? null;
-  const athUsd = normalizedData.athUsd ?? null;
+  const prices = market_data?.current_price || {};
+  const priceUsd = prices.usd;
+  const priceEur = prices.eur;
+  const priceIls = prices.ils;
+  const athUsd = market_data?.ath?.usd;
   const imageSrc =
-    normalizedData.image?.large ||
     image?.large ||
     image?.small ||
-    image ||
-    "https://via.placeholder.com/80";
+    image?.thumb ||
+    (typeof image === "string" ? image : PLACEHOLDER_LARGE);
+  const displaySymbol = symbol ? symbol.toUpperCase() : "";
 
   // Helper for rendering a badge showing a specific currency value.
   const priceItem = (label, value, curr) => {
@@ -149,7 +145,7 @@ const coinDetails = (data = {}, currencies = {}) => {
           class="coin-info-image rounded-circle shadow">
         <div>
           <h6 class="mb-0">${name}</h6>
-          <small class="text-muted">${symbol.toUpperCase()}</small>
+          <small class="text-muted">${displaySymbol}</small>
           <div class="text-muted small">Rank: ${rank}</div>
         </div>
       </div>

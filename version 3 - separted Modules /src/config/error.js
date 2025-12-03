@@ -14,10 +14,10 @@ export const ERRORS = {
     EMPTY_TERM: "Please enter a search term.",
     LOAD_WAIT: "Please wait for coins to load...",
     NO_MATCH: (term) => `No coins found matching "${term}".`,
-    TERM_TOO_SHORT: (min) =>
-      `Please enter at least ${min || 1} characters for search.`,
-    TERM_TOO_LONG: (max) =>
-      `Search term is too long. Maximum allowed is ${max || ""} characters.`,
+    TERM_TOO_SHORT: (min = 1) =>
+      `Please enter at least ${min} characters for search.`,
+    TERM_TOO_LONG: (max = "") =>
+      `Search term is too long. Maximum allowed is ${max} characters.`,
     INVALID_TERM:
       "Search term contains invalid characters. Use letters, numbers, spaces, dots or hyphens.",
   },

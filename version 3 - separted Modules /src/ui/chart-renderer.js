@@ -1,15 +1,15 @@
-import { CONFIG } from "../config/config.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 
 const charts = new Map();
 const chartData = new Map();
-let maxHistoryPoints = CONFIG.CHART.HISTORY_POINTS;
+let maxHistoryPoints = UI_CONFIG.CHART.HISTORY_POINTS;
 
 // Disposes all existing CanvasJS chart instances and cached data.
 const destroyAll = () => {
   charts.forEach((chart) => chart?.destroy?.());
   charts.clear();
   chartData.clear();
-  maxHistoryPoints = CONFIG.CHART.HISTORY_POINTS;
+  maxHistoryPoints = UI_CONFIG.CHART.HISTORY_POINTS;
 };
 
 // Creates chart containers + CanvasJS objects for each selected symbol.
@@ -20,12 +20,12 @@ const setupCharts = (symbols, options = {}) => {
   destroyAll();
   grid.empty();
 
-  maxHistoryPoints = options.historyPoints ?? CONFIG.CHART.HISTORY_POINTS;
+  maxHistoryPoints = options.historyPoints ?? UI_CONFIG.CHART.HISTORY_POINTS;
 
   const isMobile = window.innerWidth <= 576;
-  const height = isMobile
-    ? CONFIG.CHART.HEIGHT_MOBILE_PX ?? CONFIG.CHART.HEIGHT_PX
-    : CONFIG.CHART.HEIGHT_PX;
+    const height = isMobile
+    ? UI_CONFIG.CHART.HEIGHT_MOBILE_PX ?? UI_CONFIG.CHART.HEIGHT_PX
+    : UI_CONFIG.CHART.HEIGHT_PX;
 
   symbols.forEach((symbol) => {
     grid.append(`
@@ -33,7 +33,7 @@ const setupCharts = (symbols, options = {}) => {
         <div class="card shadow-sm p-3 h-100 rounded-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">${symbol}</h6>
-              <small class="text-muted">${CONFIG.CHART.CARD_BADGE_TEXT}</small>
+              <small class="text-muted">${UI_CONFIG.CHART.CARD_BADGE_TEXT}</small>
           </div>
           <div id="chart-${symbol}" style="height:${height}px;"></div>
         </div>
@@ -45,10 +45,10 @@ const setupCharts = (symbols, options = {}) => {
     const chart = new CanvasJS.Chart(`chart-${symbol}`, {
       backgroundColor: "transparent",
       axisX: {
-        valueFormatString: CONFIG.CHART.AXIS_X_FORMAT,
+        valueFormatString: UI_CONFIG.CHART.AXIS_X_FORMAT,
         labelFontSize: 10,
       },
-      axisY: { prefix: CONFIG.CHART.AXIS_Y_PREFIX , labelFontSize: 10 },
+      axisY: { prefix: UI_CONFIG.CHART.AXIS_Y_PREFIX , labelFontSize: 10 },
       data: [
         {
           type: "line",

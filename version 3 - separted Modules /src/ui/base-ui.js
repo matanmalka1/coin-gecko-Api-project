@@ -1,4 +1,4 @@
-import { CONFIG } from "../config/config.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { BaseComponents } from "./Components/base-components.js";
 
@@ -96,9 +96,9 @@ const showElement = (selector) => {
 
 // Updates the favorites toggle button caption based on mode.
 const setFavoritesButtonLabel = (showingFavorites) => {
-  const label = showingFavorites
-    ? CONFIG.UI.FAVORITES_HIDE_LABEL
-    : CONFIG.UI.FAVORITES_SHOW_LABEL;
+    const label = showingFavorites
+      ? UI_CONFIG.UI.FAVORITES_HIDE_LABEL
+      : UI_CONFIG.UI.FAVORITES_SHOW_LABEL;
   getCached("#showFavoritesBtn").text(label);
 };
 

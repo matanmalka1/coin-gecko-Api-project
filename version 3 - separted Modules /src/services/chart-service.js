@@ -1,74 +1,69 @@
 import { coinAPI } from "./api.js";
 import { AppState } from "../state/state.js";
-import { CONFIG } from "../config/config.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 
 // Emits data only; no DOM/Canvas rendering.
-export const ChartService = (() => {
-  let updateInterval = null;
+let updateInterval = null;
 
-  // Starts polling live prices for the selected reports.
-  const startLiveChart = (chartCallbacks = {}) => {
-    cleanup();
-    const symbols = AppState.getSelectedReports();
+// Stops the polling interval and resets state.
+const cleanup = () => {
+  if (updateInterval) {
+    clearInterval(updateInterval);
+    updateInterval = null;
+  }
+};
 
-    if (!symbols.length) {
-      return { ok: false, code: "NO_SELECTION" };
-    }
+// Starts polling live prices for the selected reports.
+const startLiveChart = (chartCallbacks = {}) => {
+  cleanup();
 
-    let isUpdating = false;
+  const symbols = AppState.getSelectedReports();
+  if (!symbols.length) {
+    return { ok: false, code: "NONE_SELECTED" };
+  }
 
-    const sendPriceUpdates = async () => {
-      if (isUpdating) return;
+  const { UPDATE_INTERVAL_MS, HISTORY_POINTS } = UI_CONFIG.CHART;
+  let isUpdating = false;
 
-      isUpdating = true;
-      try {
-        const result = await coinAPI.fetchLivePrices(symbols);
+  const sendPriceUpdates = async () => {
+    if (isUpdating) return;
+    isUpdating = true;
 
-        if (!result.ok) {
-          chartCallbacks.onError?.({
-            code: result.code ?? "API_ERROR",
-            error: result.error,
-            status: result.status,
-          });
-          cleanup();
-          return;
-        }
+    try {
+      const result = await coinAPI.fetchLivePrices(symbols);
 
-        chartCallbacks.onData?.({
-          time: new Date(),
-          prices: result.data,
+      if (!result.ok) {
+        chartCallbacks.onError?.({
+          code: result.code ?? "API_ERROR",
+          error: result.error,
+          status: result.status,
         });
-      } finally {
-        isUpdating = false;
+        cleanup();
+        return;
       }
-    };
 
-    chartCallbacks.onChartReady?.({
-      symbols,
-      updateIntervalMs: CONFIG.CHART.UPDATE_INTERVAL_MS,
-      historyPoints: CONFIG.CHART.HISTORY_POINTS,
-    });
-
-    sendPriceUpdates();
-
-    updateInterval = setInterval(
-      sendPriceUpdates,
-      CONFIG.CHART.UPDATE_INTERVAL_MS
-    );
-
-    return { ok: true, symbols };
-  };
-
-  // Stops the polling interval and resets state.
-  const cleanup = () => {
-    if (updateInterval) {
-      clearInterval(updateInterval);
-      updateInterval = null;
+      chartCallbacks.onData?.({
+        time: new Date(),
+        prices: result.data,
+      });
+    } finally {
+      isUpdating = false;
     }
   };
 
-  return {
-    startLiveChart,
-    cleanup,
-  };
-})();
+  chartCallbacks.onChartReady?.({
+    symbols,
+    updateIntervalMs: UPDATE_INTERVAL_MS,
+    historyPoints: HISTORY_POINTS,
+  });
+
+  sendPriceUpdates();
+  updateInterval = setInterval(sendPriceUpdates, UPDATE_INTERVAL_MS);
+
+  return { ok: true, symbols };
+};
+
+export const ChartService = {
+  startLiveChart,
+  cleanup,
+};

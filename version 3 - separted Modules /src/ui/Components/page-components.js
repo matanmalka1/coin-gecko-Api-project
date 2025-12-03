@@ -1,4 +1,4 @@
-import { CONFIG } from "../../config/config.js";
+import { UI_CONFIG } from "../../config/ui-config.js";
 import { shortenText } from "../../utils/general-utils.js";
 import { BaseComponents } from "./base-components.js";
 
@@ -37,7 +37,7 @@ const reportsPage = () => `
   <div id="chartsGrid" class="row g-3"></div>
 `;
 
-// Static about page with author details pulled from CONFIG.
+// Static about page with author details pulled from UI_CONFIG.
 const aboutPage = (userData = {}) => {
   const { image, name, linkedin } = userData;
   return `
@@ -108,7 +108,7 @@ const newsPage = () => `
                   <i class="bi bi-info-circle me-1"></i>Live monitor
               </span>
             </div>
-            <p id="newsStatus" class="mb-0 text-white-75">${CONFIG.NEWS_UI.STATUS_GENERAL}</p>
+                <p id="newsStatus" class="mb-0 text-white-75">${UI_CONFIG.NEWS_UI.STATUS_GENERAL}</p>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@ const newsArticleCard = (article) => {
     article || {};
 
   const displayTitle = title || "Untitled";
-  const displayDesc = shortenText(description, CONFIG.NEWS_UI.DESC_MAX);
+  const displayDesc = shortenText(description, UI_CONFIG.NEWS_UI.DESC_MAX);
   const link = original_url || url || "#";
   const publishedDate = published_at
     ? new Date(published_at).toLocaleString()

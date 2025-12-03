@@ -42,8 +42,8 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
     const snapshot = JSON.stringify({
       id: coin.id,
       symbol: coin.symbol,
-      price: coin.normalized?.prices?.usd ?? coin.current_price,
-      marketCap: coin.normalized?.marketCapUsd ?? coin.market_cap,
+      price: coin.current_price,
+      marketCap: coin.market_cap,
       isSelected,
       isFavorite,
       isInCompare,
@@ -158,16 +158,19 @@ const showCompareModal = (coins, options = {}) => {
 
   const compareRowsHtml = coins
     .map((coin) => {
-      const normalized = coin.normalized || {};
-      const prices = normalized.prices || {};
+      const marketData = coin.market_data || {};
+      const priceUsd = marketData.current_price?.usd;
+      const marketCapUsd = marketData.market_cap?.usd;
+      const changePercent = marketData.price_change_percentage_24h;
+      const volumeUsd = marketData.total_volume?.usd;
 
       return `
         <tr>
           <td>${coin?.symbol?.toUpperCase() || "N/A"}</td>
-          <td>${formatCurrency(prices.usd)}</td>
-          <td>${formatCurrency(normalized.marketCapUsd)}</td>
-          <td>${formatPercent(normalized.changePercent24h)}</td>
-          <td>${formatCurrency(normalized.volumeUsd)}</td>
+          <td>${formatCurrency(priceUsd)}</td>
+          <td>${formatCurrency(marketCapUsd)}</td>
+          <td>${formatPercent(changePercent)}</td>
+          <td>${formatCurrency(volumeUsd)}</td>
         </tr>
       `;
     })

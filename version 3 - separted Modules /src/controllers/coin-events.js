@@ -1,179 +1,161 @@
 import { CoinsService } from "../services/coins-service.js";
 import { UIManager } from "../ui/ui-manager.js";
 import { AppState } from "../state/state.js";
-import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { PagesController } from "./pages-controller.js";
 
-const CoinEvents = (() => {
-  let isRegistered = false;
-  // Handles "Enter" search in the currencies page.
-  const handleSearch = () => {
-    const searchTerm = UIManager.getInputValue("#searchInput");
-    const serviceResult = CoinsService.searchCoin(searchTerm);
-    UIManager.showElement("#clearSearchBtn");
+let isRegistered = false;
 
-    if (!serviceResult?.ok) {
-      UIManager.showError(
-        "#coinsContainer",
-        ErrorResolver.resolve(serviceResult.code, {
-          term: serviceResult.term,
-        })
-      );
-      return;
-    }
+const renderCoins = (data, selected, { favorites, emptyMessage } = {}) => {
+  UIManager.displayCoins(data, selected ?? AppState.getSelectedReports(), {
+    favorites: favorites ?? AppState.getFavorites(),
+    compareSelection: AppState.getCompareSelection(),
+    ...(emptyMessage && { emptyMessage }),
+  });
+};
 
-    UIManager.displayCoins(serviceResult.data, serviceResult.selected, {
-      favorites: serviceResult.favorites,
-      compareSelection: AppState.getCompareSelection(),
-    });
-  };
+// Handles "Enter" search in the currencies page.
+const handleSearch = () => {
+  const searchTerm = UIManager.getInputValue("#searchInput");
+  const result = CoinsService.searchCoin(searchTerm);
+  UIManager.showElement("#clearSearchBtn");
 
-  // Clears the search input and resets coins list.
-  const handleClearSearch = () => {
-    UIManager.setInputValue("#searchInput", "");
-    const { data, selected = [], favorites = [] } = CoinsService.clearSearch();
-    UIManager.displayCoins(data, selected, {
-      favorites,
-      compareSelection: AppState.getCompareSelection(),
-    });
-  };
-
-  // Toggles favorite status for a coin and updates the icon.
-  const handleFavoriteToggle = (e) => {
-    const coinSymbol = UIManager.getDataAttr(e.currentTarget, "symbol");
-    const alreadyFavorite = AppState.isFavorite(coinSymbol);
-
-    if (alreadyFavorite) {
-      AppState.removeFavorite(coinSymbol);
-    } else {
-      AppState.addFavorite(coinSymbol);
-    }
-
-    CoinUI.updateFavoriteIcon(coinSymbol, !alreadyFavorite);
-
-    // If currently showing favorites-only, refresh the filtered view.
-    if (AppState.isShowingFavoritesOnly()) {
-      renderFavoritesList();
-    }
-  };
-
-  // Renders the favorites-only list based on current favorites state.
-  const renderFavoritesList = () => {
-    const favoriteSymbols = AppState.getFavorites();
-    const allCoins = AppState.getAllCoins();
-    const filteredCoins = allCoins.filter((c) => favoriteSymbols.includes(c.symbol));
-
-    UIManager.displayCoins(filteredCoins, AppState.getSelectedReports(), {
-      favorites: favoriteSymbols,
-      emptyMessage: CONFIG.UI.FAVORITES_EMPTY,
-      compareSelection: AppState.getCompareSelection(),
-    });
-  };
-
-  // Utility to show error on the "more info" collapse area.
-  const showMoreInfoError = (collapseId, result) => {
+  if (!result?.ok) {
     UIManager.showError(
-      `#${collapseId}`,
-      ErrorResolver.resolve(result?.code, {
-        status: result?.status,
-        defaultMessage:
-          typeof result?.error === "string" ? result.error : ERRORS.API.DEFAULT,
+      "#coinsContainer",
+      ErrorResolver.resolve(result.code, {
+        term: result.term,
       })
     );
-  };
+    return;
+  }
 
-  // Fetches/expands "more info" collapse panel for a coin card.
-  const handleMoreInfo = async (e) => {
-    const coinId = UIManager.getDataAttr(e.currentTarget, "id");
-    const collapseId = `collapse-${coinId}`;
+  renderCoins(result.data, result.selected, { favorites: result.favorites });
+};
 
-    if (UIManager.isCollapseOpen(collapseId)) {
-      UIManager.toggleCollapse(collapseId, false);
+// Clears the search input and resets coins list.
+const handleClearSearch = () => {
+  UIManager.setInputValue("#searchInput", "");
+  const { data, selected, favorites } = CoinsService.clearSearch();
+  renderCoins(data, selected, { favorites });
+};
+
+// Toggles favorite status for a coin and updates the icon.
+const handleFavoriteToggle = (e) => {
+  const coinSymbol = UIManager.getDataAttr(e.currentTarget, "symbol");
+  const alreadyFavorite = AppState.isFavorite(coinSymbol);
+
+  if (alreadyFavorite) {
+    AppState.removeFavorite(coinSymbol);
+  } else {
+    AppState.addFavorite(coinSymbol);
+  }
+  CoinUI.updateFavoriteIcon(coinSymbol, !alreadyFavorite);
+
+  // If currently showing favorites-only, refresh the filtered view.
+  if (AppState.isShowingFavoritesOnly()) renderFavoritesList();
+};
+
+// Renders the favorites-only list based on current favorites state.
+const renderFavoritesList = () => {
+  const favoriteSymbols = AppState.getFavorites();
+  const filtered = AppState.getAllCoins().filter((c) =>
+    favoriteSymbols.includes(c.symbol)
+  );
+
+  renderCoins(filtered, AppState.getSelectedReports(), {
+    favorites: favoriteSymbols,
+    emptyMessage: UI_CONFIG.UI.FAVORITES_EMPTY,
+  });
+};
+
+// Utility to show error on the "more info" collapse area.
+const showMoreInfoError = (collapseId, result) => {
+  UIManager.showError(
+    `#${collapseId}`,
+    ErrorResolver.resolve(result?.code, {
+      status: result?.status,
+      defaultMessage:
+        typeof result?.error === "string" ? result.error : ERRORS.API.DEFAULT,
+    })
+  );
+};
+
+// Fetches/expands "more info" collapse panel for a coin card.
+const handleMoreInfo = async (e) => {
+  const coinId = UIManager.getDataAttr(e.currentTarget, "id");
+  const collapseId = `collapse-${coinId}`;
+
+  if (UIManager.isCollapseOpen(collapseId)) {
+    UIManager.toggleCollapse(collapseId, false);
+    return;
+  }
+
+  UIManager.showSpinner(`#${collapseId}`, "Loading details…");
+  UIManager.toggleCollapse(collapseId, true);
+
+  try {
+    const result = await CoinsService.getCoinDetails(coinId);
+    if (!result?.ok || !result.data) {
+      showMoreInfoError(collapseId, result);
       return;
     }
 
-    UIManager.showSpinner(`#${collapseId}`, "Loading details…");
-    UIManager.toggleCollapse(collapseId, true);
+    UIManager.showCoinDetails(collapseId, result.data, {
+      currencies: UI_CONFIG.CURRENCIES,
+    });
+  } catch (error) {
+    showMoreInfoError(collapseId, { error });
+  }
+};
 
-    try {
-      const result = await CoinsService.getCoinDetails(coinId);
-      if (!result?.ok || !result.data) {
-        showMoreInfoError(collapseId, result);
-        return;
-      }
+// Filters the coin list to favorites only or toggles back.
+const handleShowFavorites = () => {
+  if (AppState.isShowingFavoritesOnly()) {
+    renderCoins(AppState.getAllCoins());
+    UIManager.setFavoritesButtonLabel(false);
+    AppState.setShowFavoritesOnly(false);
+    return;
+  }
 
-      UIManager.showCoinDetails(collapseId, result.data, {
-        currencies: CONFIG.CURRENCIES,
-      });
-    } catch (error) {
-      showMoreInfoError(collapseId, { error });
-    }
-  };
+  renderFavoritesList();
+  UIManager.setFavoritesButtonLabel(true);
+  AppState.setShowFavoritesOnly(true);
+};
 
-  // Filters the coin list to favorites only or toggles back.
-  const handleShowFavorites = () => {
-    if (AppState.isShowingFavoritesOnly()) {
-      UIManager.displayCoins(
-        AppState.getAllCoins(),
-        AppState.getSelectedReports(),
-        {
-          favorites: AppState.getFavorites(),
-          compareSelection: AppState.getCompareSelection(),
-        }
-      );
-      UIManager.setFavoritesButtonLabel(false);
-      AppState.setShowFavoritesOnly(false);
-      return;
-    }
+// Updates the sort order based on user's selection.
+const handleSortChange = () => {
+  const sortOption = UIManager.getInputValue("#sortSelect");
+  const { data, selected, favorites } = CoinsService.sortCoins(sortOption);
+  renderCoins(data, selected, { favorites });
+};
 
-    renderFavoritesList();
-    UIManager.setFavoritesButtonLabel(true);
-    AppState.setShowFavoritesOnly(true);
-  };
-
-  // Updates the sort order based on user's selection.
-  const handleSortChange = () => {
-    const sortOption = UIManager.getInputValue("#sortSelect");
-    const serviceResult = CoinsService.sortCoins(sortOption);
-    UIManager.displayCoins(
-      serviceResult.data,
-      serviceResult.selected || AppState.getSelectedReports(),
-      {
-        favorites: serviceResult.favorites || AppState.getFavorites(),
-        compareSelection: AppState.getCompareSelection(),
-      }
-    );
-  };
-
-  // Forces re-fetch of coins data via currencies page.
-  const handleRefreshCoins = (e) => {
-    e.preventDefault();
-    if (AppState.isLoadingCoins()) return;
+// Forces re-fetch of coins data via currencies page.
+const handleRefreshCoins = (e) => {
+  e.preventDefault();
+  if (!AppState.isLoadingCoins()) {
     PagesController.showCurrenciesPage({ forceRefresh: true });
-  };
+  }
+};
 
-  // Registers all coin-related DOM events (once).
-  const setupEventListeners = () => {
-    if (isRegistered) return;
-    $(document)
-      .on("keypress", "#searchInput", (e) => {
-        if (e.key === "Enter") handleSearch();
-      })
-      .on("click", "#clearSearchBtn", handleClearSearch)
-      .on("click", "#showFavoritesBtn", handleShowFavorites)
-      .on("click", "#refreshCoinsBtn", handleRefreshCoins)
-      .on("click", ".favorite-btn", handleFavoriteToggle)
-      .on("click", ".more-info", handleMoreInfo)
-      .on("change", "#sortSelect", handleSortChange);
-    isRegistered = true;
-  };
+// Registers all coin-related DOM events (once).
+const setupEventListeners = () => {
+  if (isRegistered) return;
 
-  return {
-    register: setupEventListeners,
-  };
-})();
+  $(document)
+    .on("keypress", "#searchInput", (e) => {
+      if (e.key === "Enter") handleSearch();
+    })
+    .on("click", "#clearSearchBtn", handleClearSearch)
+    .on("click", "#showFavoritesBtn", handleShowFavorites)
+    .on("click", "#refreshCoinsBtn", handleRefreshCoins)
+    .on("click", ".favorite-btn", handleFavoriteToggle)
+    .on("click", ".more-info", handleMoreInfo)
+    .on("change", "#sortSelect", handleSortChange);
+  isRegistered = true;
+};
 
-export { CoinEvents };
+export const CoinEvents = { register: setupEventListeners };

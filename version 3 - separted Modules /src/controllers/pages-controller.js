@@ -2,114 +2,113 @@ import { UIManager } from "../ui/ui-manager.js";
 import { CoinsService } from "../services/coins-service.js";
 import { ChartService } from "../services/chart-service.js";
 import { AppState } from "../state/state.js";
-import { CONFIG } from "../config/config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
+import { CACHE_CONFIG } from "../config/api-cache-config.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 
-export const PagesController = (() => {
-  const COINS_REFRESH_INTERVAL = CONFIG.CACHE.COINS_REFRESH_INTERVAL_MS;
+const { REPORTS, CHART, ABOUT } = UI_CONFIG;
+const COINS_REFRESH_INTERVAL = CACHE_CONFIG.CACHE.COINS_REFRESH_INTERVAL_MS;
 
-  // Checks whether cached coins should be refreshed based on timestamp.
-  const shouldRefreshCoins = () => {
-    const lastUpdated = AppState.getCoinsLastUpdated();
-    if (!lastUpdated) return true;
-    return Date.now() - lastUpdated >= COINS_REFRESH_INTERVAL;
-  };
+const renderCoins = (coins, extras = {}) => {
+  UIManager.displayCoins(coins, AppState.getSelectedReports(), {
+    favorites: AppState.getFavorites(),
+    compareSelection: AppState.getCompareSelection(),
+    ...extras,
+  });
+};
 
-  // Entry point for rendering the currencies page and refreshing coins if needed.
-  const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
-    ChartService.cleanup();
+const showChartError = (code, error, status) => {
+  const message = ErrorResolver.resolve(code, {
+    defaultMessage: error,
+    status,
+  });
+  UIManager.showError("#chartsGrid", message);
+};
 
-    UIManager.displayCurrencyPage();
-    UIManager.setCompareStatusVisibility(false);
-    UIManager.updateCompareStatus(0, CONFIG.REPORTS.MAX_COMPARE);
-    UIManager.clearCompareHighlights();
+const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
+  ChartService.cleanup();
 
-    const cachedCoins = AppState.getAllCoins();
-    if (cachedCoins.length) {
-      UIManager.displayCoins(cachedCoins, AppState.getSelectedReports(), {
-        favorites: AppState.getFavorites(),
-        compareSelection: AppState.getCompareSelection(),
+  UIManager.displayCurrencyPage();
+  UIManager.setCompareStatusVisibility(false);
+  UIManager.updateCompareStatus(0, REPORTS.MAX_COMPARE);
+  UIManager.clearCompareHighlights();
+
+  const cachedCoins = AppState.getAllCoins();
+  const lastUpdated = AppState.getCoinsLastUpdated();
+
+  if (cachedCoins.length) {
+    renderCoins(cachedCoins);
+  } else {
+    UIManager.showCoinsLoading();
+  }
+
+  if (AppState.isLoadingCoins()) return;
+
+  const needsInitialLoad = !cachedCoins.length;
+  const isCacheExpired =
+    !lastUpdated || Date.now() - lastUpdated >= COINS_REFRESH_INTERVAL;
+
+  if (!needsInitialLoad && !forceRefresh && !isCacheExpired) {
+    return; // No need to fetch
+  }
+  AppState.setLoadingCoins(true);
+  const result = await CoinsService.loadAllCoins();
+  AppState.setLoadingCoins(false);
+
+  if (!result?.ok) {
+    UIManager.showError(
+      "#coinsContainer",
+      ErrorResolver.resolve(result.code, {
+        defaultMessage: result?.error,
+        status: result?.status,
+      })
+    );
+    return;
+  }
+
+  renderCoins(result.data);
+};
+
+const showReportsPage = () => {
+  ChartService.cleanup();
+
+  UIManager.renderReportsPage();
+  UIManager.showChartSkeleton();
+
+  const result = ChartService.startLiveChart({
+    onChartReady: ({ symbols, updateIntervalMs, historyPoints }) => {
+      UIManager.clearLiveChart();
+      UIManager.initLiveChart(symbols, {
+        updateIntervalMs,
+        historyPoints,
       });
-    } else {
-      UIManager.showCoinsLoading();
-    }
-
-    if (AppState.isLoadingCoins()) return;
-    if (cachedCoins.length && !forceRefresh && !shouldRefreshCoins()) return;
-
-    AppState.setLoadingCoins(true);
-    const result = await CoinsService.loadAllCoins();
-    AppState.setLoadingCoins(false);
-
-    if (!result?.ok) {
-      UIManager.showError(
-        "#coinsContainer",
-        ErrorResolver.resolve(result.code, {
-          defaultMessage: result?.error,
-          status: result?.status,
-        })
-      );
-      return;
-    }
-
-    UIManager.displayCoins(result.data, AppState.getSelectedReports(), {
-      favorites: AppState.getFavorites(),
-      compareSelection: AppState.getCompareSelection(),
-    });
-  };
-
-  // Shows the live reports page (charts) and starts the live polling.
-  const showReportsPage = () => {
-    ChartService.cleanup();
-
-    UIManager.renderReportsPage();
-    UIManager.showChartSkeleton();
-
-    const result = ChartService.startLiveChart({
-      onChartReady: ({ symbols, updateIntervalMs, historyPoints }) => {
-        UIManager.clearLiveChart();
-        UIManager.initLiveChart(symbols, {
-          updateIntervalMs,
-          historyPoints,
-        });
-      },
-      onData: ({ prices, time }) => {
-        UIManager.updateLiveChart(prices, time, {
-          historyPoints: CONFIG.CHART.HISTORY_POINTS,
-        });
-      },
-      onError: ({ code, error, status }) => {
-        const message = ErrorResolver.resolve(code, {
-          defaultMessage: error,
-          status,
-        });
-        UIManager.showError("#chartsGrid", message);
-      },
-    });
-
-    if (!result?.ok) {
-      const message = ErrorResolver.resolve(result.code, {
-        defaultMessage: ERRORS.API.DEFAULT,
+    },
+    onData: ({ prices, time }) => {
+      UIManager.updateLiveChart(prices, time, {
+        historyPoints: CHART.HISTORY_POINTS,
       });
-      UIManager.showError("#chartsGrid", message);
-    }
-  };
+    },
+    onError: ({ code, error, status }) => showChartError(code, error, status),
+  });
 
-  // Static "about" page renderer.
-  const showAboutPage = () => {
-    ChartService.cleanup();
+  if (!result?.ok) {
+    showChartError(result.code, ERRORS.API.DEFAULT, result.status);
+  }
+};
 
-    UIManager.renderAboutPage({
-      name: CONFIG.ABOUT.NAME,
-      image: CONFIG.ABOUT.IMAGE,
-      linkedin: CONFIG.ABOUT.LINKEDIN,
-    });
-  };
+const showAboutPage = () => {
+  ChartService.cleanup();
 
-  return {
-    showCurrenciesPage,
-    showReportsPage,
-    showAboutPage,
-  };
-})();
+  UIManager.renderAboutPage({
+    name: ABOUT.NAME,
+    image: ABOUT.IMAGE,
+    linkedin: ABOUT.LINKEDIN,
+  });
+};
+
+export const PagesController = {
+  showCurrenciesPage,
+  showReportsPage,
+  showAboutPage,
+};

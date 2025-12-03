@@ -1,10 +1,7 @@
 import { coinAPI } from "./api.js";
 import { CacheManager } from "./cache.js";
 import { AppState } from "../state/state.js";
-import {
-  normalizeSymbol,
-  normalizeCoinMarketData,
-} from "../utils/general-utils.js";
+import { normalizeSymbol } from "../utils/general-utils.js";
 import { API_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 
@@ -26,15 +23,11 @@ const sortFunctions = {
   marketcap_asc: (a, b) => a.market_cap - b.market_cap,
 };
 
-const fetchWithCache = async (
-  cacheKey,
-  fetcher,
-  normalize = (data) => data
-) => {
+const fetchWithCache = async (cacheKey, fetcher) => {
   const cached = CacheManager.getCache(cacheKey);
   if (cached) return { ok: true, data: cached, fromCache: true };
-  const result = await fetcher();
 
+  const result = await fetcher();
   if (!result.ok) {
     return {
       ok: false,
@@ -43,7 +36,6 @@ const fetchWithCache = async (
       status: result.status,
     };
   }
-  const normalized = normalize(result.data);
   CacheManager.setCache(cacheKey, normalized);
   return { ok: true, data: normalized, fromCache: false };
 };
@@ -63,12 +55,10 @@ const loadAllCoins = async () => {
 
   const filteredCoins = (Array.isArray(result.data) ? result.data : [])
     .filter((coin) => coin && coin.id && coin.symbol)
-    .map((coin) =>
-      normalizeCoinMarketData({
-        ...coin,
-        symbol: normalizeSymbol(coin.symbol),
-      })
-    );
+    .map((coin) => ({
+      ...coin,
+      symbol: normalizeSymbol(coin.symbol),
+    }));
 
   AppState.setAllCoins(filteredCoins);
 
@@ -91,11 +81,7 @@ const sortCoins = (sortType) => {
 
 // Retrieves detailed information for a single coin (with cache).
 const getCoinDetails = (coinId) =>
-  fetchWithCache(
-    coinId,
-    () => coinAPI.fetchCoinDetails(coinId),
-    normalizeCoinMarketData
-  );
+  fetchWithCache(coinId, () => coinAPI.fetchCoinDetails(coinId));
 
 // Performs a fuzzy search by symbol/name on the in-memory coins list.
 const searchCoin = (term) => {
