@@ -1,7 +1,7 @@
 import { AppState } from "../state/state.js";
 import { UIManager } from "../ui/ui-manager.js";
-import { PagesController } from "./pages-controller.js";
-import { NewsController } from "./news-controller.js";
+import {showCurrenciesPage,showReportsPage,showAboutPage,} from "../controllers/pages-co
+import { showNewsPage, showFavoritesNewsPage } from "./news-controller.js";
 
 let documentEventsRegistered = false;
 let navigationRegistered = false;
@@ -33,22 +33,12 @@ const registerDocumentEvents = () => {
 // Binds navbar navigation buttons to their respective pages.
 const registerNavigation = () => {
   if (navigationRegistered) return;
+  $("#currenciesBtn, #brandHome").on("click", showCurrenciesPage);
+  $("#reportsBtn").on("click", showReportsPage);
+  $("#newsBtn").on("click", showNewsPage);
+  $("#newsFavoritesBtn").on("click", showFavoritesNewsPage);
+  $("#aboutBtn").on("click", showAboutPage);
 
-  $("#currenciesBtn, #brandHome").on("click", () => {
-    PagesController.showCurrenciesPage();
-  });
-
-  $("#reportsBtn").on("click", () => {
-    PagesController.showReportsPage();
-  });
-
-  $("#newsBtn").on("click", () => {
-    NewsController.showNewsPage();
-  });
-
-  $("#aboutBtn").on("click", () => {
-    PagesController.showAboutPage();
-  });
   navigationRegistered = true;
 };
 

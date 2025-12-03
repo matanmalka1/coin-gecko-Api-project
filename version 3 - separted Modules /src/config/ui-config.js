@@ -48,11 +48,6 @@ export const UI_CONFIG = {
     DESCRIPTION_MAX_CHARS: 200,
   },
 
-  // Display settings
-  DISPLAY: {
-    COINS_PER_PAGE: 150,
-  },
-
   // Reports settings
   REPORTS: {
     MAX_COINS: 5,

@@ -23,19 +23,21 @@ export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
 };
 
 // Formats numeric price values into USD with fraction digits.
-export const formatCurrency = (value, options = {}) => {
-  if (typeof value !== "number" || isNaN(value)) return "N/A";
-  const {
-    prefix = "$",
-    minimumFractionDigits = 2,
-    maximumFractionDigits = 2,
-  } = options;
-  return `${prefix}${value.toLocaleString("en-US", {
-    minimumFractionDigits,
-    maximumFractionDigits,
+const formatPrice = (value, options = {}) => {
+  if (typeof value !== "number") return "N/A";
+
+  return `$${value.toLocaleString("en-US", {
+    minimumFractionDigits: options.minimumFractionDigits ?? 2,
+    maximumFractionDigits: options.maximumFractionDigits ?? 2,
   })}`;
 };
 
+const resolveImage = (image) =>
+  (typeof image === "string"
+    ? image
+    : image?.thumb || image?.small || image?.large) || PLACEHOLDER_THUMB;
+
+    
 export const formatDate = (dateString) => {
   if (!dateString) return "Unknown time";
   try {

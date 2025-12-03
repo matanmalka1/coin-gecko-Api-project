@@ -1,95 +1,81 @@
 import { UI_CONFIG } from "../../config/ui-config.js";
-import { shortenText } from "../../utils/general-utils.js";
-import { BaseComponents } from "./base-components.js";
+import {
+  shortenText,
+  formatPrice,
+  resolveImage,
+} from "../../utils/general-utils.js";
 
-const { cardContainer } = BaseComponents;
-const PLACEHOLDER_THUMB = "https://via.placeholder.com/50";
 const PLACEHOLDER_LARGE = "https://via.placeholder.com/80";
 
-// Formats numeric price values into USD with fraction digits.
-const formatPrice = (value, options = {}) => {
-  if (typeof value !== "number") return "N/A";
-  const { minimumFractionDigits = 2, maximumFractionDigits = 2 } = options;
-  return `$${value.toLocaleString("en-US", {
-    minimumFractionDigits,
-    maximumFractionDigits,
-  })}`;
-};
-
-// Formats large monetary values with locale separators.
-const formatLargeNumber = (value) => {
-  if (typeof value !== "number") return "N/A";
-  return `$${value.toLocaleString("en-US")}`;
-};
-
 // Builds a coin summary card (price, market cap, actions, toggle states).
-const coinCard = (coin, isSelected = false, options = {}) => {
+const coinCard = (
+  coin,
+  isSelected = false,
+  { isFavorite = false, isInCompare = false } = {}
+) => {
   const { id, name, symbol, image, current_price, market_cap } = coin;
-  const { isFavorite = false, isInCompare = false } = options;
-  const price = formatPrice(current_price);
-  const marketCapFormatted = formatLargeNumber(market_cap);
-  const displaySymbol = symbol ? symbol.toUpperCase() : "";
-  const imageThumb =
-    (typeof image === "string"
-      ? image
-      : image?.thumb || image?.small || image?.large) || PLACEHOLDER_THUMB;
-
-  const body = `
-    <div class="d-flex align-items-center gap-3 mb-3">
-      <img src="${imageThumb}" alt="${symbol || ""}" loading="lazy"
-           class="rounded-circle coin-image">
-      <div>
-        <h6 class="fw-bold mb-0">${name}</h6>
-        <small class="text-muted">${displaySymbol}</small>
-      </div>
-    </div>
-    <p class="mb-2"><strong>Price:</strong> ${price}</p>
-    <p class="mb-2"><strong>Market Cap:</strong> ${marketCapFormatted}</p>
-    <div class="d-flex justify-content-between align-items-center mt-2 compare-row ${
-      isInCompare ? "compare-row-active" : ""
-    }" data-id="${id}">
-      <button class="btn btn-sm btn-outline-primary more-info"
-              data-id="${id}"
-              aria-label="Show more info about ${displaySymbol}">
-        <i class="fas fa-info-circle"></i> More Info
-      </button>
-      <button type="button" class="btn btn-sm btn-outline-secondary compare-btn" 
-        data-id="${id}" data-symbol="${displaySymbol}"
-        aria-label="Compare ${displaySymbol}">
-        <i class="fas fa-balance-scale"></i> Compare
-      </button>
-      <div class="d-flex align-items-center gap-2">
-        <button type="button"
-                class="btn btn-sm p-0 favorite-btn"
-                data-symbol="${displaySymbol}">
-          <i class="fas fa-star ${isFavorite ? "text-warning" : "text-muted"}"
-             style="font-size: 1.2rem;"></i>
-        </button>
-        <div class="form-check form-switch mb-0">
-          <input class="form-check-input coin-toggle"
-           type="checkbox" role="switch"
-           aria-label="Track ${displaySymbol}"
-           data-symbol="${displaySymbol}"
-                 ${isSelected ? "checked" : ""}>
-         </div>
-      </div>
-    </div>
-    <div class="collapse mt-3" id="collapse-${id}"></div>
-  `;
-
-  const cardClasses = `card border shadow-sm p-3 h-100 ${
-    isInCompare ? "compare-card-active" : ""
-  }`;
+  const displaySymbol = symbol?.toUpperCase() || "";
+  const imageThumb = resolveImage(image);
 
   return `
     <div class="col-12 col-md-6 col-lg-4" data-coin-id="${id}">
-      <div class="${cardClasses}">
-        ${body}
+      <div class="card border shadow-sm p-3 h-100 ${
+        isInCompare ? "compare-card-active" : ""
+      }">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <img src="${imageThumb}" alt="${displaySymbol}" loading="lazy"
+               class="rounded-circle coin-image">
+          <div>
+            <h6 class="fw-bold mb-0">${name}</h6>
+            <small class="text-muted">${displaySymbol}</small>
+          </div>
+        </div>
+
+        <p class="mb-2"><strong>Price:</strong> ${formatPrice(
+          current_price
+        )}</p>
+        <p class="mb-2"><strong>Market Cap:</strong> ${formatLargeNumber(
+          market_cap
+        )}</p>
+
+        <div class="d-flex justify-content-between align-items-center mt-2 compare-row ${
+          isInCompare ? "compare-row-active" : ""
+        }" data-id="${id}">
+          <button class="btn btn-sm btn-outline-primary more-info"
+            data-id="${id}" aria-label="Show more info about ${displaySymbol}">
+            <i class="fas fa-info-circle"></i> More Info
+          </button>
+
+          <button type="button" class="btn btn-sm btn-outline-secondary compare-btn"
+             data-id="${id}" data-symbol="${displaySymbol}"
+             aria-label="Compare ${displaySymbol}">
+            <i class="fas fa-balance-scale"></i> Compare
+          </button>
+
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm p-0 favorite-btn"
+               data-symbol="${displaySymbol}">
+              <i class="fas fa-star ${
+                isFavorite ? "text-warning" : "text-muted"
+              }"style="font-size: 1.2rem;"></i>
+            </button>
+
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input coin-toggle"
+                     type="checkbox" role="switch"
+                     aria-label="Track ${displaySymbol}" 
+                     data-symbol="${displaySymbol}" ${
+    isSelected ? "checked" : ""
+  }>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse mt-3" id="collapse-${id}"></div>
       </div>
     </div>
   `;
 };
-
 // More info panel
 // Renders the expanded "more info" panel with fields from the API response.
 const coinDetails = (data = {}, currencies = {}) => {

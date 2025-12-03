@@ -1,9 +1,8 @@
 import { API_CONFIG } from "../config/api-cache-config.js";
-import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 
 const { COINGECKO_BASE, CRYPTOCOMPARE_BASE, CHART_HISTORY_DAYS } = API_CONFIG;
-const { COINS_PER_PAGE } = UI_CONFIG.DISPLAY;
+const COINS_PER_PAGE = 150;
 
 // Generic fetch wrapper for CoinGecko/CryptoCompare with basic error handling.
 const fetchWithRetry = async (url, options = {}) => {
@@ -32,9 +31,19 @@ const fetchWithRetry = async (url, options = {}) => {
   }
 };
 
+const buildAndFetch = async (base, path, params = {}) => {
+  const url = new URL(`${base}${path}`);
+  Object.entries(params).forEach(([key, val]) => {
+    if (val !== undefined && val !== null) {
+      url.searchParams.set(key, val);
+    }
+  });
+  return fetchWithRetry(url.toString());
+};
+
 // Fetches the paginated market list from CoinGecko.
-const fetchMarketData = async (perPage = COINS_PER_PAGE) => {
-  const params = new URLSearchParams({
+const fetchMarketData = (perPage = COINS_PER_PAGE) =>
+  buildAndFetch(COINGECKO_BASE, "/coins/markets", {
     vs_currency: "usd",
     order: "market_cap_desc",
     per_page: perPage,
@@ -42,39 +51,28 @@ const fetchMarketData = async (perPage = COINS_PER_PAGE) => {
     sparkline: false,
   });
 
-  const geckoMarketUrl = `${COINGECKO_BASE}/coins/markets?${params.toString()}`;
-  return fetchWithRetry(geckoMarketUrl);
-};
 // Fetches detailed info for a given coin id.
-const fetchCoinDetails = async (coinId) => {
-  return fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}`);
-};
+const fetchCoinDetails = (coinId) =>
+  buildAndFetch(COINGECKO_BASE, `/coins/${coinId}`);
+
 // Fetches live prices for multiple symbols via CryptoCompare.
-const fetchLivePrices = async (symbols = []) => {
-  if (!Array.isArray(symbols) || symbols.length) {
+const fetchLivePrices = (symbols = []) => {
+  if (!Array.isArray(symbols) || !symbols.length) {
     return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
   }
 
-  const params = new URLSearchParams({
+  return buildAndFetch(CRYPTOCOMPARE_BASE, "/pricemulti", {
     fsyms: symbols.join(",").toUpperCase(),
     tsyms: "USD",
   });
-
-  const cryptoCompareUrl = `${CRYPTOCOMPARE_BASE}/pricemulti?${params.toString()}`;
-  return fetchWithRetry(cryptoCompareUrl);
 };
 
 // Fetches historical market chart data for a coin id.
-const fetchCoinMarketChart = async (coinId, days = CHART_HISTORY_DAYS) => {
-  const params = new URLSearchParams({
+const fetchCoinMarketChart = (coinId, days = CHART_HISTORY_DAYS) =>
+  buildAndFetch(COINGECKO_BASE, `/coins/${coinId}/market_chart`, {
     vs_currency: "usd",
-    days: days,
+    days,
   });
-
-  return fetchWithRetry(
-    `${COINGECKO_BASE}/coins/${coinId}/market_chart?${params.toString()}`
-  );
-};
 export const coinAPI = {
   fetchMarketData,
   fetchCoinDetails,

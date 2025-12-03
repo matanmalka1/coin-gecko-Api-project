@@ -1,44 +1,28 @@
 import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
+import { ErrorResolver } from "../utils/error-resolver.js";
 import { BaseComponents } from "./Components/base-components.js";
-
-let selectorCache = {};
-
-// Returns cached jQuery selector references to reduce repeated queries.
-// Re-queries if the cached element is detached or missing.
-const getCached = (selector) => {
-  const cached = selectorCache[selector];
-  const isAttached = cached?.length && cached[0].isConnected;
-
-  if (!cached || !isAttached) {
-    selectorCache[selector] = $(selector);
-  }
-
-  return selectorCache[selector];
-};
 
 // Clears the HTML content of a container (defaults to #content).
 const clearContent = (containerSelector = "#content") => {
-  const el = getCached(containerSelector);
+  const el = $(containerSelector);
   el.empty();
 };
 
 // Replaces the entire page container with provided HTML and resets cache.
 const showPage = (html, containerSelector = "#content") => {
-  selectorCache = {};
-  clearContent(containerSelector);
-  getCached(containerSelector).html(html);
+  $(containerSelector).empty().html(html);
 };
 
 // Reads the current .val() from an input safely.
 const getInputValue = (selector) => {
-  const el = getCached(selector);
+  const el = $(selector);
   return el.length ? el.val() : "";
 };
 
 // Sets a value into an input if it exists.
 const setInputValue = (selector, value = "") => {
-  const el = getCached(selector);
+  const el = $(selector);
   if (el.length) el.val(value);
 };
 
@@ -67,16 +51,18 @@ const applyTheme = (theme) => {
 };
 
 // Renders an alert error message inside a container.
-const showError = (container, message) => {
-  const errorMsg =
-    message && message.trim().length ? message : ERRORS.UI.GENERIC;
+const showError = (container, codeOrMessage, context = {}) => {
+  const msg = ErrorResolver.resolve(codeOrMessage, {
+    ...context,
+    defaultMessage: ERRORS.UI.GENERIC,
+  });
 
-  getCached(container).html(BaseComponents.errorAlert(errorMsg));
+  getCached(container).html(BaseComponents.errorAlert(msg));
 };
 
 // Shows a spinner placeholder with optional text.
 const showSpinner = (container, message) => {
-  const el = getCached(container);
+  const el = $(container);
   if (el.length) el.html(BaseComponents.spinner(message));
 };
 
@@ -91,15 +77,15 @@ const toggleCollapse = (collapseId, show) => {
 
 // Removes d-none to reveal hidden elements.
 const showElement = (selector) => {
-  getCached(selector).removeClass("d-none");
+  $(selector).removeClass("d-none");
 };
 
 // Updates the favorites toggle button caption based on mode.
 const setFavoritesButtonLabel = (showingFavorites) => {
-    const label = showingFavorites
-      ? UI_CONFIG.UI.FAVORITES_HIDE_LABEL
-      : UI_CONFIG.UI.FAVORITES_SHOW_LABEL;
-  getCached("#showFavoritesBtn").text(label);
+  const label = showingFavorites
+    ? UI_CONFIG.UI.FAVORITES_HIDE_LABEL
+    : UI_CONFIG.UI.FAVORITES_SHOW_LABEL;
+  $("#showFavoritesBtn").text(label);
 };
 
 export const BaseUI = {
@@ -115,5 +101,4 @@ export const BaseUI = {
   toggleCollapse,
   showElement,
   setFavoritesButtonLabel,
-  getCached,
 };

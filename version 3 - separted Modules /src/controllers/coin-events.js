@@ -2,10 +2,10 @@ import { CoinsService } from "../services/coins-service.js";
 import { UIManager } from "../ui/ui-manager.js";
 import { AppState } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
-import { ErrorResolver } from "../utils/error-resolver.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { CoinUI } from "../ui/coin-ui.js";
-import { PagesController } from "./pages-controller.js";
+import { BaseUI } from "../ui/base-ui.js";
+import { showCurrenciesPage } from "./pages-controller.js";
 
 let isRegistered = false;
 
@@ -24,12 +24,7 @@ const handleSearch = () => {
   UIManager.showElement("#clearSearchBtn");
 
   if (!result?.ok) {
-    UIManager.showError(
-      "#coinsContainer",
-      ErrorResolver.resolve(result.code, {
-        term: result.term,
-      })
-    );
+    BaseUI.showError("#coinsContainer", result.code, { term: result.term });
     return;
   }
 
@@ -73,15 +68,12 @@ const renderFavoritesList = () => {
 };
 
 // Utility to show error on the "more info" collapse area.
-const showMoreInfoError = (collapseId, result) => {
-  UIManager.showError(
-    `#${collapseId}`,
-    ErrorResolver.resolve(result?.code, {
-      status: result?.status,
-      defaultMessage:
-        typeof result?.error === "string" ? result.error : ERRORS.API.DEFAULT,
-    })
-  );
+const showMoreInfoError = (collapseId, result = {}) => {
+  BaseUI.showError(`#${collapseId}`, result.code || "API_ERROR", {
+    status: result.status,
+    defaultMessage:
+      typeof result.error === "string" ? result.error : ERRORS.API.DEFAULT,
+  });
 };
 
 // Fetches/expands "more info" collapse panel for a coin card.
@@ -137,7 +129,7 @@ const handleSortChange = () => {
 const handleRefreshCoins = (e) => {
   e.preventDefault();
   if (!AppState.isLoadingCoins()) {
-    PagesController.showCurrenciesPage({ forceRefresh: true });
+    showCurrenciesPage({ forceRefresh: true });
   }
 };
 

@@ -24,57 +24,17 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
       : []
   );
 
-  let cardCache = container.data("coinCardCache");
-  if (!cardCache) {
-    cardCache = new Map();
-    container.data("coinCardCache", cardCache);
-  }
+  const html = coins
+    .map((coin) =>
+      CoinComponents.coinCard(coin, selectedReports.includes(coin.symbol), {
+        isFavorite: favorites.includes(coin.symbol),
+        isInCompare: compareSet.has(String(coin.id)),
+      })
+    )
+    .join("");
 
-  const activeIds = new Set();
-
-  container.empty();
-
-  coins.forEach((coin) => {
-    const isSelected = selectedReports.includes(coin.symbol);
-    const isFavorite = favorites.includes(coin.symbol);
-    const isInCompare = compareSet.has(String(coin.id));
-
-    const snapshot = JSON.stringify({
-      id: coin.id,
-      symbol: coin.symbol,
-      price: coin.current_price,
-      marketCap: coin.market_cap,
-      isSelected,
-      isFavorite,
-      isInCompare,
-    });
-
-    let cacheEntry = cardCache.get(coin.id);
-    if (!cacheEntry || cacheEntry.snapshot !== snapshot) {
-      const cardHtml = CoinComponents.coinCard(coin, isSelected, {
-        isFavorite,
-        isInCompare,
-      });
-      const cardElement = $(cardHtml);
-      if (cacheEntry) {
-        cacheEntry.element.replaceWith(cardElement);
-      }
-      cacheEntry = { snapshot, element: cardElement };
-      cardCache.set(coin.id, cacheEntry);
-    }
-
-    container.append(cacheEntry.element);
-    activeIds.add(coin.id);
-  });
-
-  cardCache.forEach((entry, id) => {
-    if (!activeIds.has(id)) {
-      entry.element.remove();
-      cardCache.delete(id);
-    }
-  });
+  container.html(html);
 };
-
 // Displays a skeleton grid while coins data is loading.
 const showLoading = () => {
   const container = $("#coinsContainer");

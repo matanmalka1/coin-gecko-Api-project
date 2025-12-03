@@ -47,70 +47,54 @@ const buildSkeletonGrid = (
   return `<div class="${rowClasses}">${cards}</div>`;
 };
 
-// Generates placeholder cards for the news page while loading.
-const newsSkeleton = (count = 3) =>
-  buildSkeletonGrid(count, () =>
-    cardContainer(
-      `
-        <div class="ratio ratio-16x9 bg-light rounded-top placeholder"></div>
-        <div class="card-body">
-          <h5 class="card-title placeholder-glow">
-            <span class="placeholder col-8"></span>
-          </h5>
-          <p class="placeholder-glow">
-            <span class="placeholder col-7"></span>
-            <span class="placeholder col-4"></span>
-            <span class="placeholder col-6"></span>
-            <span class="placeholder col-8"></span>
-          </p>
-          <span class="placeholder col-3"></span>
-        </div>
-      `,
-      "col-12 col-md-6 col-lg-4 d-flex",
-      "card news-card h-100 border shadow placeholder-wave w-100"
-    )
-  );
-
-// Generates placeholder cards for the currencies page.
-const coinsSkeleton = (count = 6) =>
-  buildSkeletonGrid(count, () =>
-    cardContainer(
-      `
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <span class="placeholder bg-light rounded-circle" style="width:50px;height:50px;"></span>
-          <div class="w-100">
-            <span class="placeholder col-7 mb-2"></span>
-            <span class="placeholder col-4"></span>
-          </div>
-        </div>
-        <span class="placeholder col-9 mb-2"></span>
-        <span class="placeholder col-5 mb-2"></span>
-        <div class="d-flex justify-content-between mt-3">
+const skeleton = (type = "coins", count = 6) => {
+  const templates = {
+    news: `
+      <div class="ratio ratio-16x9 bg-light rounded-top placeholder"></div>
+      <div class="card-body">
+        <h5 class="card-title placeholder-glow">
+          <span class="placeholder col-8"></span>
+        </h5>
+        <p class="placeholder-glow">
+          <span class="placeholder col-7"></span>
           <span class="placeholder col-4"></span>
-          <span class="placeholder col-3"></span>
-          <span class="placeholder col-2"></span>
+        </p>
+      </div>
+    `,
+    coins: `
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="placeholder bg-light rounded-circle" style="width:50px;height:50px;"></span>
+        <div class="w-100">
+          <span class="placeholder col-7 mb-2"></span>
+          <span class="placeholder col-4"></span>
         </div>
-      `,
-      "col-12 col-md-6 col-lg-4",
-      "card border shadow-sm placeholder-wave h-100 p-3"
-    )
-  );
+      </div>
+    `,
+    charts: `
+      <div class="d-flex justify-content-between mb-2">
+        <span class="placeholder col-3"></span>
+        <span class="placeholder col-2"></span>
+      </div>
+      <div class="placeholder bg-light rounded" style="height:220px;"></div>
+    `,
+  };
 
-// Generates placeholder cards for the live charts grid.
-const chartsSkeleton = (count = 3) =>
-  buildSkeletonGrid(count, () =>
-    cardContainer(
-      `
-        <div class="d-flex justify-content-between mb-2">
-          <span class="placeholder col-3"></span>
-          <span class="placeholder col-2"></span>
-        </div>
-        <div class="placeholder bg-light rounded" style="height:220px;"></div>
-      `,
-      "col-12 col-md-6 col-lg-4",
-      "card border shadow-sm placeholder-wave h-100 p-3 chartsSkeleton"
-    )
+  const colClasses =
+    type === "news" ? "col-12 col-md-6 col-lg-4 d-flex" : "col-12 col-md-6 col-lg-4";
+
+  const template = templates[type] || templates.coins;
+
+  return buildSkeletonGrid(
+    count,
+    () =>
+      cardContainer(
+        template,
+        colClasses,
+        "card border shadow-sm placeholder-wave h-100 p-3"
+      ),
+    "row g-4 align-items-stretch"
   );
+};
 
 export const BaseComponents = {
   spinner,
@@ -118,7 +102,5 @@ export const BaseComponents = {
   infoAlert,
   cardContainer,
   buildSkeletonGrid,
-  newsSkeleton,
-  coinsSkeleton,
-  chartsSkeleton,
+  skeleton,
 };

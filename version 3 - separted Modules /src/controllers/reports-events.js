@@ -3,8 +3,7 @@ import { ReportsService } from "../services/reports-service.js";
 import { UIManager } from "../ui/ui-manager.js";
 import { AppState } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
-import { ErrorResolver } from "../utils/error-resolver.js";
-import { UI_CONFIG } from "../config/ui-config.js";
+import { BaseUI } from "../ui/base-ui.js";
 
 const { REPORTS } = UI_CONFIG;
 
@@ -24,35 +23,41 @@ const updateCompareIndicator = (selected = AppState.getCompareSelection()) => {
 };
 // Filters coins list to currently selected reports.
 const handleFilterReports = () => {
-  const result = CoinsService.filterSelectedCoins();
+  const serviceResult = CoinsService.filterSelectedCoins();
   UIManager.showElement("#clearSearchBtn");
 
-  if (!result?.ok) {
-    UIManager.showError("#coinsContainer", ErrorResolver.resolve(result.code));
+  if (!serviceResult?.ok) {
+    BaseUI.showError("#coinsContainer", serviceResult.code);
     return;
   }
 
-  UIManager.displayCoins(result.data, result.selected, {
-    favorites: result.favorites,
-    compareSelection: AppState.getCompareSelection(),
+  UIManager.displayCoins(serviceResult.data, serviceResult.selected, {
+    favorites: serviceResult.favorites,
   });
 };
 
 // Opens the replace flow modal when reaching MAX reports.
-const openReplaceFlow = (result) => {
-  UIManager.showReplaceModal(result.newSymbol, result.existing, {
-    maxCoins: result.limit,
+const openReplaceFlow = (serviceResult) => {
+  UIManager.showReplaceModal(serviceResult.newSymbol, serviceResult.existing, {
+    maxCoins: serviceResult.limit,
     onConfirm: ({ remove, add, modal }) => {
-      const { selected } = ReportsService.replaceReport(remove, add);
-      UIManager.updateToggleStates(selected);
+      const replaceSelectionResult = ReportsService.replaceReport(remove, add);
+      UIManager.updateToggleStates(replaceSelectionResult.selected);
+
+      if (!replaceSelectionResult?.ok) {
+        BaseUI.showError("#content", replaceSelectionResult.code);
+        modal.hide();
+        return;
+      }
+
       modal.hide();
-    },
-    onClose: () => {
-      UIManager.updateToggleStates(ReportsService.getSelectedReports());
+      UIManager.updateCompareStatus(
+        replaceSelectionResult.selected.length,
+        replaceSelectionResult.limit
+      );
     },
   });
 };
-
 // Adds/removes a coin from the reports selection via toggle switch.
 const handleCoinToggle = function () {
   const coinSymbol = UIManager.getDataAttr(this, "symbol");
@@ -73,10 +78,9 @@ const handleCompareClick = async function () {
     (coin) => String(coin.id) === coinId
   );
 
-  if (!coinExists) {
-    UIManager.showError("#coinsContainer", ERRORS.REPORTS.NOT_FOUND);
-    return;
-  }
+  if (!result?.ok) {
+  BaseUI.showError("#content", result.code, {defaultMessage: ERRORS.API.DEFAULT,});
+  AppState.resetCompareSelection();
 
   let currentSelection = AppState.getCompareSelection();
   const alreadySelected = currentSelection.includes(coinId);
@@ -102,12 +106,9 @@ const handleCompareClick = async function () {
   const result = await ReportsService.getCompareData(currentSelection);
 
   if (!result?.ok) {
-    UIManager.showError(
-      "#content",
-      ErrorResolver.resolve(result.code, {
-        defaultMessage: ERRORS.API.DEFAULT,
-      })
-    );
+    BaseUI.showError("#content", result.code, {
+      defaultMessage: ERRORS.API.DEFAULT,
+    });
     AppState.resetCompareSelection();
     updateCompareIndicator();
 

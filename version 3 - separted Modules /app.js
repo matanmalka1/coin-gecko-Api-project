@@ -1,13 +1,23 @@
-import { PagesController } from "./src/controllers/pages-controller.js";
-import { EventHandlers } from "./src/controllers/event-handlers.js";
-import { AppState } from "./src/state/state.js";
-import { UIManager } from "./src/ui/ui-manager.js";
+// src/app.js
+
+import { AppState } from "./state/state.js";
+import { UIManager } from "./ui/ui-manager.js";
+import {
+  registerEvents,
+  registerNavigation,
+} from "./controllers/event-handlers.js";
+import { showCurrenciesPage } from "./controllers/pages-controller.js";
 
 $(() => {
+  // 1. החלת theme ראשוני מה-LocalStorage (light/dark)
   UIManager.applyTheme(AppState.getTheme());
 
-  EventHandlers.registerEvents();
-  EventHandlers.registerNavigation();
+  // 2. רישום כל האירועים (coins / reports / nav / וכו')
+  registerEvents();
 
-  PagesController.showCurrenciesPage();
+  // 3. רישום אירועי ניווט של ה-navbar
+  registerNavigation();
+
+  // 4. הצגת דף ברירת המחדל – רשימת המטבעות
+  showCurrenciesPage();
 });

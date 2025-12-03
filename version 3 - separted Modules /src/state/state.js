@@ -3,6 +3,11 @@ import { UI_CONFIG } from "../config/ui-config.js";
 import { Storage } from "../utils/storage.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 
+const addUnique = (list, value) =>
+  list.includes(value) ? list : [...list, value];
+
+const removeItem = (list, value) => list.filter((item) => item !== value);
+
 const { STORAGE_KEYS } = CACHE_CONFIG;
 const { MAX_COINS } = UI_CONFIG.REPORTS;
 
@@ -74,43 +79,33 @@ const setSelectedReports = (reports = []) => {
 
   Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
 };
-
 const addReport = (symbol) => {
   const normalized = normalizeSymbol(symbol);
-  if (
-    !normalized ||
-    state.selectedReports.includes(normalized) ||
-    state.selectedReports.length >= MAX_COINS
-  ) {
-    return false;
-  }
+  if (!normalized) return;
 
-  state.selectedReports.push(normalized);
-  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
-  return true;
+  state.reports = addUnique(state.reports, normalized);
+  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.reports);
 };
 
 const removeReport = (symbol) => {
   const normalized = normalizeSymbol(symbol);
   if (!normalized) return;
 
-  state.selectedReports = state.selectedReports.filter((s) => s !== normalized);
-  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
+  state.reports = removeItem(state.reports, normalized);
+  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.reports);
 };
 
-const hasReport = (symbol) => {
-  const normalized = normalizeSymbol(symbol);
-  return !!normalized && state.selectedReports.includes(normalized);
-};
+const hasReport = (symbol) =>
+  !!symbol && state.selectedReports.includes(symbol);
 
 const isReportsFull = () => state.selectedReports.length >= MAX_COINS;
 
 // ===== Favorites =====
 const addFavorite = (symbol) => {
   const normalized = normalizeSymbol(symbol);
-  if (!normalized || state.favorites.includes(normalized)) return;
+  if (!normalized) return;
 
-  state.favorites.push(normalized);
+  state.favorites = addUnique(state.favorites, normalized);
   Storage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
 };
 
@@ -118,14 +113,11 @@ const removeFavorite = (symbol) => {
   const normalized = normalizeSymbol(symbol);
   if (!normalized) return;
 
-  state.favorites = state.favorites.filter((s) => s !== normalized);
+  state.favorites = removeItem(state.favorites, normalized);
   Storage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
 };
 
-const isFavorite = (symbol) => {
-  const normalized = normalizeSymbol(symbol);
-  return !!normalized && state.favorites.includes(normalized);
-};
+const isFavorite = (symbol) => !!symbol && state.favorites.includes(symbol);
 
 const getFavorites = () => [...state.favorites];
 

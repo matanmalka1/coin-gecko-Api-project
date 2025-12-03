@@ -3,9 +3,9 @@ import { CoinsService } from "../services/coins-service.js";
 import { ChartService } from "../services/chart-service.js";
 import { AppState } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
-import { ErrorResolver } from "../utils/error-resolver.js";
 import { CACHE_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
+import { BaseUI } from "../ui/base-ui.js";
 
 const { REPORTS, CHART, ABOUT } = UI_CONFIG;
 const COINS_REFRESH_INTERVAL = CACHE_CONFIG.CACHE.COINS_REFRESH_INTERVAL_MS;
@@ -19,17 +19,16 @@ const renderCoins = (coins, extras = {}) => {
 };
 
 const showChartError = (code, error, status) => {
-  const message = ErrorResolver.resolve(code, {
+  BaseUI.showError("#chartsGrid", code, {
     defaultMessage: error,
     status,
   });
-  UIManager.showError("#chartsGrid", message);
 };
 
-const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
+export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   ChartService.cleanup();
 
-  UIManager.displayCurrencyPage();
+  UIManager.renderCurrenciesPage();
   UIManager.setCompareStatusVisibility(false);
   UIManager.updateCompareStatus(0, REPORTS.MAX_COMPARE);
   UIManager.clearCompareHighlights();
@@ -40,7 +39,7 @@ const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   if (cachedCoins.length) {
     renderCoins(cachedCoins);
   } else {
-    UIManager.showCoinsLoading();
+    UIManager.showLoading();
   }
 
   if (AppState.isLoadingCoins()) return;
@@ -50,27 +49,24 @@ const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     !lastUpdated || Date.now() - lastUpdated >= COINS_REFRESH_INTERVAL;
 
   if (!needsInitialLoad && !forceRefresh && !isCacheExpired) {
-    return; // No need to fetch
+    return; 
   }
+
   AppState.setLoadingCoins(true);
   const result = await CoinsService.loadAllCoins();
   AppState.setLoadingCoins(false);
 
   if (!result?.ok) {
-    UIManager.showError(
-      "#coinsContainer",
-      ErrorResolver.resolve(result.code, {
-        defaultMessage: result?.error,
-        status: result?.status,
-      })
-    );
+    BaseUI.showError("#coinsContainer", result.code, {
+      defaultMessage: result?.error,
+      status: result?.status,
+    });
     return;
   }
-
   renderCoins(result.data);
 };
 
-const showReportsPage = () => {
+export const showReportsPage = () => {
   ChartService.cleanup();
 
   UIManager.renderReportsPage();
@@ -97,7 +93,7 @@ const showReportsPage = () => {
   }
 };
 
-const showAboutPage = () => {
+export const showAboutPage = () => {
   ChartService.cleanup();
 
   UIManager.renderAboutPage({
@@ -105,10 +101,4 @@ const showAboutPage = () => {
     image: ABOUT.IMAGE,
     linkedin: ABOUT.LINKEDIN,
   });
-};
-
-export const PagesController = {
-  showCurrenciesPage,
-  showReportsPage,
-  showAboutPage,
 };

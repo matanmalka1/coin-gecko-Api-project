@@ -1,136 +1,53 @@
-import { BaseComponents } from "./Components/base-components.js";
-import { PageComponents } from "./Components/page-components.js";
-import { ChartRenderer } from "./chart-renderer.js";
-import { NewsUI } from "./news-ui.js";
-import { CoinUI } from "./coin-ui.js";
 import { BaseUI } from "./base-ui.js";
+import { CoinUI } from "./coin-ui.js";
+import { NewsUI } from "./news-ui.js";
+import { BaseComponents } from "../ui/Components/base-components.js";
+import { PageComponents } from "../ui/Components/page-components.js";
+import { ChartRenderer } from "./chart-renderer.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 
-export const UIManager = (() => {
-  // Mounts the currencies page template into #content.
-  const renderCurrenciesPage = () => {
-    BaseUI.showPage(PageComponents.currenciesPage());
-  };
+const { REPORTS } = UI_CONFIG;
 
-  // Renders live reports (charts) shell.
-  const renderReportsPage = () => {
-    BaseUI.showPage(PageComponents.reportsPage());
-  };
+const renderCurrenciesPage = () =>
+  BaseUI.showPage(PageComponents.currenciesPage());
 
-  // Shows the About page with user metadata.
-  const renderAboutPage = (userData) => {
-    BaseUI.showPage(PageComponents.aboutPage(userData));
-  };
+const renderReportsPage = () => BaseUI.showPage(PageComponents.reportsPage());
 
-  const showNews = (...args) => NewsUI.showNews(...args);
-  const updateNewsStatus = (...args) => NewsUI.updateNewsStatus(...args);
-  const showNewsLoading = (...args) => NewsUI.showNewsLoading(...args);
-  const showNewsError = (...args) => NewsUI.showNewsError(...args);
-  const setNewsFilterMode = (...args) => NewsUI.setNewsFilterMode(...args);
+const renderAboutPage = (data) =>
+  BaseUI.showPage(PageComponents.aboutPage(data));
 
-  const displayCoins = (...args) => CoinUI.displayCoins(...args);
-  const showCoinsLoading = () => CoinUI.showLoading();
+const showChartSkeleton = () =>
+  $("#chartsGrid").html(BaseComponents.chartsSkeleton());
 
-  const showCoinDetails = (...args) => CoinUI.showCoinDetails(...args);
+const initLiveChart = (symbols, options) =>
+  ChartRenderer.setupCharts(symbols, options);
 
-  const showReplaceModal = (...args) => CoinUI.showReplaceModal(...args);
-  const showCompareModal = (...args) => CoinUI.showCompareModal(...args);
+const updateLiveChart = (prices, time, options) =>
+  ChartRenderer.update(prices, time, options);
 
-  // Initializes live charts for selected symbols.
-  const initLiveChart = (symbols, options = {}) => {
-    ChartRenderer.setupCharts(symbols, options);
-  };
+const clearLiveChart = () => ChartRenderer.clear();
 
-  // Pushes new datapoints into the CanvasJS charts.
-  const updateLiveChart = (prices, time, options = {}) => {
-    ChartRenderer.update(prices, time, options);
-  };
+const updateCompareStatus = (count, max = REPORTS.MAX_COMPARE) =>
+  $("#compareStatus").text(`${count} / ${max} coins selected`);
 
-  // Removes all chart instances from the DOM and memory.
-  const clearLiveChart = () => {
-    ChartRenderer.clear();
-  };
+const setCompareStatusVisibility = (visible) => {
+  $("#compareStatus").toggleClass("d-none", !visible);
+};
 
-  const updateToggleStates = (...args) => CoinUI.updateToggleStates(...args);
+export const UIManager = {
+  ...BaseUI,
+  ...CoinUI,
+  ...NewsUI,
 
-  const drawMiniChart = (...args) => CoinUI.drawMiniChart(...args);
+  renderCurrenciesPage,
+  renderReportsPage,
+  renderAboutPage,
 
-  // Shows skeleton placeholders before actual chart creation.
-  const showChartSkeleton = () => {
-    $("#chartsGrid").html(BaseComponents.chartsSkeleton());
-  };
+  showChartSkeleton,
+  initLiveChart,
+  updateLiveChart,
+  clearLiveChart,
 
-  // Updates the compare status alert text and styling.
-  const updateCompareStatus = (selectedCount, maxCount) => {
-    const $status = $("#compareStatus");
-    if (!$status.length) return;
-
-    const remaining = Math.max(maxCount - selectedCount, 0);
-    const baseText = `Selected: ${selectedCount} / ${maxCount}`;
-
-    if (remaining === 0) {
-      $status
-        .removeClass("alert-info")
-        .addClass("alert-warning")
-        .text(`${baseText} – maximum reached`);
-    } else {
-      $status
-        .removeClass("alert-warning")
-        .addClass("alert-info")
-        .text(`${baseText} – you can select ${remaining} more`);
-    }
-  };
-
-  // Hides/shows the compare status alert.
-  const setCompareStatusVisibility = (isVisible) => {
-    const $status = $("#compareStatus");
-    if (!$status.length) return;
-
-    $status.toggleClass("d-none", !isVisible);
-  };
-
-  // Pass-through helpers for coin card highlighting.
-  const setCompareHighlight = (coinId, isActive) => {
-    CoinUI.setCompareHighlight(coinId, isActive);
-  };
-
-  const clearCompareHighlights = () => {
-    CoinUI.clearCompareHighlights();
-  };
-
-  return {
-    showPage: BaseUI.showPage,
-    displayCurrencyPage: renderCurrenciesPage,
-    renderReportsPage,
-    renderAboutPage,
-    showNews,
-    updateNewsStatus,
-    showNewsLoading,
-    showNewsError,
-    setNewsFilterMode,
-    setFavoritesButtonLabel: BaseUI.setFavoritesButtonLabel,
-    showError: BaseUI.showError,
-    showSpinner: BaseUI.showSpinner,
-    displayCoins,
-    showCoinsLoading,
-    showCoinDetails,
-    showReplaceModal,
-    updateToggleStates,
-    toggleCollapse: BaseUI.toggleCollapse,
-    showElement: BaseUI.showElement,
-    applyTheme: BaseUI.applyTheme,
-    drawMiniChart,
-    showChartSkeleton,
-    showCompareModal,
-    initLiveChart,
-    updateLiveChart,
-    clearLiveChart,
-    getInputValue: BaseUI.getInputValue,
-    setInputValue: BaseUI.setInputValue,
-    getDataAttr: BaseUI.getDataAttr,
-    isCollapseOpen: BaseUI.isCollapseOpen,
-    updateCompareStatus,
-    setCompareStatusVisibility,
-    setCompareHighlight,
-    clearCompareHighlights,
-  };
-})();
+  updateCompareStatus,
+  setCompareStatusVisibility,
+};

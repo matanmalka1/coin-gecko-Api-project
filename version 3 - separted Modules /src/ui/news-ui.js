@@ -3,18 +3,12 @@ import { BaseComponents } from "./Components/base-components.js";
 import { PageComponents } from "./Components/page-components.js";
 
 // Renders the list of article cards or an empty-state message.
-const showNews = (articles = [], options = {}) => {
-  const emptyMessage = options.emptyMessage || ERRORS.NEWS.EMPTY;
-  const list = $("#newsList");
-
-  if (!articles.length) {
-    list.html(BaseComponents.infoAlert(emptyMessage));
-    return;
-  }
-
-  const html = articles.map(PageComponents.newsArticleCard).join("");
-  list.html(html);
-};
+const showNews = (articles = [], { emptyMessage = ERRORS.NEWS.EMPTY } = {}) =>
+  $("#newsList").html(
+    articles.length
+      ? articles.map(PageComponents.newsArticleCard).join("")
+      : BaseComponents.infoAlert(emptyMessage)
+  );
 
 // Updates the hero status text (freshness/fallback).
 const updateNewsStatus = (text) => {
@@ -23,7 +17,7 @@ const updateNewsStatus = (text) => {
 
 // Shows placeholder skeleton cards while fetching headlines.
 const showNewsLoading = (message = "Loading news...") => {
-  $("#newsList").html(BaseComponents.newsSkeleton());
+  $("#newsList").html(BaseComponents.skeleton("news", 3));
   updateNewsStatus(message);
 };
 

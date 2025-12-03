@@ -27,17 +27,13 @@ const fetchWithCache = async (cacheKey, fetcher) => {
   const cached = CacheManager.getCache(cacheKey);
   if (cached) return { ok: true, data: cached, fromCache: true };
 
-  const result = await fetcher();
-  if (!result.ok) {
-    return {
-      ok: false,
-      code: result.code || "API_ERROR",
-      error: result.error,
-      status: result.status,
-    };
+  const { ok, data, code, error, status } = await fetcher();
+
+  if (!ok) {
+    return { ok: false, code: code || "API_ERROR", error, status };
   }
   CacheManager.setCache(cacheKey, normalized);
-  return { ok: true, data: normalized, fromCache: false };
+  return { ok: true, data, fromCache: false };
 };
 
 // Fetches full market list and stores it in AppState.
@@ -85,22 +81,23 @@ const getCoinDetails = (coinId) =>
 
 // Performs a fuzzy search by symbol/name on the in-memory coins list.
 const searchCoin = (term) => {
-  const trimmedTerm = typeof term === "string" ? term.trim() : "";
-  if (!trimmedTerm) return { ok: false, code: "EMPTY_TERM" };
+  const trimmed = (term || "").trim();
 
-  if (trimmedTerm.length < MIN_LENGTH) {
+  const errors = {
+    empty: !trimmed,
+    tooShort: trimmed.length < MIN_LENGTH,
+    tooLong: trimmed.length > MAX_LENGTH,
+    invalid: ALLOWED_PATTERN && !ALLOWED_PATTERN.test(trimmed),
+  };
+
+  if (errors.empty) return { ok: false, code: "EMPTY_TERM" };
+  if (errors.tooShort)
     return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
-  }
-
-  if (trimmedTerm.length > MAX_LENGTH) {
+  if (errors.tooLong)
     return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
-  }
+  if (errors.invalid) return { ok: false, code: "INVALID_TERM" };
 
-  if (ALLOWED_PATTERN && !ALLOWED_PATTERN.test(trimmedTerm)) {
-    return { ok: false, code: "INVALID_TERM" };
-  }
-
-  const normalizedTerm = trimmedTerm.replace(/\s+/g, " ");
+  const normalizedTerm = trimmed.replace(/\s+/g, " ");
   const searchTerm = normalizedTerm.toLowerCase();
   const allCoins = AppState.getAllCoins();
 
