@@ -32,7 +32,7 @@ const fetchWithCache = async (cacheKey, fetcher) => {
   if (!ok) {
     return { ok: false, code: code || "API_ERROR", error, status };
   }
-  CacheManager.setCache(cacheKey, normalized);
+  CacheManager.setCache(cacheKey, data);
   return { ok: true, data, fromCache: false };
 };
 

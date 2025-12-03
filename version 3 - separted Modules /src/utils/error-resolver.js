@@ -3,6 +3,8 @@ import { ERRORS } from "../config/error.js";
 // Maps specific error codes to user-facing messages.
 const handlers = {
   EMPTY_TERM: ({ term }) => ERRORS.SEARCH.EMPTY_TERM,
+  API_ERROR: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.API.API_ERROR || ERRORS.API.DEFAULT,
   HTTP_ERROR: ({ status, defaultMessage }) =>
     status
       ? ERRORS.API.REQUEST_FAILED(status)
@@ -17,6 +19,12 @@ const handlers = {
   TERM_TOO_SHORT: ({ min }) => ERRORS.SEARCH.TERM_TOO_SHORT(min),
   TERM_TOO_LONG: ({ limit }) => ERRORS.SEARCH.TERM_TOO_LONG(limit),
   INVALID_TERM: () => ERRORS.SEARCH.INVALID_TERM,
+  FULL: ({ limit }) => ERRORS.REPORTS.FULL(limit),
+  DUPLICATE: () => ERRORS.REPORTS.DUPLICATE,
+  INVALID_SYMBOL: () => ERRORS.REPORTS.INVALID_SYMBOL,
+  NO_DATA: () => ERRORS.REPORTS.NO_DATA,
+  NEWS_ERROR: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.NEWS.GENERAL_ERROR,
 };
 
 export const ErrorResolver = {

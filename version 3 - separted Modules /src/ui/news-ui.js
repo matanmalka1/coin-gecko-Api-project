@@ -21,11 +21,6 @@ const showNewsLoading = (message = "Loading news...") => {
   updateNewsStatus(message);
 };
 
-// Displays an error alert within the news list container.
-const showNewsError = (message) => {
-  $("#newsList").html(BaseComponents.errorAlert(message));
-};
-
 // Toggles the active state between General/Favorites filters.
 const setNewsFilterMode = (mode) => {
   const isFavorites = mode === "favorites";
@@ -37,6 +32,5 @@ export const NewsUI = {
   showNews,
   updateNewsStatus,
   showNewsLoading,
-  showNewsError,
   setNewsFilterMode,
 };

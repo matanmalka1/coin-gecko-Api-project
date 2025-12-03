@@ -18,13 +18,6 @@ const renderCoins = (coins, extras = {}) => {
   });
 };
 
-const showChartError = (code, error, status) => {
-  BaseUI.showError("#chartsGrid", code, {
-    defaultMessage: error,
-    status,
-  });
-};
-
 export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   ChartService.cleanup();
 
@@ -49,7 +42,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     !lastUpdated || Date.now() - lastUpdated >= COINS_REFRESH_INTERVAL;
 
   if (!needsInitialLoad && !forceRefresh && !isCacheExpired) {
-    return; 
+    return;
   }
 
   AppState.setLoadingCoins(true);
@@ -58,7 +51,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 
   if (!result?.ok) {
     BaseUI.showError("#coinsContainer", result.code, {
-      defaultMessage: result?.error,
+      defaultMessage: result?.error || ERRORS.API.API_ERROR,
       status: result?.status,
     });
     return;
@@ -85,14 +78,21 @@ export const showReportsPage = () => {
         historyPoints: CHART.HISTORY_POINTS,
       });
     },
-    onError: ({ code, error, status }) => showChartError(code, error, status),
+    onError: ({ code, error, status }) => {
+      BaseUI.showError("#chartsGrid", code, {
+        defaultMessage: error,
+        status,
+      });
+    },
   });
 
   if (!result?.ok) {
-    showChartError(result.code, ERRORS.API.DEFAULT, result.status);
+    BaseUI.showError("#chartsGrid", result.code, {
+      defaultMessage: ERRORS.API.DEFAULT,
+      status: result.status,
+    });
   }
 };
-
 export const showAboutPage = () => {
   ChartService.cleanup();
 

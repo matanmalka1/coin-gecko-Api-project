@@ -8,6 +8,8 @@ export const shortenText = (text = "", max = 200) => {
 export const normalizeSymbol = (symbol = "") =>
   String(symbol).trim().toUpperCase();
 
+const PLACEHOLDER_THUMB = "https://via.placeholder.com/50";
+
 // News-Utils -
 // Filters articles that fall within the last `maxAgeInMs` window.
 export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
@@ -23,7 +25,7 @@ export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
 };
 
 // Formats numeric price values into USD with fraction digits.
-const formatPrice = (value, options = {}) => {
+export const formatPrice = (value, options = {}) => {
   if (typeof value !== "number") return "N/A";
 
   return `$${value.toLocaleString("en-US", {
@@ -32,12 +34,11 @@ const formatPrice = (value, options = {}) => {
   })}`;
 };
 
-const resolveImage = (image) =>
+export const resolveImage = (image) =>
   (typeof image === "string"
     ? image
     : image?.thumb || image?.small || image?.large) || PLACEHOLDER_THUMB;
 
-    
 export const formatDate = (dateString) => {
   if (!dateString) return "Unknown time";
   try {
@@ -54,4 +55,15 @@ export const isValidUrl = (string) => {
   } catch {
     return false;
   }
+};
+
+export const formatLargeNumber = (value) => {
+  if (typeof value !== "number") return "N/A";
+  if (value >= 1_000_000_000) {
+    return `$${(value / 1_000_000_000).toFixed(2)}B`;
+  }
+  if (value >= 1_000_000) {
+    return `$${(value / 1_000_000).toFixed(2)}M`;
+  }
+  return `$${value.toLocaleString()}`;
 };

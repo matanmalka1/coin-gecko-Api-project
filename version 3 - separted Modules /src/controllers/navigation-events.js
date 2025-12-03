@@ -1,6 +1,10 @@
 import { AppState } from "../state/state.js";
 import { UIManager } from "../ui/ui-manager.js";
-import {showCurrenciesPage,showReportsPage,showAboutPage,} from "../controllers/pages-co
+import {
+  showCurrenciesPage,
+  showReportsPage,
+  showAboutPage,
+} from "./pages-controller.js";
 import { showNewsPage, showFavoritesNewsPage } from "./news-controller.js";
 
 let documentEventsRegistered = false;
@@ -21,11 +25,11 @@ const registerDocumentEvents = () => {
     .on("click", "#themeToggleBtn", handleThemeToggle)
     .on("click", "#newsGeneralBtn", (e) => {
       e.preventDefault();
-      NewsController.loadGeneral();
+      showNewsPage();
     })
     .on("click", "#newsFavoritesBtn", (e) => {
       e.preventDefault();
-      NewsController.loadFavorites();
+      showFavoritesNewsPage();
     });
   documentEventsRegistered = true;
 };

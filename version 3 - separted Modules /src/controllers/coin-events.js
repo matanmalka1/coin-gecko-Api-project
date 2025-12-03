@@ -23,10 +23,10 @@ const handleSearch = () => {
   const result = CoinsService.searchCoin(searchTerm);
   UIManager.showElement("#clearSearchBtn");
 
-  if (!result?.ok) {
-    BaseUI.showError("#coinsContainer", result.code, { term: result.term });
-    return;
-  }
+  BaseUI.showError("#coinsContainer", result.code, {
+    term: result.term,
+    defaultMessage: ERRORS.SEARCH.NO_MATCH(result.term || ""),
+  });
 
   renderCoins(result.data, result.selected, { favorites: result.favorites });
 };

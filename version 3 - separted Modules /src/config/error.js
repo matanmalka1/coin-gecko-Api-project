@@ -3,6 +3,7 @@ export const ERRORS = {
   // Errors surfaced when communicating with remote APIs
   API: {
     DEFAULT: "Failed to load data. Please try again.",
+    API_ERROR: "Failed to load data. Please try again.",
     RATE_LIMIT: "Rate limit exceeded. Please wait and try again.",
     REQUEST_FAILED: (status) => `Error ${status}: Request failed.`,
     HTTP_STATUS: (status) => `HTTP ${status}`,
@@ -27,6 +28,11 @@ export const ERRORS = {
     NONE_SELECTED: "No coins selected. Please choose coins first.",
     NOT_FOUND: "Selected coins not found. Try refreshing data.",
     MISSING_DATA: (symbols) => `Failed to load data for: ${symbols}`,
+    FULL: (limit = 5) =>
+      `You can select up to ${limit} coins. Please replace an existing one.`,
+    DUPLICATE: "This coin is already selected.",
+    INVALID_SYMBOL: "Coin not found in the current list. Please refresh.",
+    NO_DATA: "No data available for the selected coins.",
   },
 
   // Errors specific to the news feed module

@@ -3,6 +3,7 @@ import {
   shortenText,
   formatPrice,
   resolveImage,
+  formatLargeNumber,
 } from "../../utils/general-utils.js";
 
 const PLACEHOLDER_LARGE = "https://via.placeholder.com/80";

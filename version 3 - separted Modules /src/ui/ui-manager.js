@@ -16,6 +16,8 @@ const renderReportsPage = () => BaseUI.showPage(PageComponents.reportsPage());
 const renderAboutPage = (data) =>
   BaseUI.showPage(PageComponents.aboutPage(data));
 
+const renderNewsPage = () => BaseUI.showPage(PageComponents.newsPage());
+
 const showChartSkeleton = () =>
   $("#chartsGrid").html(BaseComponents.chartsSkeleton());
 
@@ -42,6 +44,7 @@ export const UIManager = {
   renderCurrenciesPage,
   renderReportsPage,
   renderAboutPage,
+  renderNewsPage,
 
   showChartSkeleton,
   initLiveChart,

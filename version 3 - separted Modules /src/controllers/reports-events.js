@@ -4,6 +4,7 @@ import { UIManager } from "../ui/ui-manager.js";
 import { AppState } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "../ui/base-ui.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 
 const { REPORTS } = UI_CONFIG;
 
@@ -21,13 +22,16 @@ const updateCompareIndicator = (selected = AppState.getCompareSelection()) => {
     UIManager.setCompareStatusVisibility(true);
   }
 };
+
 // Filters coins list to currently selected reports.
 const handleFilterReports = () => {
   const serviceResult = CoinsService.filterSelectedCoins();
   UIManager.showElement("#clearSearchBtn");
 
   if (!serviceResult?.ok) {
-    BaseUI.showError("#coinsContainer", serviceResult.code);
+    BaseUI.showError("#coinsContainer", serviceResult.code, {
+      defaultMessage: ERRORS.REPORTS.NONE_SELECTED,
+    });
     return;
   }
 
@@ -58,6 +62,7 @@ const openReplaceFlow = (serviceResult) => {
     },
   });
 };
+
 // Adds/removes a coin from the reports selection via toggle switch.
 const handleCoinToggle = function () {
   const coinSymbol = UIManager.getDataAttr(this, "symbol");
@@ -69,6 +74,7 @@ const handleCoinToggle = function () {
     openReplaceFlow(result);
   }
 };
+
 // Handles clicks on compare buttons and opens the compare modal.
 const handleCompareClick = async function () {
   if (AppState.isCompareModalOpen()) return;
@@ -78,9 +84,12 @@ const handleCompareClick = async function () {
     (coin) => String(coin.id) === coinId
   );
 
-  if (!result?.ok) {
-  BaseUI.showError("#content", result.code, {defaultMessage: ERRORS.API.DEFAULT,});
-  AppState.resetCompareSelection();
+  if (!coinExists) {
+    BaseUI.showError("#content", "NO_MATCH", {
+      defaultMessage: ERRORS.REPORTS.NOT_FOUND,
+    });
+    return;
+  }
 
   let currentSelection = AppState.getCompareSelection();
   const alreadySelected = currentSelection.includes(coinId);
@@ -101,6 +110,7 @@ const handleCompareClick = async function () {
   AppState.setCompareSelection(currentSelection);
   updateCompareIndicator(currentSelection);
 
+  // Need at least MAX_COMPARE coins selected to open compare modal
   if (currentSelection.length < REPORTS.MAX_COMPARE) return;
 
   const result = await ReportsService.getCompareData(currentSelection);
@@ -111,9 +121,6 @@ const handleCompareClick = async function () {
     });
     AppState.resetCompareSelection();
     updateCompareIndicator();
-
-    currentSelection.forEach((id) => UIManager.setCompareHighlight(id, false));
-    return;
   }
 
   AppState.setCompareModalOpen(true);

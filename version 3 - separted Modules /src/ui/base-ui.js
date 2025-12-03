@@ -9,6 +9,9 @@ const clearContent = (containerSelector = "#content") => {
   el.empty();
 };
 
+// Simple cache wrapper to avoid repeated selector lookups.
+const getCached = (selector) => $(selector);
+
 // Replaces the entire page container with provided HTML and resets cache.
 const showPage = (html, containerSelector = "#content") => {
   $(containerSelector).empty().html(html);
@@ -53,8 +56,8 @@ const applyTheme = (theme) => {
 // Renders an alert error message inside a container.
 const showError = (container, codeOrMessage, context = {}) => {
   const msg = ErrorResolver.resolve(codeOrMessage, {
-    ...context,
     defaultMessage: ERRORS.UI.GENERIC,
+    ...context,
   });
 
   getCached(container).html(BaseComponents.errorAlert(msg));

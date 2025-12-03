@@ -1,19 +1,35 @@
 import { UIManager } from "../ui/ui-manager.js";
 import { AppState } from "../state/state.js";
 import { NewsService } from "../services/news-service.js";
-import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "../ui/base-ui.js";
+import { UI_CONFIG } from "../config/ui-config.js";
+
+const newsUI = UI_CONFIG.NEWS_UI;
+
+const getNewsConfig = (isFavorites) =>
+  isFavorites
+    ? {
+        status: newsUI.STATUS_FAVORITES,
+        loading: newsUI.LOADING_FAVORITES,
+        fallback: newsUI.STATUS_FALLBACK_FAVORITES,
+        error: ERRORS.NEWS.FAVORITES_ERROR,
+      }
+    : {
+        status: newsUI.STATUS_GENERAL,
+        loading: newsUI.LOADING_GENERAL,
+        fallback: newsUI.STATUS_FALLBACK_GENERAL,
+        error: ERRORS.NEWS.GENERAL_ERROR,
+      };
 
 const loadNews = async (mode = "general") => {
   const isFavorites = mode === "favorites";
 
-  const config = isFavorites
-    ? UI_CONFIG.NEWS.FAVORITES
-    : UI_CONFIG.NEWS.GENERAL;
+  const config = getNewsConfig(isFavorites);
 
   UIManager.updateNewsStatus(config.status);
   UIManager.showNewsLoading(config.loading);
+  UIManager.setNewsFilterMode(mode);
 
   const result = isFavorites
     ? await NewsService.getNewsForFavorites(AppState.getFavorites())
@@ -21,8 +37,9 @@ const loadNews = async (mode = "general") => {
 
   if (!result?.ok) {
     BaseUI.showError("#newsList", result.code || "NEWS_ERROR", {
-      defaultMessage: config.error,
-      status: result.status,
+      defaultMessage:
+        result?.errorMessage || config.error || ERRORS.NEWS.GENERAL_ERROR,
+      status: result?.status,
     });
     return;
   }

@@ -83,16 +83,19 @@ const addReport = (symbol) => {
   const normalized = normalizeSymbol(symbol);
   if (!normalized) return;
 
-  state.reports = addUnique(state.reports, normalized);
-  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.reports);
+  state.selectedReports = addUnique(state.selectedReports, normalized).slice(
+    0,
+    MAX_COINS
+  );
+  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
 };
 
 const removeReport = (symbol) => {
   const normalized = normalizeSymbol(symbol);
   if (!normalized) return;
 
-  state.reports = removeItem(state.reports, normalized);
-  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.reports);
+  state.selectedReports = removeItem(state.selectedReports, normalized);
+  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
 };
 
 const hasReport = (symbol) =>

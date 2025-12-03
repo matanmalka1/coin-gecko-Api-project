@@ -1,12 +1,12 @@
 // src/app.js
 
-import { AppState } from "./state/state.js";
-import { UIManager } from "./ui/ui-manager.js";
+import { AppState } from "./src/state/state.js";
+import { UIManager } from "./src/ui/ui-manager.js";
 import {
   registerEvents,
   registerNavigation,
-} from "./controllers/event-handlers.js";
-import { showCurrenciesPage } from "./controllers/pages-controller.js";
+} from "./src/controllers/event-handlers.js";
+import { showCurrenciesPage } from "./src/controllers/pages-controller.js";
 
 $(() => {
   // 1. החלת theme ראשוני מה-LocalStorage (light/dark)
