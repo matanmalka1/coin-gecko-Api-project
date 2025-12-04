@@ -9,7 +9,7 @@ const { SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {} } =
   UI_CONFIG;
 const { CHART_HISTORY_DAYS } = API_CONFIG;
 
-const stateMeta = () => ({
+const ReportAndFavorites = () => ({
   selected: AppState.getSelectedReports(),
   favorites: AppState.getFavorites(),
 });
@@ -71,7 +71,7 @@ const sortCoins = (sortType) => {
   return {
     ok: true,
     data: AppState.getAllCoins(),
-    ...stateMeta(),
+    ...ReportAndFavorites(),
   };
 };
 
@@ -119,7 +119,7 @@ const searchCoin = (term) => {
   return {
     ok: true,
     data: filteredCoins,
-    ...stateMeta(),
+    ...ReportAndFavorites(),
   };
 };
 
@@ -150,7 +150,7 @@ const filterSelectedCoins = () => {
   return {
     ok: true,
     data: filtered,
-    ...stateMeta(),
+    ...ReportAndFavorites(),
   };
 };
 
@@ -158,7 +158,7 @@ const filterSelectedCoins = () => {
 const clearSearch = () => ({
   ok: true,
   data: AppState.getAllCoins(),
-  ...stateMeta(),
+  ...ReportAndFavorites(),
 });
 
 // Fetches historical price chart data for a coin (with caching).
@@ -166,6 +166,8 @@ const getCoinMarketChart = (coinId) =>
   fetchWithCache(`chart:${coinId}`, () =>
     coinAPI.fetchCoinMarketChart(coinId, CHART_HISTORY_DAYS)
   );
+const getGlobalStats = () =>
+  fetchWithCache("globalStats", () => coinAPI.fetchGlobalStats());
 
 export const CoinsService = {
   loadAllCoins,
@@ -175,4 +177,5 @@ export const CoinsService = {
   clearSearch,
   sortCoins,
   getCoinMarketChart,
+  getGlobalStats,
 };

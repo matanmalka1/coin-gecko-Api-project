@@ -73,9 +73,12 @@ const fetchCoinMarketChart = (coinId, days = CHART_HISTORY_DAYS) =>
     vs_currency: "usd",
     days,
   });
+
+const fetchGlobalStats = () => buildAndFetch(COINGECKO_BASE, "/global");
 export const coinAPI = {
   fetchMarketData,
   fetchCoinDetails,
   fetchLivePrices,
   fetchCoinMarketChart,
+  fetchGlobalStats,
 };

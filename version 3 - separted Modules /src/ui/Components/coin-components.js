@@ -47,7 +47,7 @@ const coinCard = (
             <i class="fas fa-info-circle"></i> More Info
           </button>
 
-          <button type="button" class="btn btn-sm btn-outline-secondary compare-btn"
+          <button type="button" class="btn btn-sm btn-outline-primary compare-btn"
              data-id="${id}" data-symbol="${displaySymbol}"
              aria-label="Compare ${displaySymbol}">
             <i class="fas fa-balance-scale"></i> Compare
@@ -57,7 +57,7 @@ const coinCard = (
             <button type="button" class="btn btn-sm p-0 favorite-btn"
                data-symbol="${displaySymbol}">
               <i class="fas fa-star ${
-                isFavorite ? "text-warning" : "text-muted"
+                isFavorite ? "text-primary" : "text-muted"
               }"style="font-size: 1.2rem;"></i>
             </button>
 
@@ -185,7 +185,7 @@ const replaceModal = (newSymbol, existingCoins, options = {}) => {
         <div class="modal-content">
           <div class="modal-header border-bottom">
             <h5 class="modal-title fw-semibold" id="replaceModalLabel">Replace Coin</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" ></button>
           </div>
           <div class="modal-body">
            <div id="replaceModalError"></div>
@@ -194,8 +194,6 @@ const replaceModal = (newSymbol, existingCoins, options = {}) => {
             <ul class="list-group">${listItems}</ul>
           </div>
           <div class="modal-footer border-top">
-            <button type="button" class="btn btn-secondary" 
-              data-bs-dismiss="modal">Cancel</button>
             <button type="button" id="confirmReplace" 
               class="btn btn-primary">Replace</button>
           </div>
@@ -218,9 +216,6 @@ const compareModal = (coinsHTML, options = {}) => {
           </div>
           <div class="modal-body">
             ${coinsHTML}
-          </div>
-          <div class="modal-footer border-top">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { registerEvents, registerNavigation } from "./src/controllers/event-handlers.js";
-import { showCurrenciesPage } from "./src/controllers/pages-controller.js";
+import { showCurrenciesPage, initStatsBar } from "./src/controllers/pages-controller.js";
 import { UI_CONFIG } from "./src/config/ui-config.js";
 
 let darkmodeInstance = null;
@@ -16,7 +16,8 @@ const initDarkmodeWidget = () => {
 $(() => {
   registerEvents();
   registerNavigation();
-  showCurrenciesPage();
+  showCurrenciesPage(); 
 
   initDarkmodeWidget();
+  initStatsBar();    
 });

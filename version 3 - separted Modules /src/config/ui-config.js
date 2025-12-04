@@ -77,6 +77,17 @@ export const UI_CONFIG = {
       FAVORITES: "news_cache_favorites",
     },
   },
+
+  STATSBAR: {
+    ICON: `<i class="fas fa-chart-bar"></i>`,
+    LABELS: {
+      MARKET_CAP: "Market Cap",
+      VOLUME_24H: "24h Volume",
+      BTC_DOMINANCE: "BTC Dominance",
+      MARKET_CHANGE_24H: "Market Change",
+    },
+  },
+
   DARKMODE: {
     bottom: "20px",
     right: "5px",

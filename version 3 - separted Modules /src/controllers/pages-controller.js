@@ -1,10 +1,10 @@
+import { CACHE_CONFIG } from "../config/api-cache-config.js";
+import { UI_CONFIG } from "../config/ui-config.js";
 import { UIManager } from "../ui/ui-manager.js";
 import { CoinsService } from "../services/coins-service.js";
 import { ChartService } from "../services/chart-service.js";
 import { AppState } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
-import { CACHE_CONFIG } from "../config/api-cache-config.js";
-import { UI_CONFIG } from "../config/ui-config.js";
 import { BaseUI } from "../ui/base-ui.js";
 
 const { REPORTS, CHART, ABOUT } = UI_CONFIG;
@@ -15,6 +15,20 @@ const renderCoins = (coins, extras = {}) => {
     favorites: AppState.getFavorites(),
     compareSelection: AppState.getCompareSelection(),
     ...extras,
+  });
+};
+
+export const initStatsBar = async () => {
+  const result = await CoinsService.getGlobalStats();
+  const stats = result?.data?.data || result?.data;
+
+  if (!result?.ok || !stats) return;
+
+  BaseUI.renderStatsBar("#statsBar", {
+    totalMarketCap: stats.total_market_cap?.usd,
+    totalVolume: stats.total_volume?.usd,
+    btcDominance: stats.market_cap_percentage?.btc,
+    marketChange: stats.market_cap_change_percentage_24h_usd,
   });
 };
 

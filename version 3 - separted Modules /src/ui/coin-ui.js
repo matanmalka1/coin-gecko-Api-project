@@ -52,7 +52,7 @@ const showLoading = () => {
 const updateFavoriteIcon = (symbol, isFavorite) => {
   const favoriteIcon = $(`.favorite-btn[data-symbol="${symbol}"] i`);
   if (!favoriteIcon.length) return;
-  favoriteIcon.toggleClass("text-warning", isFavorite);
+  favoriteIcon.toggleClass("text-primary", isFavorite);
   favoriteIcon.toggleClass("text-muted", !isFavorite);
   const btn = favoriteIcon.closest(".favorite-btn");
   btn.attr("title", isFavorite ? "Remove from favorites" : "Add to favorites");

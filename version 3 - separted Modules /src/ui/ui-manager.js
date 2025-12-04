@@ -19,7 +19,7 @@ const renderAboutPage = (data) =>
 const renderNewsPage = () => BaseUI.showPage(PageComponents.newsPage());
 
 const showChartSkeleton = () =>
-  $("#chartsGrid").html(BaseComponents.chartsSkeleton());
+  $("#chartsGrid").html(BaseComponents.skeleton());
 
 const initLiveChart = (symbols, options) =>
   ChartRenderer.setupCharts(symbols, options);
