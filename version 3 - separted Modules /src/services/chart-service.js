@@ -7,20 +7,18 @@ import { CACHE_CONFIG, API_CONFIG } from "../config/api-cache-config.js";
 const REPORTS_TTL = CACHE_CONFIG.REPORTS?.CHART_TTL_MS;
 const { CHART_HISTORY_DAYS } = API_CONFIG;
 
-// Helper to reuse cache for OHLC endpoints (keeps mini chart untouched).
 const fetchWithCache = async (cacheKey, fetcher, ttl = REPORTS_TTL) => {
   const cached = CacheManager.getCache(cacheKey);
   if (cached) return { ok: true, data: cached, fromCache: true };
 
   const result = await fetcher();
-  if (!result.ok) {
+  if (!result.ok)
     return {
       ok: false,
       code: result.code,
       error: result.error,
       status: result.status,
     };
-  }
   CacheManager.setCache(cacheKey, result.data, ttl);
   return { ok: true, data: result.data, fromCache: false };
 };
@@ -67,6 +65,7 @@ const loadCandlesForSymbols = async (symbols) => {
           error: result.error,
         };
       }
+
       return { symbol, candles: mapOhlcToCandles(result.data) };
     })
   );

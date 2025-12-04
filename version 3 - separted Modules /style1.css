@@ -66,7 +66,7 @@ a:visited {
 
 /* ===== HEADER & PARALLAX ===== */
 header.parallax {
-  background-image: url("images/3.png");
+  background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920");
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
