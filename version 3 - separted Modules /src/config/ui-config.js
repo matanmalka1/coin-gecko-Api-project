@@ -64,7 +64,7 @@ export const UI_CONFIG = {
   // Reports settings
   REPORTS: {
     MAX_COINS: 5,
-    MAX_COMPARE: 4,
+    MAX_COMPARE: 2,
     HISTORY_DAYS: 30,
     CREDIT: {
       LABEL: "Reports charts powered by",

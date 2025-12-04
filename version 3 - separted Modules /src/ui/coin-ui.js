@@ -4,7 +4,7 @@ import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "./base-ui.js";
 import { CoinsService } from "../services/coins-service.js";
-import { formatPrice } from "../utils/general-utils.js";
+import { formatPrice, formatPercent } from "../utils/general-utils.js";
 
 // Efficiently renders coins list (with caching) including favorites/compare state.
 const displayCoins = (coins, selectedReports = [], options = {}) => {
@@ -108,21 +108,23 @@ const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
   return modal;
 };
 
-
 // Builds and presents the compare modal table (with missing data notice).
 const buildCompareRow = (coin) => {
   const marketData = coin.market_data || {};
-  const symbol = coin?.symbol?.toUpperCase() || "N/A";
+  const priceUsd = marketData.current_price?.usd;
+  const marketCapUsd = marketData.market_cap?.usd;
+  const changePercent = marketData.price_change_percentage_24h;
+  const volumeUsd = marketData.total_volume?.usd;
 
   return `
-        <tr>
-          <td>${coin?.symbol?.toUpperCase() || "N/A"}</td>
-          <td>${formatPrice(priceUsd)}</td>
-          <td>${formatPrice(marketCapUsd)}</td>
-          <td>${formatPrice(changePercent)}</td>
-          <td>${formatPrice(volumeUsd)}</td>
-        </tr>
-      `;
+    <tr>
+      <td>${coin?.symbol?.toUpperCase() || "N/A"}</td>
+      <td>${formatPrice(priceUsd)}</td>
+      <td>${formatPrice(marketCapUsd)}</td>
+      <td>${formatPercent(changePercent)}</td>
+      <td>${formatPrice(volumeUsd)}</td>
+    </tr>
+  `;
 };
 
 const buildCompareTable = (coins, missingSymbols = []) => {

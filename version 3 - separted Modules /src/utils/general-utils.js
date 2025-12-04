@@ -27,14 +27,13 @@ export const formatPercent = (value) =>
   typeof value === "number" ? `${value.toFixed(2)}%` : "N/A";
 
 // Formats numeric price values into USD with fraction digits.
-export const formatPrice = (value, options = {}) => {
-  typeof value !== "number"
+export const formatPrice = (value, options = {}) =>
+  typeof value === "number"
     ? `$${value.toLocaleString("en-US", {
         minimumFractionDigits: options.minimumFractionDigits ?? 2,
         maximumFractionDigits: options.maximumFractionDigits ?? 2,
       })}`
     : "N/A";
-};
 
 export const resolveImage = (image) =>
   (typeof image === "string"

@@ -53,7 +53,7 @@ const setupCharts = (symbols, options = {}) => {
       timeScale: { borderColor: UI_CONFIG.CHART.LAYOUT.BORDER },
     });
 
-    const series = chart.addCandlestickSeries({
+    const series = chart.addSeries(LightweightCharts.CandlestickSeries, {
       upColor: UI_CONFIG.CHART.CANDLE_COLORS.UP,
       downColor: UI_CONFIG.CHART.CANDLE_COLORS.DOWN,
       borderUpColor: UI_CONFIG.CHART.CANDLE_COLORS.BORDER_UP,
