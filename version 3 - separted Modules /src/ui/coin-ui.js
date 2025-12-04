@@ -4,6 +4,7 @@ import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "./base-ui.js";
 import { CoinsService } from "../services/coins-service.js";
+import { formatPrice } from "../utils/general-utils.js";
 
 // Efficiently renders coins list (with caching) including favorites/compare state.
 const displayCoins = (coins, selectedReports = [], options = {}) => {
@@ -107,39 +108,27 @@ const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
   return modal;
 };
 
+
 // Builds and presents the compare modal table (with missing data notice).
-const showCompareModal = (coins, options = {}) => {
-  const missingSymbols = Array.isArray(options.missingSymbols)
-    ? options.missingSymbols
-    : [];
+const buildCompareRow = (coin) => {
+  const marketData = coin.market_data || {};
+  const symbol = coin?.symbol?.toUpperCase() || "N/A";
 
-  const formatCurrency = (value) =>
-    typeof value === "number" ? `$${value.toLocaleString()}` : "N/A";
-
-  const formatPercent = (value) =>
-    typeof value === "number" ? `${value.toFixed(2)}%` : "N/A";
-
-  const compareRowsHtml = coins
-    .map((coin) => {
-      const marketData = coin.market_data || {};
-      const priceUsd = marketData.current_price?.usd;
-      const marketCapUsd = marketData.market_cap?.usd;
-      const changePercent = marketData.price_change_percentage_24h;
-      const volumeUsd = marketData.total_volume?.usd;
-
-      return `
+  return `
         <tr>
           <td>${coin?.symbol?.toUpperCase() || "N/A"}</td>
-          <td>${formatCurrency(priceUsd)}</td>
-          <td>${formatCurrency(marketCapUsd)}</td>
-          <td>${formatPercent(changePercent)}</td>
-          <td>${formatCurrency(volumeUsd)}</td>
+          <td>${formatPrice(priceUsd)}</td>
+          <td>${formatPrice(marketCapUsd)}</td>
+          <td>${formatPrice(changePercent)}</td>
+          <td>${formatPrice(volumeUsd)}</td>
         </tr>
       `;
-    })
-    .join("");
+};
 
-  const compareTableHtml = `
+const buildCompareTable = (coins, missingSymbols = []) => {
+  const rows = coins.map(buildCompareRow).join("");
+
+  const table = `
     <table class="table table-striped text-center align-middle">
       <thead>
         <tr>
@@ -150,33 +139,37 @@ const showCompareModal = (coins, options = {}) => {
           <th>Volume</th>
         </tr>
       </thead>
-      <tbody>${compareRowsHtml}</tbody>
+      <tbody>${rows}</tbody>
     </table>
   `;
 
-  const missingNotice = missingSymbols.length
+  const warning = missingSymbols.length
     ? `<div class="alert alert-warning mt-3">
-          ${ERRORS.REPORTS.MISSING_DATA(missingSymbols.join(", "))}
-        </div>`
+         ${ERRORS.REPORTS.MISSING_DATA(missingSymbols.join(", "))}
+       </div>`
     : "";
 
-  const modalHTML = CoinComponents.compareModal(
-    compareTableHtml + missingNotice,
-    {
-      title: options.title || UI_CONFIG.UI.COMPARE_TITLE,
-    }
-  );
-  $("body").append(modalHTML);
+  return table + warning;
+};
 
+const showCompareModal = (coins, options = {}) => {
+  const { missingSymbols = [], title, onClose } = options;
+
+  const content = buildCompareTable(coins, missingSymbols);
+  const modalHTML = CoinComponents.compareModal(content, {
+    title: title || UI_CONFIG.UI.COMPARE_TITLE,
+  });
+
+  $("body").append(modalHTML);
   const modalElement = document.getElementById("compareModal");
   const modal = new bootstrap.Modal(modalElement);
-  modal.show();
 
   $("#compareModal").on("hidden.bs.modal", () => {
     $("#compareModal").remove();
-    options.onClose?.();
+    onClose?.();
   });
 
+  modal.show();
   return modal;
 };
 

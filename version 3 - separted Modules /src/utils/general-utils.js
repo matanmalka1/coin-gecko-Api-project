@@ -8,9 +8,8 @@ export const shortenText = (text = "", max = 200) => {
 export const normalizeSymbol = (symbol = "") =>
   String(symbol).trim().toUpperCase();
 
-const PLACEHOLDER_THUMB = "https://via.placeholder.com/50";
+const PLACEHOLDER_THUMB = "images/cryptocurrency.png";
 
-// News-Utils -
 // Filters articles that fall within the last `maxAgeInMs` window.
 export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
   if (!maxAgeInMs) return articles;
@@ -24,14 +23,17 @@ export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
   });
 };
 
+export const formatPercent = (value) =>
+  typeof value === "number" ? `${value.toFixed(2)}%` : "N/A";
+
 // Formats numeric price values into USD with fraction digits.
 export const formatPrice = (value, options = {}) => {
-  if (typeof value !== "number") return "N/A";
-
-  return `$${value.toLocaleString("en-US", {
-    minimumFractionDigits: options.minimumFractionDigits ?? 2,
-    maximumFractionDigits: options.maximumFractionDigits ?? 2,
-  })}`;
+  typeof value !== "number"
+    ? `$${value.toLocaleString("en-US", {
+        minimumFractionDigits: options.minimumFractionDigits ?? 2,
+        maximumFractionDigits: options.maximumFractionDigits ?? 2,
+      })}`
+    : "N/A";
 };
 
 export const resolveImage = (image) =>

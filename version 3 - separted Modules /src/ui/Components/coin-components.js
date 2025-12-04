@@ -9,29 +9,75 @@ import {
 const PLACEHOLDER_LARGE = "https://via.placeholder.com/80";
 
 // Builds a coin summary card (price, market cap, actions, toggle states).
-const coinCard = (
-  coin,
-  isSelected = false,
-  { isFavorite = false, isInCompare = false } = {}
-) => {
-  const { id, name, symbol, image, current_price, market_cap } = coin;
+const coinCardHeader = (coin) => {
+  const { name, symbol, image } = coin;
   const displaySymbol = symbol?.toUpperCase() || "";
   const imageThumb = resolveImage(image);
+
+  return `
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <img src="${imageThumb}" alt="${displaySymbol}" loading="lazy"
+           class="rounded-circle coin-image">
+      <div>
+        <h6 class="fw-bold mb-0">${name}</h6>
+        <small class="text-muted">${displaySymbol}</small>
+      </div>
+    </div>
+  `;
+};
+
+const coinCardActions = (
+  coin,
+  isSelected,
+  { isFavorite = false, isInCompare = false } = {}
+) => {
+  const { id, symbol } = coin;
+  const displaySymbol = symbol?.toUpperCase() || "";
+
+  return `
+    <div class="d-flex justify-content-between align-items-center mt-2 compare-row ${
+      isInCompare ? "compare-row-active" : ""
+    }" data-id="${id}">
+      <button class="btn btn-sm btn-outline-primary more-info"
+        data-id="${id}" aria-label="Show more info about ${displaySymbol}">
+        <i class="fas fa-info-circle"></i> More Info
+      </button>
+
+      <button type="button" class="btn btn-sm btn-outline-primary compare-btn"
+         data-id="${id}" data-symbol="${displaySymbol}"
+         aria-label="Compare ${displaySymbol}">
+        <i class="fas fa-balance-scale"></i> Compare
+      </button>
+
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm p-0 favorite-btn"
+           data-symbol="${displaySymbol}">
+          <i class="fas fa-star ${isFavorite ? "text-primary" : "text-muted"}"
+             style="font-size: 1.2rem;"></i>
+        </button>
+
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input coin-toggle"
+                 type="checkbox" role="switch"
+                 aria-label="Track ${displaySymbol}" 
+                 data-symbol="${displaySymbol}" ${isSelected ? "checked" : ""}>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+const coinCard = (coin, isSelected = false, options = {}) => {
+  const { id, current_price, market_cap } = coin;
+  const { isInCompare = false } = options;
 
   return `
     <div class="col-12 col-md-6 col-lg-4" data-coin-id="${id}">
       <div class="card border shadow-sm p-3 h-100 ${
         isInCompare ? "compare-card-active" : ""
       }">
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <img src="${imageThumb}" alt="${displaySymbol}" loading="lazy"
-               class="rounded-circle coin-image">
-          <div>
-            <h6 class="fw-bold mb-0">${name}</h6>
-            <small class="text-muted">${displaySymbol}</small>
-          </div>
-        </div>
-
+        ${coinCardHeader(coin)}
+        
         <p class="mb-2"><strong>Price:</strong> ${formatPrice(
           current_price
         )}</p>
@@ -39,44 +85,14 @@ const coinCard = (
           market_cap
         )}</p>
 
-        <div class="d-flex justify-content-between align-items-center mt-2 compare-row ${
-          isInCompare ? "compare-row-active" : ""
-        }" data-id="${id}">
-          <button class="btn btn-sm btn-outline-primary more-info"
-            data-id="${id}" aria-label="Show more info about ${displaySymbol}">
-            <i class="fas fa-info-circle"></i> More Info
-          </button>
-
-          <button type="button" class="btn btn-sm btn-outline-primary compare-btn"
-             data-id="${id}" data-symbol="${displaySymbol}"
-             aria-label="Compare ${displaySymbol}">
-            <i class="fas fa-balance-scale"></i> Compare
-          </button>
-
-          <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-sm p-0 favorite-btn"
-               data-symbol="${displaySymbol}">
-              <i class="fas fa-star ${
-                isFavorite ? "text-primary" : "text-muted"
-              }"style="font-size: 1.2rem;"></i>
-            </button>
-
-            <div class="form-check form-switch mb-0">
-              <input class="form-check-input coin-toggle"
-                     type="checkbox" role="switch"
-                     aria-label="Track ${displaySymbol}" 
-                     data-symbol="${displaySymbol}" ${
-    isSelected ? "checked" : ""
-  }>
-            </div>
-          </div>
-        </div>
+        ${coinCardActions(coin, isSelected, options)}
 
         <div class="collapse mt-3" id="collapse-${id}"></div>
       </div>
     </div>
   `;
 };
+
 // More info panel
 // Renders the expanded "more info" panel with fields from the API response.
 const coinDetails = (data = {}, currencies = {}) => {

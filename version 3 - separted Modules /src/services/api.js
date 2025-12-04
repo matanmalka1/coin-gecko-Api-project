@@ -73,6 +73,11 @@ const fetchCoinMarketChart = (coinId, days = CHART_HISTORY_DAYS) =>
     vs_currency: "usd",
     days,
   });
+const fetchCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
+  buildAndFetch(COINGECKO_BASE, `/coins/${coinId}/ohlc`, {
+    vs_currency: "usd",
+    days,
+  });
 
 const fetchGlobalStats = () => buildAndFetch(COINGECKO_BASE, "/global");
 export const coinAPI = {
@@ -80,5 +85,6 @@ export const coinAPI = {
   fetchCoinDetails,
   fetchLivePrices,
   fetchCoinMarketChart,
+  fetchCoinOhlc,
   fetchGlobalStats,
 };

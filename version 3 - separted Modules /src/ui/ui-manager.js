@@ -24,8 +24,8 @@ const showChartSkeleton = () =>
 const initLiveChart = (symbols, options) =>
   ChartRenderer.setupCharts(symbols, options);
 
-const updateLiveChart = (prices, time, options) =>
-  ChartRenderer.update(prices, time, options);
+const updateLiveChart = (candlesBySymbol, options) =>
+  ChartRenderer.update(candlesBySymbol, options);
 
 const clearLiveChart = () => ChartRenderer.clear();
 

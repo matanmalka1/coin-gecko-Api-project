@@ -3,6 +3,8 @@ import { shortenText } from "../../utils/general-utils.js";
 import { BaseComponents } from "./base-components.js";
 
 const { cardContainer } = BaseComponents;
+const {
+  REPORTS: {CREDIT: { LABEL, LINK, NAME },},} = UI_CONFIG;
 
 // Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `
@@ -35,6 +37,12 @@ const currenciesPage = () => `
 const reportsPage = () => `
   <h3 class="mb-4">Live Reports</h3>
   <div id="chartsGrid" class="row g-3"></div>
+  <div class="mt-2">
+    <small class="text-muted">
+      ${LABEL}
+      <a href="${LINK}" target="_blank" rel="noreferrer">${NAME}</a>
+    </small>
+  </div>
 `;
 
 // Static about page with author details pulled from UI_CONFIG.

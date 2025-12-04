@@ -73,28 +73,28 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   renderCoins(result.data);
 };
 
-export const showReportsPage = () => {
+export const showReportsPage = async () => {
   ChartService.cleanup();
 
   UIManager.renderReportsPage();
   UIManager.showChartSkeleton();
 
-  const result = ChartService.startLiveChart({
-    onChartReady: ({ symbols, updateIntervalMs, historyPoints }) => {
+  const result = await ChartService.startLiveChart({
+    onChartReady: ({ symbols, historyPoints }) => {
       UIManager.clearLiveChart();
       UIManager.initLiveChart(symbols, {
-        updateIntervalMs,
         historyPoints,
       });
     },
-    onData: ({ prices, time }) => {
-      UIManager.updateLiveChart(prices, time, {
+    onData: ({ candlesBySymbol }) => {
+      UIManager.updateLiveChart(candlesBySymbol, {
         historyPoints: CHART.HISTORY_POINTS,
       });
     },
     onError: ({ code, error, status }) => {
       BaseUI.showError("#chartsGrid", code || "LIVE_CHART_ERROR", {
         defaultMessage: error || ERRORS.API.LIVE_CHART_ERROR,
+        status,
       });
     },
   });
@@ -102,7 +102,7 @@ export const showReportsPage = () => {
   if (!result?.ok) {
     BaseUI.showError("#chartsGrid", "LIVE_CHART_ERROR", {
       defaultMessage: ERRORS.API.LIVE_CHART_ERROR,
-      status: result.status,
+      status: result?.status,
     });
   }
 };

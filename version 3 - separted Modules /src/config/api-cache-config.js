@@ -25,4 +25,7 @@ export const CACHE_CONFIG = {
     FAVORITES: "favorites",
     REPORTS: "reportsSelection",
   },
+  REPORTS_CACHE: {
+    CHART_TTL_MS: 5 * 60 * 1000,
+  },
 };

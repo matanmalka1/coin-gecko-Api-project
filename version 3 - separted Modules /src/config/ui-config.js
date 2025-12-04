@@ -42,6 +42,19 @@ export const UI_CONFIG = {
     CARD_BADGE_TEXT: "Live",
     HEIGHT_PX: 220,
     HEIGHT_MOBILE_PX: 180,
+    CANDLE_COLORS: {
+      UP: "#26a69a",
+      DOWN: "#ef5350",
+      BORDER_UP: "#26a69a",
+      BORDER_DOWN: "#ef5350",
+      WICK_UP: "#26a69a",
+      WICK_DOWN: "#ef5350",
+    },
+    LAYOUT: {
+      BACKGROUND: "#ffffff",
+      TEXT: "#333333",
+      BORDER: "#D1D4DC",
+    },
   },
 
   COIN_DETAILS: {
@@ -52,6 +65,12 @@ export const UI_CONFIG = {
   REPORTS: {
     MAX_COINS: 5,
     MAX_COMPARE: 4,
+    HISTORY_DAYS: 30,
+    CREDIT: {
+      LABEL: "Reports charts powered by",
+      NAME: "TradingView Lightweight Charts",
+      LINK: "https://www.tradingview.com",
+    },
   },
 
   // Currencies
