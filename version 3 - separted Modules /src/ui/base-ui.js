@@ -35,24 +35,6 @@ const getDataAttr = (element, key) => $(element).data(key);
 // Checks whether a collapse element currently has the show class.
 const isCollapseOpen = (collapseId) => $(`#${collapseId}`).hasClass("show");
 
-// Applies light/dark theme classes to root + themed buttons.
-const applyTheme = (theme) => {
-  const isDarkMode = theme === "dark";
-  $("html").toggleClass("dark", isDarkMode);
-  $("body").toggleClass("dark", isDarkMode);
-
-  const themeButtons = $(".btn-theme-switch");
-  if (isDarkMode) {
-    themeButtons
-      .removeClass("btn-light btn-outline-light")
-      .addClass("btn-link text-white");
-  } else {
-    themeButtons
-      .removeClass("btn-link text-white btn-outline-light")
-      .addClass("btn-light");
-  }
-};
-
 // Renders an alert error message inside a container.
 const showError = (container, codeOrMessage, context = {}) => {
   const msg = ErrorResolver.resolve(codeOrMessage, {
@@ -98,7 +80,6 @@ export const BaseUI = {
   setInputValue,
   getDataAttr,
   isCollapseOpen,
-  applyTheme,
   showError,
   showSpinner,
   toggleCollapse,

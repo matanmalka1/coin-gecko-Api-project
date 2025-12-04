@@ -20,27 +20,11 @@
 
   --size-coin: 50px;
   --size-coin-info: 60px;
- 
 }
-/* ===== DARK THEME VARIABLES ===== */
-html.dark {
-  --color-primary: #0d6efd;
-  --color-bg-light: #2f2f2f;
-  --color-white: #1e1e1e;
-  --color-text: #e0e0e0;
-  --color-text-muted: #999999;
-  --color-card-bg: #1a1a1a;
-  --color-input-bg: #2a2a2a;
-  --color-footer-bg: #0f0f0f;
-  --color-border: #404040;
-  --color-link: #4da3ff;
-  --color-link-hover: #80b3ff;
 
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.8);
-
-  color-scheme: dark;
+.darkmode-layer,
+.darkmode-toggle {
+  z-index: 500;
 }
 
 /* ===== BASE STYLES ===== */
@@ -75,27 +59,21 @@ a:visited {
 }
 
 /* ===== NAVBAR ===== */
-  html.dark .navbar {
-    background-color: var(--color-bg-light) !important;
-    border-color: var(--color-border);
-  }
-
-  .navbar .btn:hover,
-  #themeToggleBtn:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
-  }
+.navbar .btn:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
 
 /* ===== HEADER & PARALLAX ===== */
 header.parallax {
-    background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920");
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
-    height: 400px;
-  }
+  background-image: url("images/3.png");
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
+  height: 400px;
+}
 
 /* ===== CONTENT AREAS ===== */
 #searchArea,
@@ -115,17 +93,6 @@ header.parallax {
   box-shadow: 0 0 15px rgba(13, 110, 253, 0.2);
 }
 
-html.dark .card.compare-card-active {
-  border-color: #6ea8fe;
-  box-shadow: 0 0 20px rgba(110, 168, 254, 0.35);
-}
-
-html.dark #compareStatus.alert-info {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: none;
-}
-
 #aboutSection {
   color: var(--color-text);
 }
@@ -139,9 +106,6 @@ html.dark #compareStatus.alert-info {
   border: 2px solid var(--color-border);
 }
 
-
-
-
 .form-control:focus,
 .form-select:focus {
   background-color: var(--color-input-bg);
@@ -152,9 +116,8 @@ html.dark #compareStatus.alert-info {
 
 /* ===== TOGGLE SWITCH ===== */
 .form-switch .form-check-input {
-  width: 3.2rem;   
+  width: 3.2rem;
   height: 1.6rem;
-
 }
 
 .form-switch .form-check-input:checked {
@@ -183,12 +146,9 @@ html.dark #compareStatus.alert-info {
   background: linear-gradient(135deg, var(--color-primary) 0%, #0a58ca 100%);
 }
 
-html.dark .news-hero {
-  background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
-}
-
 /* ===== COIN IMAGES ===== */
-.coin-image, .coin-info-image {
+.coin-image,
+.coin-info-image {
   width: var(--size-coin);
   height: var(--size-coin);
   box-shadow: var(--shadow-md);
@@ -202,7 +162,6 @@ html.dark .news-hero {
 .coin-info-image {
   width: var(--size-coin-info);
   height: var(--size-coin-info);
-
 }
 
 .coin-info-image:hover {
@@ -224,7 +183,7 @@ html.dark .news-hero {
   color: var(--color-text);
   font-size: 0.95rem;
   border-left: 3px solid var(--color-primary);
-transition: transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .price-badge:hover {
@@ -241,24 +200,12 @@ transition: transform 0.2s ease;
   border: 1px solid var(--color-border);
 }
 
-/* ===== ALERTS (רק overrides לdark mode) ===== */
-html.dark .alert-danger {
-  background-color: rgba(220, 53, 69, 0.2);
-  border-color: rgba(220, 53, 69, 0.4);
-}
-
-html.dark .alert-info {
-  background-color: rgba(13, 202, 240, 0.2);
-  border-color: rgba(13, 202, 240, 0.4);
-}
-
 /* ===== SPINNERS & SKELETONS ===== */
 .spinner-border {
   border-width: 20px;
   border-color: var(--color-primary);
-border-right-color: transparent;
+  border-right-color: transparent;
   color: var(--color-primary) !important;
-
 }
 
 .placeholder,
@@ -269,10 +216,6 @@ border-right-color: transparent;
   opacity: 0.7;
 }
 
-html.dark .placeholder {
-  background-color: #333;
-}
-
 /* ===== MODALS (רק overrides ל-theme) ===== */
 #replaceModal .modal-content,
 #compareModal .modal-content,
@@ -280,13 +223,13 @@ html.dark .placeholder {
   background-color: var(--color-card-bg);
   color: var(--color-text);
   border-color: var(--color-border);
-    border-radius: var(--radius-md);
+  border-radius: var(--radius-md);
 }
 
 .modal-header,
 .modal-footer {
   border-color: var(--color-border);
-   border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modal-title {
@@ -310,13 +253,6 @@ html.dark .placeholder {
   color: var(--color-text-muted) !important;
 }
 
-/* Bootstrap badges - צריכים override לdark mode */
-html.dark .badge.bg-white,
-html.dark .badge.text-bg-light {
-  background-color: var(--color-input-bg) !important;
-  color: var(--color-text) !important;
-}
-
 /* ===== TABLES ===== */
 .table {
   color: var(--color-text);
@@ -325,10 +261,6 @@ html.dark .badge.text-bg-light {
 .table thead th {
   background-color: var(--color-input-bg);
   border-color: var(--color-border);
-}
-
-html.dark .table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* ===== ABOUT SECTION ===== */
@@ -341,7 +273,3 @@ html.dark .table-striped tbody tr:nth-of-type(odd) {
 }
 
 /* ===== FOOTER ===== */
-  html.dark footer {
-    background-color: var(--color-footer-bg) !important;
-    border-color: var(--color-border);
-  }

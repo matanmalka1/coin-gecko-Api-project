@@ -36,7 +36,9 @@ const fetchNews = async (cacheKey, params = {}) => {
     if (!response.ok) {
       return {
         ok: false,
-        errorMessage: `News API returned ${response.status}`,
+        code: "NEWS_HTTP_ERROR",
+        status: response.status,
+        errorMessage: ERRORS.HTTP_STATUS(response.status),
       };
     }
     const data = await response.json();

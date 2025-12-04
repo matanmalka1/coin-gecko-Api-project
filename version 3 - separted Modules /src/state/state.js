@@ -33,7 +33,6 @@ let state = {
   compareSelection: [],
   compareModalOpen: false,
   loadingCoins: false,
-  theme: Storage.readJSON(STORAGE_KEYS.THEME, "light"),
 };
 
 // ===== Coins =====
@@ -124,14 +123,6 @@ const isFavorite = (symbol) => !!symbol && state.favorites.includes(symbol);
 
 const getFavorites = () => [...state.favorites];
 
-// ===== Theme =====
-const setTheme = (theme) => {
-  state.theme = theme;
-  Storage.writeJSON(STORAGE_KEYS.THEME, theme);
-};
-
-const getTheme = () => state.theme;
-
 // ===== Loading / filters =====
 const isLoadingCoins = () => state.loadingCoins;
 const setLoadingCoins = (value) => {
@@ -175,8 +166,6 @@ export const AppState = {
   removeFavorite,
   isFavorite,
   getFavorites,
-  setTheme,
-  getTheme,
   isLoadingCoins,
   setLoadingCoins,
   isShowingFavoritesOnly,

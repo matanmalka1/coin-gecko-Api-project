@@ -77,4 +77,17 @@ export const UI_CONFIG = {
       FAVORITES: "news_cache_favorites",
     },
   },
+  DARKMODE: {
+    bottom: "20px",
+    right: "5px",
+    left: "unset",
+    time: "0.3s",
+    mixColor: "#fff",
+    backgroundColor: "#f5f5f5",
+    buttonColorDark: "#ffffff",
+    buttonColorLight: "#000000",
+    saveInCookies: true,
+    label: "☀️",
+    autoMatchOsTheme: true,
+  },
 };

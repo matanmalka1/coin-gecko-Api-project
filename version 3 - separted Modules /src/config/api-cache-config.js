@@ -1,4 +1,3 @@
-// Combined configuration for external services and caching.
 export const API_CONFIG = {
   COINGECKO_BASE: "https://api.coingecko.com/api/v3",
   CRYPTOCOMPARE_BASE: "https://min-api.cryptocompare.com/data",
@@ -23,7 +22,6 @@ export const CACHE_CONFIG = {
   },
 
   STORAGE_KEYS: {
-    THEME: "theme",
     FAVORITES: "favorites",
     REPORTS: "reportsSelection",
   },
