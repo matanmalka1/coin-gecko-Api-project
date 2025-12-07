@@ -34,6 +34,7 @@ const fetchWithRetry = async (url, options = {}) => {
 // ========== Simple API Builder ==========
 const buildUrl = (base, path, params = {}) => {
   const url = new URL(`${base}${path}`);
+
   Object.entries(params).forEach(([key, val]) => {
     if (val !== undefined && val !== null) {
       url.searchParams.set(key, val);
@@ -76,7 +77,7 @@ const cryptoCompare = (path, params) =>
   fetchWithRetry(buildUrl(CRYPTOCOMPARE_BASE, path, params));
 
 const fetchLivePrices = (symbols = []) => {
-  if (!Array.isArray(symbols) || !symbols.length) {
+  if (!symbols.length) {
     return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
   }
 
