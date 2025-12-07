@@ -2,7 +2,7 @@ import { CoinsService } from "../services/coins-service.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
-import { AppState } from "../state/state.js";
+import { AppState, addUnique, removeItem } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
@@ -42,7 +42,8 @@ const handleFavoriteToggle = (e) => {
   const coinSymbol = $(e.currentTarget).data("symbol");
   const alreadyFavorite = AppState.isFavorite(coinSymbol);
 
-  AppState[alreadyFavorite ? "removeFavorite" : "addFavorite"](coinSymbol);
+  const action = alreadyFavorite ? removeItem : addUnique;
+  AppState.updateFavorite(coinSymbol, action);
   CoinUI.updateFavoriteIcon(coinSymbol, !alreadyFavorite);
 
   if (AppState.isShowingFavoritesOnly()) {

@@ -8,12 +8,14 @@ const COINS_PER_PAGE = 100;
 // ========== Core Fetch Layer ==========
 const fetchWithRetry = async (url, options = {}) => {
   try {
-    const {ok, status } = await fetch(url, options);
+    const response = await fetch(url, options);
+    const { ok, status } = response;
+
     if (!ok) {
       if (status === 429) {
         await new Promise((retry) => setTimeout(retry, 60000));
 
-       return {
+        return {
           ok: false,
           code: "RATE_LIMIT",
           error: API_ERRORS.RATE_LIMIT,
