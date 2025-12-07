@@ -1,7 +1,6 @@
 import { CoinsService } from "../services/coins-service.js";
 import { ReportsService } from "../services/reports-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
-import { CoinUI } from "../ui/coin-ui.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { UI_CONFIG } from "../config/ui-config.js";
@@ -103,7 +102,7 @@ const handleCompareClick = async function () {
     return;
   }
 
-  let currentSelection = CoinUI.getCompareSelection;
+  let currentSelection = CoinUI.getCompareSelection();
   const alreadySelected = currentSelection.includes(coinId);
 
   if (alreadySelected) {
