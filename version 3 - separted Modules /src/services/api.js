@@ -6,29 +6,25 @@ const { API: API_ERRORS } = ERRORS;
 const COINS_PER_PAGE = 100;
 
 // ========== Core Fetch Layer ==========
-const fetchWithRetry = async (url, options = {}) => {
+const fetchWithRetry = async (url, options = {}, retries = 1) => {
   try {
     const response = await fetch(url, options);
     const { ok, status } = response;
 
     if (!ok) {
-      if (status === 429) {
-        await new Promise((retry) => setTimeout(retry, 60000));
-
-        return {
-          ok: false,
-          code: "RATE_LIMIT",
-          error: API_ERRORS.RATE_LIMIT,
-          status,
-        };
+      if (status === 429 && retries > 0) {
+        console.warn(`Rate limit hit, retrying (${retries} attempts left)...`);
+        await new Promise((resolve) => setTimeout(resolve, 60000));
+        return fetchWithRetry(url, options, retries - 1);
       }
-      return {
-        ok: false,
-        code: "HTTP_ERROR",
-        error: API_ERRORS.HTTP_STATUS(status),
-        status,
-      };
+      
+      if (status === 429) {
+        return { ok: false, code: "RATE_LIMIT", error: API_ERRORS.RATE_LIMIT, status };
+      }
+      
+      return { ok: false, code: "HTTP_ERROR", error: API_ERRORS.HTTP_STATUS(status), status };
     }
+    
     const data = await response.json();
     return { ok: true, data, status };
   } catch {
@@ -74,15 +70,15 @@ const fetchGlobalStats = () => coinGecko("/global");
 const cryptoCompare = (path, params) =>
   fetchWithRetry(buildUrl(CRYPTOCOMPARE_BASE, path, params));
 
-const fetchLivePrices = (symbols = []) => {
-  if (!symbols.length) {
-    return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
-  }
-  return cryptoCompare("/pricemulti", {
-    fsyms: symbols.join(",").toUpperCase(),
-    tsyms: "USD",
-  });
-};
+// const fetchLivePrices = (symbols = []) => {
+//   if (!symbols.length) {
+//     return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
+//   }
+//   return cryptoCompare("/pricemulti", {
+//     fsyms: symbols.join(",").toUpperCase(),
+//     tsyms: "USD",
+//   });
+// };
 
 // ========== NewsData API ==========
 const fetchNewsData = (params = {}) => {
@@ -99,7 +95,7 @@ const fetchNewsData = (params = {}) => {
 export const coinAPI = {
   fetchMarketData,
   fetchCoinDetails,
-  fetchLivePrices,
+  // fetchLivePrices,
   fetchCoinMarketChart,
   fetchCoinOhlc,
   fetchGlobalStats,

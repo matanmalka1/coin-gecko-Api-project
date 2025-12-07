@@ -51,7 +51,7 @@ const loadCandlesForSymbols = async (symbols) => {
 
       const { ok, data, code, error } = await getCoinOhlc(coinId, HISTORY_DAYS);
 
-      if (!ok) {
+      if (!ok || !data) {
         return {
           symbol,
           candles: [],

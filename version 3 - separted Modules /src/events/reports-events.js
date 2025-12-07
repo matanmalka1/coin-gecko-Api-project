@@ -5,6 +5,7 @@ import { CoinUI } from "../ui/coin-ui.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { UI_CONFIG } from "../config/ui-config.js";
+import { CoinUI } from "../ui/coin-ui.js";
 
 const { MAX_COMPARE } = UI_CONFIG.REPORTS;
 const { REPORTS: REPORTS_ERRORS, API: API_ERRORS } = ERRORS;
@@ -13,22 +14,17 @@ let eventsRegistered = false;
 let compareModalOpen = false;
 
 // ===== HELPERS =====
-const getCompareSelection = () => {
-  return $('.compare-row-active')
-    .map((_, el) => String($(el).data('id')))
-    .get();
-};
 
 const setCompareSelection = (ids) => {
   CoinUI.clearCompareHighlights();
-  ids.forEach(id => CoinUI.setCompareHighlight(id, true));
+  ids.forEach((id) => CoinUI.setCompareHighlight(id, true));
 };
 
 const resetCompareSelection = () => {
   CoinUI.clearCompareHighlights();
 };
 
-const updateCompareIndicator = (selected = getCompareSelection()) => {
+const updateCompareIndicator = (selected = CoinUI.getCompareSelection()) => {
   const selectionArray = Array.isArray(selected) ? selected : [];
   const selectedCount = selectionArray.length;
 
@@ -45,7 +41,8 @@ const updateCompareIndicator = (selected = getCompareSelection()) => {
 
 // ===== EVENT HANDLERS =====
 const handleFilterReports = () => {
-  const { ok, code, data, selected, favorites } = CoinsService.filterSelectedCoins();
+  const { ok, code, data, selected, favorites } =
+    CoinsService.filterSelectedCoins();
   $("#clearSearchBtn").removeClass("d-none");
 
   if (!ok) {
@@ -81,7 +78,8 @@ const openReplaceFlow = (serviceResult) => {
 
 const handleCoinToggle = function () {
   const coinSymbol = $(this).data("symbol");
-  const { ok, code, selected, ...rest } = ReportsService.toggleCoinSelection(coinSymbol);
+  const { ok, code, selected, ...rest } =
+    ReportsService.toggleCoinSelection(coinSymbol);
 
   if (ok) {
     CoinUI.updateToggleStates(selected);
@@ -105,7 +103,7 @@ const handleCompareClick = async function () {
     return;
   }
 
-  let currentSelection = getCompareSelection();
+  let currentSelection = CoinUI.getCompareSelection;
   const alreadySelected = currentSelection.includes(coinId);
 
   if (alreadySelected) {
@@ -124,9 +122,17 @@ const handleCompareClick = async function () {
   setCompareSelection(currentSelection);
   updateCompareIndicator(currentSelection);
 
-  if (currentSelection.length < MAX_COMPARE) return;
-
-  const { ok, code, coins, missing } = await ReportsService.getCompareData(currentSelection);
+  if (currentSelection.length >= MAX_COMPARE) {
+    updateCompareIndicator(currentSelection);
+    BaseUI.showError("#content", "COMPARE_FULL", {
+      defaultMessage: `Maximum ${MAX_COMPARE} coins for comparison. Deselect one first.`,
+    });
+    return;
+  }
+  
+  const { ok, code, coins, missing } = await ReportsService.getCompareData(
+    currentSelection
+  );
 
   if (!ok) {
     BaseUI.showError("#content", code, {
@@ -141,7 +147,7 @@ const handleCompareClick = async function () {
   CoinUI.showCompareModal(coins, {
     missingSymbols: missing,
     onClose: () => {
-      const previousSelection = getCompareSelection();
+      const previousSelection = CoinUI.getCompareSelection();
       resetCompareSelection();
       compareModalOpen = false;
       updateCompareIndicator();

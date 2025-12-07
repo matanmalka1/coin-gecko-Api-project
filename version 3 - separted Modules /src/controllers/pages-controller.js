@@ -28,15 +28,9 @@ const getLoadingCoins = () => isLoadingCoins;
 export const renderCoins = (coins, extras = {}) => {
   CoinUI.displayCoins(coins, StorageHelper.getSelectedReports(), {
     favorites: StorageHelper.getFavorites(),
-    compareSelection: getCompareSelection(),
+    compareSelection: CoinUI.getCompareSelection(),
     ...extras,
   });
-};
-
-const getCompareSelection = () => {
-  return $('.compare-row-active')
-    .map((_, el) => String($(el).data('id')))
-    .get();
 };
 
 const getNewsConfig = (isFavorites) => {
@@ -75,7 +69,8 @@ export const initStatsBar = async () => {
 // ===== CURRENCIES PAGE =====
 export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   ChartService.cleanup();
-
+  setLoadingCoins(false);
+  
   BaseUI.showPage(PageComponents.currenciesPage());
 
   const $compareStatus = $("#compareStatus");
@@ -87,7 +82,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   const lastUpdated = CoinsService.getCoinsLastUpdated();
 
   cachedCoins.length ? renderCoins(cachedCoins) : CoinUI.showLoading();
-  
+
   if (getLoadingCoins()) return;
 
   const isCacheExpired =
@@ -154,7 +149,14 @@ const loadNews = async (mode = "general") => {
   NewsUI.showNewsLoading(loading);
   NewsUI.setNewsFilterMode(mode);
 
-  const { ok, articles, usedFallback, code, errorMessage, status: httpStatus } = isFavorites
+  const {
+    ok,
+    articles,
+    usedFallback,
+    code,
+    errorMessage,
+    status: httpStatus,
+  } = isFavorites
     ? await NewsService.getNewsForFavorites(StorageHelper.getFavorites())
     : await NewsService.getGeneralNews();
 

@@ -86,10 +86,12 @@ const clear = () => {
 // ===== CANVASJS MINI CHARTS (Coin Details) =====
 
 const drawMiniChart = async (coinId) => {
-  const chartResult = await CoinsService.getCoinMarketChart(coinId);
+  const { ok, data } = await CoinsService.getCoinMarketChart(coinId);
 
-  if (!chartResult?.ok || !chartResult.data?.prices) {
-    console.warn(`Failed to load mini chart data for ${coinId}`);
+  if (!ok || !data?.prices || data.prices.length === 0) {
+    $(`#miniChart-${coinId}`).html(
+      BaseComponents.infoAlert("No chart data available for this period")
+    );
     return;
   }
 

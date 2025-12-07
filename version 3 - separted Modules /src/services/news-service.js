@@ -25,11 +25,18 @@ const getCachedNews = (cacheKey) => {
 };
 
 // ===== NORMALIZATION =====
-const normalizeArticle = ({title,description,pubDate,source_id,link,image_url,} = {}) => ({
+const normalizeArticle = ({
+  title,
+  description,
+  pubDate,
+  source_id,
+  link,
+  image_url,
+} = {}) => ({
   title,
   description,
   published_at: pubDate,
-  source: { title: source_id, domain: source_id },
+  source: {title: source_id || "Unknown source", domain: source_id || "unknown" },
   original_url: link,
   url: link,
   image: image_url,
@@ -56,7 +63,7 @@ const fetchNews = async (cacheKey, params = {}) => {
 
   const { ok, data, status, error } = await fetchNewsData({ q });
 
-  if (!ok) {
+  if (!ok || !data) {
     return {
       ok: false,
       code: "NEWS_HTTP_ERROR",
@@ -66,7 +73,7 @@ const fetchNews = async (cacheKey, params = {}) => {
     };
   }
 
- const normalized = (data?.results || []).map(normalizeArticle);
+  const normalized = (data?.results || []).map(normalizeArticle);
   CacheManager.setCache(cacheKey, normalized, CACHE_TTL_MS);
 
   return buildNewsResponse(normalized);
@@ -75,6 +82,13 @@ const fetchNews = async (cacheKey, params = {}) => {
 const getGeneralNews = () => fetchNews(CACHE_KEYS.GENERAL);
 
 const getNewsForFavorites = (favoriteSymbols = []) => {
+  if (!favoriteSymbols || favoriteSymbols.length === 0) {
+    return {
+      ok: false,
+      code: "NO_FAVORITES",
+      errorMessage: "No favorite coins selected",
+    };
+  }
   const unique = [
     ...new Set(
       (favoriteSymbols || [])

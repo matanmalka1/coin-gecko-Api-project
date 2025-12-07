@@ -184,6 +184,11 @@ const updateToggleStates = (selectedReports) => {
 };
 
 // ===== COMPARE HIGHLIGHTS =====
+const getCompareSelection = () =>
+  $(".compare-row-active")
+    .map((_, el) => String($(el).data("id")))
+    .get();
+
 const setCompareHighlight = (coinId, isActive) => {
   const safeId = String(coinId);
   const $rows = $(`.compare-row[data-id="${safeId}"]`);
@@ -206,4 +211,5 @@ export const CoinUI = {
   updateFavoriteIcon,
   setCompareHighlight,
   clearCompareHighlights,
+  getCompareSelection,
 };
