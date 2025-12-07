@@ -1,6 +1,6 @@
 import { CACHE_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
-import { Storage } from "../utils/storage.js";
+import { localeStorage } from "../services/storage-manager.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 
 const addUnique = (list, value) =>
@@ -12,7 +12,7 @@ const { STORAGE_KEYS } = CACHE_CONFIG;
 const { MAX_COINS } = UI_CONFIG.REPORTS;
 
 const loadStoredSymbols = (key, maxItems = null) => {
-  const stored = Storage.readJSON(key, []) || [];
+  const stored = localeStorage.readJSON(key, []) || [];
   if (!Array.isArray(stored)) return [];
 
   const normalized = stored
@@ -76,7 +76,7 @@ const setSelectedReports = (reports = []) => {
         .slice(0, MAX_COINS)
     : [];
 
-  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
+  localeStorage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
 };
 const addReport = (symbol) => {
   const normalized = normalizeSymbol(symbol);
@@ -86,7 +86,7 @@ const addReport = (symbol) => {
     0,
     MAX_COINS
   );
-  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
+  localeStorage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
 };
 
 const removeReport = (symbol) => {
@@ -94,7 +94,7 @@ const removeReport = (symbol) => {
   if (!normalized) return;
 
   state.selectedReports = removeItem(state.selectedReports, normalized);
-  Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
+  localeStorage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
 };
 
 const hasReport = (symbol) => state.selectedReports.includes(symbol);
@@ -107,7 +107,7 @@ const addFavorite = (symbol) => {
   if (!normalized) return;
 
   state.favorites = addUnique(state.favorites, normalized);
-  Storage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
+  localeStorage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
 };
 
 const removeFavorite = (symbol) => {
@@ -115,7 +115,7 @@ const removeFavorite = (symbol) => {
   if (!normalized) return;
 
   state.favorites = removeItem(state.favorites, normalized);
-  Storage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
+  localeStorage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
 };
 
 const isFavorite = (symbol) => state.favorites.includes(symbol);

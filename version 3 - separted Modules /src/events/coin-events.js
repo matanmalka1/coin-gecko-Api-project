@@ -5,28 +5,30 @@ import { ChartRenderer } from "../ui/chart-renderer.js";
 import { AppState } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
 import { UI_CONFIG } from "../config/ui-config.js";
-import {
-  showCurrenciesPage,
-  renderCoins,
-} from "../controllers/pages-controller.js";
+import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
+
+const { CURRENCIES } = UI_CONFIG;
+const { FAVORITES_EMPTY } = UI_CONFIG.UI;
+const { API: API_ERRORS, SEARCH: SEARCH_ERRORS } = ERRORS;
 
 let isRegistered = false;
 
 // ===== EVENT HANDLERS =====
-
 const handleSearch = () => {
-  const result = CoinsService.searchCoin($("#searchInput").val());
+  const searchTerm = $("#searchInput").val();
+  const { ok, code, term, data, favorites } = CoinsService.searchCoin(searchTerm);
+  
   $("#clearSearchBtn").removeClass("d-none");
 
-  if (!result.ok) {
-    BaseUI.showError("#coinsContainer", result.code, {
-      term: result.term,
-      defaultMessage: ERRORS.SEARCH.NO_MATCH(result.term || ""),
+  if (!ok) {
+    BaseUI.showError("#coinsContainer", code, {
+      term,
+      defaultMessage: SEARCH_ERRORS.NO_MATCH(term || ""),
     });
     return;
   }
 
-  renderCoins(result.data, { favorites: result.favorites });
+  renderCoins(data, { favorites });
 };
 
 const handleClearSearch = () => {
@@ -40,25 +42,23 @@ const handleFavoriteToggle = (e) => {
   const coinSymbol = $(e.currentTarget).data("symbol");
   const alreadyFavorite = AppState.isFavorite(coinSymbol);
 
-  if (alreadyFavorite) {
-    AppState.removeFavorite(coinSymbol);
-  } else {
-    AppState.addFavorite(coinSymbol);
-  }
+  AppState[alreadyFavorite ? "removeFavorite" : "addFavorite"](coinSymbol);
   CoinUI.updateFavoriteIcon(coinSymbol, !alreadyFavorite);
 
-  if (AppState.isShowingFavoritesOnly()) renderFavoritesList();
+  if (AppState.isShowingFavoritesOnly()) {
+    renderFavoritesList();
+  }
 };
 
 const renderFavoritesList = () => {
   const favoriteSymbols = AppState.getFavorites();
-  const filtered = AppState.getAllCoins().filter((c) =>
-    favoriteSymbols.includes(c.symbol)
+  const filtered = AppState.getAllCoins().filter((coin) =>
+    favoriteSymbols.includes(coin.symbol)
   );
 
   renderCoins(filtered, {
     favorites: favoriteSymbols,
-    emptyMessage: UI_CONFIG.UI.FAVORITES_EMPTY,
+    emptyMessage: FAVORITES_EMPTY,
   });
 };
 
@@ -76,49 +76,41 @@ const handleMoreInfo = async (e) => {
   BaseUI.toggleCollapse(collapseId, true);
 
   try {
-    const result = await CoinsService.getCoinDetails(coinId);
+    const { ok, data, status, error } = await CoinsService.getCoinDetails(coinId);
 
-    if (!result?.ok || !result.data) {
+    if (!ok || !data) {
       BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
-        status: result.status,
-        defaultMessage:
-          typeof result.error === "string"
-            ? result.error
-            : ERRORS.API.COIN_DETAILS_ERROR,
+        status,
+        defaultMessage: typeof error === "string" ? error : API_ERRORS.COIN_DETAILS_ERROR,
       });
       return;
     }
 
-    CoinUI.showCoinDetails(collapseId, result.data, {
-      currencies: UI_CONFIG.CURRENCIES,
-    });
-
-    // Draw chart AFTER rendering the HTML
+    CoinUI.showCoinDetails(collapseId, data, { currencies: CURRENCIES });
     ChartRenderer.drawMiniChart(coinId);
   } catch (error) {
     BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
-      defaultMessage: ERRORS.API.COIN_DETAILS_ERROR,
+      defaultMessage: API_ERRORS.COIN_DETAILS_ERROR,
     });
   }
 };
 
 const handleShowFavorites = () => {
-  if (AppState.isShowingFavoritesOnly()) {
+  const isShowing = AppState.isShowingFavoritesOnly();
+
+  if (isShowing) {
     renderCoins(AppState.getAllCoins());
     BaseUI.setFavoritesButtonLabel(false);
     AppState.setShowFavoritesOnly(false);
-    return;
+  } else {
+    renderFavoritesList();
+    BaseUI.setFavoritesButtonLabel(true);
+    AppState.setShowFavoritesOnly(true);
   }
-
-  renderFavoritesList();
-  BaseUI.setFavoritesButtonLabel(true);
-  AppState.setShowFavoritesOnly(true);
 };
 
 const handleSortChange = () => {
-  const { data, selected, favorites } = CoinsService.sortCoins(
-    $("#sortSelect").val()
-  );
+  const { data, favorites } = CoinsService.sortCoins($("#sortSelect").val());
   renderCoins(data, { favorites });
 };
 
@@ -130,7 +122,6 @@ const handleRefreshCoins = (e) => {
 };
 
 // ===== REGISTRATION =====
-
 const setupEventListeners = () => {
   if (isRegistered) return;
 

@@ -3,7 +3,7 @@ import { API_CONFIG, CACHE_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { filterLastHours } from "../utils/general-utils.js";
-import { CacheManager } from "./cache.js";
+import { CacheManager } from "./storage-manager.js";
 import { coinAPI } from "./api.js";
 
 const { TTL_MS: CACHE_TTL_MS, FRESH_WINDOW_MS } = CACHE_CONFIG.NEWS_CACHE;

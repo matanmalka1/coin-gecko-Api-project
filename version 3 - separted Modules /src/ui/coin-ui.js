@@ -3,8 +3,8 @@ import { CoinComponents } from "./Components/coin-components.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "./base-ui.js";
-import { ChartRenderer } from "./chart-renderer.js";
 import { formatPrice, formatPercent } from "../utils/general-utils.js";
+import { ChartRenderer } from "./chart-renderer.js";
 
 // ===== COIN LIST RENDERING =====
 const displayCoins = (coins, selectedReports = [], options = {}) => {

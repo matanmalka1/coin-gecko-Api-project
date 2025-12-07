@@ -1,13 +1,13 @@
 import { coinAPI } from "./api.js";
-import { CacheManager } from "./cache.js";
+import { CacheManager } from "./storage-manager.js";
 import { AppState } from "../state/state.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 import { API_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 
-const { SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {} } =
-  UI_CONFIG;
+const {SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {},} = UI_CONFIG;
 const { CHART_HISTORY_DAYS } = API_CONFIG;
+const {fetchMarketData,fetchCoinDetails,fetchCoinMarketChart,fetchGlobalStats,} = coinAPI;
 
 const ReportAndFavorites = () => ({
   selected: AppState.getSelectedReports(),
@@ -23,22 +23,9 @@ const sortFunctions = {
   marketcap_asc: (a, b) => a.market_cap - b.market_cap,
 };
 
-const fetchWithCache = async (cacheKey, fetcher) => {
-  const cached = CacheManager.getCache(cacheKey);
-  if (cached) return { ok: true, data: cached, fromCache: true };
-
-  const { ok, data, code, error, status } = await fetcher();
-
-  if (!ok) {
-    return { ok: false, code: code || "API_ERROR", error, status };
-  }
-  CacheManager.setCache(cacheKey, data);
-  return { ok: true, data, fromCache: false };
-};
-
 // Fetches full market list and stores it in AppState.
 const loadAllCoins = async () => {
-  const result = await coinAPI.fetchMarketData();
+  const result = await fetchMarketData();
 
   if (!result.ok) {
     return {
@@ -77,7 +64,7 @@ const sortCoins = (sortType) => {
 
 // Retrieves detailed information for a single coin (with cache).
 const getCoinDetails = (coinId) =>
-  fetchWithCache(coinId, () => coinAPI.fetchCoinDetails(coinId));
+  CacheManager.fetchWithCache(coinId, () => fetchCoinDetails(coinId));
 
 // Performs a fuzzy search by symbol/name on the in-memory coins list.
 const searchCoin = (term) => {
@@ -163,11 +150,11 @@ const clearSearch = () => ({
 
 // Fetches historical price chart data for a coin (with caching).
 const getCoinMarketChart = (coinId) =>
-  fetchWithCache(`chart:${coinId}`, () =>
-    coinAPI.fetchCoinMarketChart(coinId, CHART_HISTORY_DAYS)
+  CacheManager.fetchWithCache(`chart:${coinId}`, () =>
+    fetchCoinMarketChart(coinId, CHART_HISTORY_DAYS)
   );
 const getGlobalStats = () =>
-  fetchWithCache("globalStats", () => coinAPI.fetchGlobalStats());
+  CacheManager.fetchWithCache("globalStats", () => fetchGlobalStats());
 
 export const CoinsService = {
   loadAllCoins,
