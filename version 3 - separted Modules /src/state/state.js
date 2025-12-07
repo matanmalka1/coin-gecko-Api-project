@@ -97,8 +97,7 @@ const removeReport = (symbol) => {
   Storage.writeJSON(STORAGE_KEYS.REPORTS, state.selectedReports);
 };
 
-const hasReport = (symbol) =>
-  !!symbol && state.selectedReports.includes(symbol);
+const hasReport = (symbol) => state.selectedReports.includes(symbol);
 
 const isReportsFull = () => state.selectedReports.length >= MAX_COINS;
 
@@ -119,7 +118,7 @@ const removeFavorite = (symbol) => {
   Storage.writeJSON(STORAGE_KEYS.FAVORITES, state.favorites);
 };
 
-const isFavorite = (symbol) => !!symbol && state.favorites.includes(symbol);
+const isFavorite = (symbol) => state.favorites.includes(symbol);
 
 const getFavorites = () => [...state.favorites];
 

@@ -19,10 +19,9 @@ const renderCoins = (coins, extras = {}) => {
 };
 
 export const initStatsBar = async () => {
-  const result = await CoinsService.getGlobalStats();
-  const stats = result?.data?.data || result?.data;
-
-  if (!result?.ok || !stats) return;
+  const { ok, data } = await CoinsService.getGlobalStats();
+  const stats = data?.data || data;
+  if (!ok || !stats) return;
 
   BaseUI.renderStatsBar("#statsBar", {
     totalMarketCap: stats.total_market_cap?.usd,
@@ -60,17 +59,17 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   }
 
   AppState.setLoadingCoins(true);
-  const result = await CoinsService.loadAllCoins();
+  const { ok, data, error, status } = await CoinsService.loadAllCoins();
   AppState.setLoadingCoins(false);
 
-  if (!result?.ok) {
+  if (!ok) {
     BaseUI.showError("#coinsContainer", "COIN_LIST_ERROR", {
-      defaultMessage: result?.error || ERRORS.API.COIN_LIST_ERROR,
-      status: result?.status,
+      defaultMessage: error || ERRORS.API.COIN_LIST_ERROR,
+      status,
     });
     return;
   }
-  renderCoins(result.data);
+  renderCoins(data);
 };
 
 export const showReportsPage = async () => {

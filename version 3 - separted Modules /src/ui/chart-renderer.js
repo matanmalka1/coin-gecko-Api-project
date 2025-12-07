@@ -5,7 +5,7 @@ let maxHistoryPoints = UI_CONFIG.CHART.HISTORY_POINTS;
 
 // Disposes all existing CanvasJS chart instances and cached data.
 const destroyAll = () => {
-  charts.forEach((entry) => entry?.chart?.remove?.());
+  charts.forEach((entry) => entry?.chart?.remove());
   charts.clear();
   maxHistoryPoints = UI_CONFIG.CHART.HISTORY_POINTS;
 };

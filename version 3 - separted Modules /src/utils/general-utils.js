@@ -1,8 +1,6 @@
 // Trims text to a maximum length (adds ellipsis when exceeding max).
-export const shortenText = (text = "", max = 200) => {
-  if (!text) return "";
-  return text.length > max ? `${text.slice(0, max)}...` : text;
-};
+export const shortenText = (text = "", max = 200) =>
+  !text ? "" : text.length > max ? `${text.slice(0, max)}...` : text;
 
 // Normalizes coin symbols to uppercase trimmed strings.
 export const normalizeSymbol = (symbol = "") =>

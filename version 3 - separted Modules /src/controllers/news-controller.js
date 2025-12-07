@@ -31,24 +31,23 @@ const loadNews = async (mode = "general") => {
   UIManager.showNewsLoading(config.loading);
   UIManager.setNewsFilterMode(mode);
 
-  const result = isFavorites
+  const { ok, articles, usedFallback, code, errorMessage, status } = isFavorites
     ? await NewsService.getNewsForFavorites(AppState.getFavorites())
     : await NewsService.getGeneralNews();
 
-  if (!result?.ok) {
-    BaseUI.showError("#newsList", result.code || "NEWS_ERROR", {
-      defaultMessage:
-        result?.errorMessage || config.error || ERRORS.NEWS.GENERAL_ERROR,
-      status: result?.status,
+  if (!ok) {
+    BaseUI.showError("#newsList", code || "NEWS_ERROR", {
+      defaultMessage: errorMessage || config.error || ERRORS.NEWS.GENERAL_ERROR,
+      status,
     });
     return;
   }
 
-  if (result.usedFallback) {
+  if (usedFallback) {
     UIManager.updateNewsStatus(config.fallback);
   }
 
-  UIManager.showNews(result.articles);
+  UIManager.showNews(articles);
 };
 
 export const showNewsPage = async () => {

@@ -9,19 +9,22 @@ import { showCurrenciesPage } from "./pages-controller.js";
 
 let isRegistered = false;
 
-const renderCoins = (data, selected, { favorites, emptyMessage } = {}) => {
-  UIManager.displayCoins(data, selected ?? AppState.getSelectedReports(), {
-    favorites: favorites ?? AppState.getFavorites(),
+const renderCoins = (
+  coins,
+  selected = AppState.getSelectedReports(),
+  options = {}
+) => {
+  UIManager.displayCoins(coins, selected, {
+    favorites: AppState.getFavorites(),
     compareSelection: AppState.getCompareSelection(),
-    ...(emptyMessage && { emptyMessage }),
+    ...options,
   });
 };
 
 // Handles "Enter" search in the currencies page.
 const handleSearch = () => {
-  const searchTerm = UIManager.getInputValue("#searchInput");
-  const result = CoinsService.searchCoin(searchTerm);
-  UIManager.showElement("#clearSearchBtn");
+  const result = CoinsService.searchCoin($("#searchInput").val());
+  $("#clearSearchBtn").removeClass("d-none");
 
   if (!result.ok) {
     BaseUI.showError("#coinsContainer", result.code, {
@@ -36,14 +39,15 @@ const handleSearch = () => {
 
 // Clears the search input and resets coins list.
 const handleClearSearch = () => {
-  UIManager.setInputValue("#searchInput", "");
-  const { data, selected, favorites } = CoinsService.clearSearch();
-  renderCoins(data, selected, { favorites });
+  $("#searchInput").val();
+  renderCoins(AppState.getAllCoins(), AppState.getSelectedReports(), {
+    favorites: AppState.getFavorites(),
+  });
 };
 
 // Toggles favorite status for a coin and updates the icon.
 const handleFavoriteToggle = (e) => {
-  const coinSymbol = UIManager.getDataAttr(e.currentTarget, "symbol");
+  const coinSymbol = $(e.currentTarget).data("symbol");
   const alreadyFavorite = AppState.isFavorite(coinSymbol);
 
   if (alreadyFavorite) {
@@ -70,23 +74,13 @@ const renderFavoritesList = () => {
   });
 };
 
-// Utility to show error on the "more info" collapse area.
-const showMoreInfoError = (collapseId, result = {}) => {
-  BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
-    status: result.status,
-    defaultMessage:
-      typeof result.error === "string"
-        ? result.error
-        : ERRORS.API.COIN_DETAILS_ERROR,
-  });
-};
-
 // Fetches/expands "more info" collapse panel for a coin card.
 const handleMoreInfo = async (e) => {
-  const coinId = UIManager.getDataAttr(e.currentTarget, "id");
+  const coinId = $(e.currentTarget).data("id");
   const collapseId = `collapse-${coinId}`;
+  const $collapse = $(`#${collapseId}`);
 
-  if (UIManager.isCollapseOpen(collapseId)) {
+  if ($collapse.hasClass("show")) {
     UIManager.toggleCollapse(collapseId, false);
     return;
   }
@@ -96,8 +90,15 @@ const handleMoreInfo = async (e) => {
 
   try {
     const result = await CoinsService.getCoinDetails(coinId);
+
     if (!result?.ok || !result.data) {
-      showMoreInfoError(collapseId, result);
+      BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
+        status: result.status,
+        defaultMessage:
+          typeof result.error === "string"
+            ? result.error
+            : ERRORS.API.COIN_DETAILS_ERROR,
+      });
       return;
     }
 
@@ -105,10 +106,11 @@ const handleMoreInfo = async (e) => {
       currencies: UI_CONFIG.CURRENCIES,
     });
   } catch (error) {
-    showMoreInfoError(collapseId, { error });
+    BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
+      defaultMessage: ERRORS.API.COIN_DETAILS_ERROR,
+    });
   }
 };
-
 // Filters the coin list to favorites only or toggles back.
 const handleShowFavorites = () => {
   if (AppState.isShowingFavoritesOnly()) {
@@ -125,8 +127,9 @@ const handleShowFavorites = () => {
 
 // Updates the sort order based on user's selection.
 const handleSortChange = () => {
-  const sortOption = UIManager.getInputValue("#sortSelect");
-  const { data, selected, favorites } = CoinsService.sortCoins(sortOption);
+  const { data, selected, favorites } = CoinsService.sortCoins(
+    $("#sortSelect").val()
+  );
   renderCoins(data, selected, { favorites });
 };
 

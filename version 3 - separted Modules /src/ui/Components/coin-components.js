@@ -11,16 +11,16 @@ const PLACEHOLDER_LARGE = "https://via.placeholder.com/80";
 // Builds a coin summary card (price, market cap, actions, toggle states).
 const coinCardHeader = (coin) => {
   const { name, symbol, image } = coin;
-  const displaySymbol = symbol?.toUpperCase() || "";
-  const imageThumb = resolveImage(image);
 
   return `
     <div class="d-flex align-items-center gap-3 mb-3">
-      <img src="${imageThumb}" alt="${displaySymbol}" loading="lazy"
+      <img src="${resolveImage(image)}" 
+           alt="${symbol?.toUpperCase() || ""}" 
+           loading="lazy"
            class="rounded-circle coin-image">
       <div>
         <h6 class="fw-bold mb-0">${name}</h6>
-        <small class="text-muted">${displaySymbol}</small>
+        <small class="text-muted">${symbol?.toUpperCase() || ""}</small>
       </div>
     </div>
   `;

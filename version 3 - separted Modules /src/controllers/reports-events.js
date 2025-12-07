@@ -26,7 +26,7 @@ const updateCompareIndicator = (selected = AppState.getCompareSelection()) => {
 // Filters coins list to currently selected reports.
 const handleFilterReports = () => {
   const serviceResult = CoinsService.filterSelectedCoins();
-  UIManager.showElement("#clearSearchBtn");
+  $("#clearSearchBtn").removeClass("d-none");
 
   if (!serviceResult?.ok) {
     BaseUI.showError("#coinsContainer", serviceResult.code, {
@@ -65,13 +65,15 @@ const openReplaceFlow = (serviceResult) => {
 
 // Adds/removes a coin from the reports selection via toggle switch.
 const handleCoinToggle = function () {
-  const coinSymbol = UIManager.getDataAttr(this, "symbol");
-  const result = ReportsService.toggleCoinSelection(coinSymbol);
+  const coinSymbol = $(this).data("symbol");
+  const { ok, code, selected, ...result } = ReportsService.toggleCoinSelection(
+    $(e.currentTarget).data("id")
+  );
 
-  if (result.ok) {
-    UIManager.updateToggleStates(result.selected);
-  } else if (result.code === "FULL") {
-    openReplaceFlow(result);
+  if (ok) {
+    UIManager.updateToggleStates(selected);
+  } else if (code === "FULL") {
+    openReplaceFlow({ code, selected, ...result });
   }
 };
 
@@ -79,7 +81,7 @@ const handleCoinToggle = function () {
 const handleCompareClick = async function () {
   if (AppState.isCompareModalOpen()) return;
 
-  const coinId = String(UIManager.getDataAttr(this, "id"));
+  const coinId = String($(this).data("id"));
   const coinExists = AppState.getAllCoins().some(
     (coin) => String(coin.id) === coinId
   );
@@ -113,19 +115,22 @@ const handleCompareClick = async function () {
   // Need at least MAX_COMPARE coins selected to open compare modal
   if (currentSelection.length < REPORTS.MAX_COMPARE) return;
 
-  const result = await ReportsService.getCompareData(currentSelection);
+  const { ok, code, coins, missing } = await ReportsService.getCompareData(
+    currentSelection
+  );
 
-  if (!result?.ok) {
-    BaseUI.showError("#content", result.code, {
+  if (!ok) {
+    BaseUI.showError("#content", code, {
       defaultMessage: ERRORS.API.DEFAULT,
     });
     AppState.resetCompareSelection();
     updateCompareIndicator();
+    return;
   }
 
   AppState.setCompareModalOpen(true);
-  UIManager.showCompareModal(result.coins, {
-    missingSymbols: result.missing,
+  UIManager.showCompareModal(coins, {
+    missingSymbols: missing,
     onClose: () => {
       const previousSelection = AppState.getCompareSelection();
       AppState.resetCompareSelection();
