@@ -1,11 +1,9 @@
 import { CoinsService } from "../services/coins-service.js";
 import { ReportsService } from "../services/reports-service.js";
-import { StorageHelper } from "../services/storage-manager.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { UI_CONFIG } from "../config/ui-config.js";
-import { CoinUI } from "../ui/coin-ui.js";
 
 const { MAX_COMPARE } = UI_CONFIG.REPORTS;
 const { REPORTS: REPORTS_ERRORS, API: API_ERRORS } = ERRORS;
@@ -22,6 +20,7 @@ const setCompareSelection = (ids) => {
 
 const resetCompareSelection = () => {
   CoinUI.clearCompareHighlights();
+  updateCompareIndicator([]);
 };
 
 const updateCompareIndicator = (selected = CoinUI.getCompareSelection()) => {
@@ -29,14 +28,16 @@ const updateCompareIndicator = (selected = CoinUI.getCompareSelection()) => {
   const selectedCount = selectionArray.length;
 
   const $status = $("#compareStatus");
-  $status.text(`${selectedCount} / ${MAX_COMPARE} coins selected`);
 
-  if (!selectedCount) {
-    $status.addClass("d-none");
+  if (selectedCount === 0) {
+    $status.addClass("d-none").empty();
     CoinUI.clearCompareHighlights();
-  } else {
-    $status.removeClass("d-none");
+    return;
   }
+
+  $status
+    .removeClass("d-none")
+    .text(`${selectedCount} / ${MAX_COMPARE} coins selected`);
 };
 
 // ===== EVENT HANDLERS =====
@@ -71,7 +72,6 @@ const openReplaceFlow = (serviceResult) => {
       }
 
       modal.hide();
-      updateCompareIndicator(selected);
     },
   });
 };
@@ -103,7 +103,7 @@ const handleCompareClick = async function () {
     return;
   }
 
-  let currentSelection = CoinUI.getCompareSelection;
+  let currentSelection = CoinUI.getCompareSelection();
   const alreadySelected = currentSelection.includes(coinId);
 
   if (alreadySelected) {
@@ -112,6 +112,9 @@ const handleCompareClick = async function () {
   } else {
     if (currentSelection.length >= MAX_COMPARE) {
       updateCompareIndicator(currentSelection);
+      BaseUI.showError("#content", "COMPARE_FULL", {
+        defaultMessage: `Maximum ${MAX_COMPARE} coins for comparison. Deselect one first.`,
+      });
       return;
     }
 
@@ -122,14 +125,10 @@ const handleCompareClick = async function () {
   setCompareSelection(currentSelection);
   updateCompareIndicator(currentSelection);
 
-  if (currentSelection.length >= MAX_COMPARE) {
-    updateCompareIndicator(currentSelection);
-    BaseUI.showError("#content", "COMPARE_FULL", {
-      defaultMessage: `Maximum ${MAX_COMPARE} coins for comparison. Deselect one first.`,
-    });
+  if (currentSelection.length !== MAX_COMPARE) {
     return;
   }
-  
+
   const { ok, code, coins, missing } = await ReportsService.getCompareData(
     currentSelection
   );
@@ -139,7 +138,6 @@ const handleCompareClick = async function () {
       defaultMessage: API_ERRORS.DEFAULT,
     });
     resetCompareSelection();
-    updateCompareIndicator();
     return;
   }
 
@@ -147,11 +145,8 @@ const handleCompareClick = async function () {
   CoinUI.showCompareModal(coins, {
     missingSymbols: missing,
     onClose: () => {
-      const previousSelection = CoinUI.getCompareSelection();
       resetCompareSelection();
       compareModalOpen = false;
-      updateCompareIndicator();
-      previousSelection.forEach((id) => CoinUI.setCompareHighlight(id, false));
     },
   });
 };
