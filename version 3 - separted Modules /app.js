@@ -1,5 +1,6 @@
 import { CoinEvents } from "./src/events/coin-events.js";
 import { ReportsEvents } from "./src/events/reports-events.js";
+import { ChartService } from "./src/services/chart-service.js";
 import {
   showCurrenciesPage,
   showReportsPage,
@@ -28,11 +29,21 @@ $(() => {
   ReportsEvents.register();
 
   // ===== NAVIGATION - Navbar =====
-  $("#currenciesBtn, #brandHome").on("click", () => showCurrenciesPage());
-  $("#reportsBtn").on("click", () => showReportsPage());
-  $("#newsBtn").on("click", () => showNewsPage());
-  $("#aboutBtn").on("click", () => showAboutPage());
+  $("#currenciesBtn, #brandHome").on("click", () => {
+    ChartService.cleanup();
+    showCurrenciesPage();
+  });
 
+  $("#reportsBtn").on("click", () => showReportsPage());
+  $("#newsBtn").on("click", () => {
+    ChartService.cleanup();
+    showNewsPage();
+  });
+
+  $("#aboutBtn").on("click", () => {
+    ChartService.cleanup();
+    showAboutPage();
+  });
   // ===== NEWS FILTERS (event delegation News) =====
   $(document)
     .on("click", "#newsGeneralBtn", (e) => {

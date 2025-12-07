@@ -2,7 +2,7 @@ import { API_CONFIG } from "../config/api-cache-config.js";
 import { ERRORS } from "../config/error.js";
 
 const { COINGECKO_BASE, CRYPTOCOMPARE_BASE, CHART_HISTORY_DAYS } = API_CONFIG;
-const { API: API_ERRORS } = ERRORS;
+const { API_ERRORS } = ERRORS;
 const COINS_PER_PAGE = 100;
 
 // ========== Core Fetch Layer ==========
@@ -17,14 +17,24 @@ const fetchWithRetry = async (url, options = {}, retries = 1) => {
         await new Promise((resolve) => setTimeout(resolve, 60000));
         return fetchWithRetry(url, options, retries - 1);
       }
-      
+
       if (status === 429) {
-        return { ok: false, code: "RATE_LIMIT", error: API_ERRORS.RATE_LIMIT, status };
+        return {
+          ok: false,
+          code: "RATE_LIMIT",
+          error: API_ERRORS.RATE_LIMIT,
+          status,
+        };
       }
-      
-      return { ok: false, code: "HTTP_ERROR", error: API_ERRORS.HTTP_STATUS(status), status };
+
+      return {
+        ok: false,
+        code: "HTTP_ERROR",
+        error: API_ERRORS.HTTP_STATUS(status),
+        status,
+      };
     }
-    
+
     const data = await response.json();
     return { ok: true, data, status };
   } catch {
@@ -35,6 +45,7 @@ const fetchWithRetry = async (url, options = {}, retries = 1) => {
 // ========== Simple API Builder ==========
 const buildUrl = (base, path, params = {}) => {
   const url = new URL(`${base}${path}`);
+
   Object.entries(params).forEach(([key, val]) => {
     if (val !== undefined && val !== null && val !== "") {
       url.searchParams.set(key, val);
@@ -66,19 +77,30 @@ const fetchCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
 
 const fetchGlobalStats = () => coinGecko("/global");
 
+const fetchSimplePrices = (coinIds = []) => {
+  if (!coinIds.length) {
+    return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
+  }
+  return coinGecko("/simple/price", {
+    ids: coinIds.join(","),
+    vs_currencies: "usd",
+    include_24hr_vol: true,
+    include_24hr_change: true,
+  });
+};
 // ========== CryptoCompare API ==========
 const cryptoCompare = (path, params) =>
   fetchWithRetry(buildUrl(CRYPTOCOMPARE_BASE, path, params));
 
-// const fetchLivePrices = (symbols = []) => {
-//   if (!symbols.length) {
-//     return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
-//   }
-//   return cryptoCompare("/pricemulti", {
-//     fsyms: symbols.join(",").toUpperCase(),
-//     tsyms: "USD",
-//   });
-// };
+const fetchLivePrices = (symbols = []) => {
+  if (!symbols.length) {
+    return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
+  }
+  return cryptoCompare("/pricemulti", {
+    fsyms: symbols.join(",").toUpperCase(),
+    tsyms: "USD",
+  });
+};
 
 // ========== NewsData API ==========
 const fetchNewsData = (params = {}) => {
@@ -95,7 +117,8 @@ const fetchNewsData = (params = {}) => {
 export const coinAPI = {
   fetchMarketData,
   fetchCoinDetails,
-  // fetchLivePrices,
+  fetchLivePrices,
+  fetchSimplePrices,
   fetchCoinMarketChart,
   fetchCoinOhlc,
   fetchGlobalStats,
