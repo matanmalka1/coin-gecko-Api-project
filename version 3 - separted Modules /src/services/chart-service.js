@@ -12,44 +12,34 @@ const { fetchCoinOhlc } = coinAPI;
 const { fetchWithCache } = CacheManager;
 
 // ===== OHLC DATA =====
-const getCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
-  fetchWithCache(
-    `ohlc:${coinId}:${days}`,
-    () => fetchCoinOhlc(coinId, days),
-    CACHE_CONFIG.REPORTS_CACHE.CHART_TTL_MS
-  );
+const getCoinOhlc = (symbol, days = CHART_HISTORY_DAYS) =>
+  fetchWithCache(`ohlc:${symbol}:${days}`, () => fetchCoinOhlc(symbol, days));
 
-const mapOhlcToCandles = (ohlcArray = []) =>
-  Array.isArray(ohlcArray)
-    ? ohlcArray.map(([time, open, high, low, close]) => ({
-        time: Math.floor(time / 1000),
-        open,
-        high,
-        low,
-        close,
-      }))
-    : [];
+const mapOhlcToCandles = (response) => {
+  const points = response?.Data?.Data;
+  if (!Array.isArray(points)) return [];
+
+  return points.map(({ time, open, high, low, close }) => ({
+    time,
+    open,
+    high,
+    low,
+    close,
+  }));
+};
 
 // ===== LOAD CANDLES =====
 const loadCandlesForSymbols = async (symbols) => {
   const allCoins = CoinsService.getAllCoins();
-
-  const coinsIndex = allCoins.reduce((acc, coin) => {
-    const { symbol, id } = coin || {};
-    if (symbol && id) {
-      acc.set(symbol, id);
-    }
-    return acc;
-  }, new Map());
+  const knownSymbols = new Set(allCoins.map(({ symbol }) => symbol));
 
   const pairs = await Promise.all(
     symbols.map(async (symbol) => {
-      const coinId = coinsIndex.get(symbol);
-      if (!coinId) {
-        return { symbol, candles: [], code: "NO_COIN_ID" };
+      if (!knownSymbols.has(symbol)) {
+        return { symbol, candles: [], code: "NO_SYMBOL" };
       }
 
-      const { ok, data, code, error } = await getCoinOhlc(coinId, HISTORY_DAYS);
+      const { ok, data, code, error } = await getCoinOhlc(symbol, HISTORY_DAYS);
 
       if (!ok || !data) {
         return {
@@ -59,6 +49,7 @@ const loadCandlesForSymbols = async (symbols) => {
           error,
         };
       }
+
       return { symbol, candles: mapOhlcToCandles(data) };
     })
   );

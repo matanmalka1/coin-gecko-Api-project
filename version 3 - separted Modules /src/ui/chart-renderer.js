@@ -1,5 +1,6 @@
 import { UI_CONFIG } from "../config/ui-config.js";
 import { CoinsService } from "../services/coins-service.js";
+import { BaseComponents } from "./Components/base-components.js";
 
 // ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 
@@ -95,7 +96,7 @@ const drawMiniChart = async (coinId) => {
     return;
   }
 
-  const prices = chartResult.data.prices.map(([time, price]) => ({
+  const prices = data.prices.map(([time, price]) => ({
     x: new Date(time),
     y: price,
   }));
