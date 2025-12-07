@@ -1,6 +1,6 @@
 import { CoinsService } from "../services/coins-service.js";
 import { ReportsService } from "../services/reports-service.js";
-import { UIManager } from "../ui/ui-manager.js";
+import { CoinUI } from "../ui/coin-ui.js";
 import { AppState } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "../ui/base-ui.js";
@@ -8,22 +8,25 @@ import { UI_CONFIG } from "../config/ui-config.js";
 
 const { REPORTS } = UI_CONFIG;
 
-// Syncs compare status indicator with AppState.
+// ===== HELPERS =====
+
 const updateCompareIndicator = (selected = AppState.getCompareSelection()) => {
   const selectionArray = Array.isArray(selected) ? selected : [];
   const selectedCount = selectionArray.length;
 
-  UIManager.updateCompareStatus(selectedCount, REPORTS.MAX_COMPARE);
+  const $status = $("#compareStatus");
+  $status.text(`${selectedCount} / ${REPORTS.MAX_COMPARE} coins selected`);
 
   if (!selectedCount) {
-    UIManager.setCompareStatusVisibility(false);
-    UIManager.clearCompareHighlights();
+    $status.addClass("d-none");
+    CoinUI.clearCompareHighlights();
   } else {
-    UIManager.setCompareStatusVisibility(true);
+    $status.removeClass("d-none");
   }
 };
 
-// Filters coins list to currently selected reports.
+// ===== EVENT HANDLERS =====
+
 const handleFilterReports = () => {
   const serviceResult = CoinsService.filterSelectedCoins();
   $("#clearSearchBtn").removeClass("d-none");
@@ -35,18 +38,17 @@ const handleFilterReports = () => {
     return;
   }
 
-  UIManager.displayCoins(serviceResult.data, serviceResult.selected, {
+  CoinUI.displayCoins(serviceResult.data, serviceResult.selected, {
     favorites: serviceResult.favorites,
   });
 };
 
-// Opens the replace flow modal when reaching MAX reports.
 const openReplaceFlow = (serviceResult) => {
-  UIManager.showReplaceModal(serviceResult.newSymbol, serviceResult.existing, {
+  CoinUI.showReplaceModal(serviceResult.newSymbol, serviceResult.existing, {
     maxCoins: serviceResult.limit,
     onConfirm: ({ remove, add, modal }) => {
       const replaceSelectionResult = ReportsService.replaceReport(remove, add);
-      UIManager.updateToggleStates(replaceSelectionResult.selected);
+      CoinUI.updateToggleStates(replaceSelectionResult.selected);
 
       if (!replaceSelectionResult?.ok) {
         BaseUI.showError("#content", replaceSelectionResult.code);
@@ -55,29 +57,23 @@ const openReplaceFlow = (serviceResult) => {
       }
 
       modal.hide();
-      UIManager.updateCompareStatus(
-        replaceSelectionResult.selected.length,
-        replaceSelectionResult.limit
-      );
+      updateCompareIndicator(replaceSelectionResult.selected);
     },
   });
 };
 
-// Adds/removes a coin from the reports selection via toggle switch.
 const handleCoinToggle = function () {
   const coinSymbol = $(this).data("symbol");
-  const { ok, code, selected, ...result } = ReportsService.toggleCoinSelection(
-    $(e.currentTarget).data("id")
-  );
+  const { ok, code, selected, ...result } =
+    ReportsService.toggleCoinSelection(coinSymbol);
 
   if (ok) {
-    UIManager.updateToggleStates(selected);
+    CoinUI.updateToggleStates(selected);
   } else if (code === "FULL") {
     openReplaceFlow({ code, selected, ...result });
   }
 };
 
-// Handles clicks on compare buttons and opens the compare modal.
 const handleCompareClick = async function () {
   if (AppState.isCompareModalOpen()) return;
 
@@ -98,7 +94,7 @@ const handleCompareClick = async function () {
 
   if (alreadySelected) {
     currentSelection = currentSelection.filter((id) => id !== coinId);
-    UIManager.setCompareHighlight(coinId, false);
+    CoinUI.setCompareHighlight(coinId, false);
   } else {
     if (currentSelection.length >= REPORTS.MAX_COMPARE) {
       updateCompareIndicator(currentSelection);
@@ -106,13 +102,12 @@ const handleCompareClick = async function () {
     }
 
     currentSelection = [...currentSelection, coinId];
-    UIManager.setCompareHighlight(coinId, true);
+    CoinUI.setCompareHighlight(coinId, true);
   }
 
   AppState.setCompareSelection(currentSelection);
   updateCompareIndicator(currentSelection);
 
-  // Need at least MAX_COMPARE coins selected to open compare modal
   if (currentSelection.length < REPORTS.MAX_COMPARE) return;
 
   const { ok, code, coins, missing } = await ReportsService.getCompareData(
@@ -129,22 +124,22 @@ const handleCompareClick = async function () {
   }
 
   AppState.setCompareModalOpen(true);
-  UIManager.showCompareModal(coins, {
+  CoinUI.showCompareModal(coins, {
     missingSymbols: missing,
     onClose: () => {
       const previousSelection = AppState.getCompareSelection();
       AppState.resetCompareSelection();
       AppState.setCompareModalOpen(false);
       updateCompareIndicator();
-      previousSelection.forEach((id) =>
-        UIManager.setCompareHighlight(id, false)
-      );
+      previousSelection.forEach((id) => CoinUI.setCompareHighlight(id, false));
     },
   });
 };
 
-// Registers report-related DOM events once.
+// ===== REGISTRATION =====
+
 let eventsRegistered = false;
+
 const setupEventListeners = () => {
   if (eventsRegistered) return;
 

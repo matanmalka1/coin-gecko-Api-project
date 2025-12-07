@@ -3,10 +3,9 @@ import { CoinComponents } from "./Components/coin-components.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "./base-ui.js";
-import { CoinsService } from "../services/coins-service.js";
 import { formatPrice, formatPercent } from "../utils/general-utils.js";
 
-// Efficiently renders coins list (with caching) including favorites/compare state.
+// ===== COIN LIST RENDERING =====
 const displayCoins = (coins, selectedReports = [], options = {}) => {
   const { favorites = [], emptyMessage, compareSelection = [] } = options;
   const container = $("#coinsContainer");
@@ -16,7 +15,7 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
     container.html(
       BaseComponents.infoAlert(emptyMessage || UI_CONFIG.UI.NO_COINS_FOUND)
     );
-    container.data("coinCardCache", new Map());
+    // container.data("coinCardCache", new Map());
     return;
   }
 
@@ -37,7 +36,8 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
 
   container.html(html);
 };
-// Displays a skeleton grid while coins data is loading.
+
+// ===== LOADING STATE =====
 const showLoading = () => {
   const container = $("#coinsContainer");
   if (!container.length) return;
@@ -49,7 +49,7 @@ const showLoading = () => {
   );
 };
 
-// Toggles the star icon state when marking/unmarking favorites.
+// ===== FAVORITE ICON =====
 const updateFavoriteIcon = (symbol, isFavorite) => {
   const favoriteIcon = $(`.favorite-btn[data-symbol="${symbol}"] i`);
   if (!favoriteIcon.length) return;
@@ -59,7 +59,7 @@ const updateFavoriteIcon = (symbol, isFavorite) => {
   btn.attr("title", isFavorite ? "Remove from favorites" : "Add to favorites");
 };
 
-// Injects the "more info" section and triggers its mini chart draw.
+// ===== COIN DETAILS PANEL =====
 const showCoinDetails = (containerId, data, options = {}) => {
   const { currencies = {} } = options;
   const container = $(`#${containerId}`);
@@ -72,7 +72,7 @@ const showCoinDetails = (containerId, data, options = {}) => {
   drawMiniChart(data.id);
 };
 
-// Opens the replace coin modal and wires confirm/close handlers.
+// ===== REPLACE MODAL =====
 const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
   const { maxCoins, onConfirm, onClose } = options;
 
@@ -108,7 +108,7 @@ const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
   return modal;
 };
 
-// Builds and presents the compare modal table (with missing data notice).
+// ===== COMPARE MODAL =====
 const buildCompareRow = (coin) => {
   const marketData = coin.market_data || {};
   const priceUsd = marketData.current_price?.usd;
@@ -175,7 +175,7 @@ const showCompareModal = (coins, options = {}) => {
   return modal;
 };
 
-// Syncs all toggle switches against the selectedReports array.
+// ===== TOGGLE STATES =====
 const updateToggleStates = (selectedReports) => {
   $(".coin-toggle").each(function () {
     const symbol = $(this).data("symbol");
@@ -183,39 +183,17 @@ const updateToggleStates = (selectedReports) => {
   });
 };
 
-// Fetches sparkline data per coin and renders a CanvasJS chart.
-const drawMiniChart = async (coinId) => {
-  const chartResult = await CoinsService.getCoinMarketChart(coinId);
+// ===== COMPARE HIGHLIGHTS =====
+const setCompareHighlight = (coinId, isActive) => {
+  const safeId = String(coinId);
+  const $rows = $(`.compare-row[data-id="${safeId}"]`);
+  $rows.toggleClass("compare-row-active", !!isActive);
+  $rows.closest(".card").toggleClass("compare-card-active", !!isActive);
+};
 
-  if (!chartResult?.ok || !chartResult.data?.prices) return;
-
-  const prices = chartResult.data.prices.map(([time, price]) => ({
-    x: new Date(time),
-    y: price,
-  }));
-
-  const chart = new CanvasJS.Chart(`miniChart-${coinId}`, {
-    height: 220,
-    backgroundColor: "transparent",
-    axisX: {
-      labelFormatter: () => "",
-    },
-    axisY: {
-      prefix: "$",
-      labelFontSize: 10,
-    },
-    data: [
-      {
-        type: "line",
-        dataPoints: prices,
-        color: "#0d6efd",
-        markerSize: 4,
-        lineThickness: 2,
-      },
-    ],
-  });
-
-  chart.render();
+const clearCompareHighlights = () => {
+  $(".compare-row").removeClass("compare-row-active");
+  $(".card.compare-card-active").removeClass("compare-card-active");
 };
 
 export const CoinUI = {
@@ -225,18 +203,7 @@ export const CoinUI = {
   showReplaceModal,
   showCompareModal,
   updateToggleStates,
-  drawMiniChart,
   updateFavoriteIcon,
-  // Highlights/unhighlights all compare affordances for a specific coin ID.
-  setCompareHighlight: (coinId, isActive) => {
-    const safeId = String(coinId);
-    const $rows = $(`.compare-row[data-id="${safeId}"]`);
-    $rows.toggleClass("compare-row-active", !!isActive);
-    $rows.closest(".card").toggleClass("compare-card-active", !!isActive);
-  },
-  // Clears all compare highlights globally (used after modal close).
-  clearCompareHighlights: () => {
-    $(".compare-row").removeClass("compare-row-active");
-    $(".card.compare-card-active").removeClass("compare-card-active");
-  },
+  setCompareHighlight,
+  clearCompareHighlights,
 };

@@ -1,16 +1,17 @@
 import { UI_CONFIG } from "../config/ui-config.js";
+import { CoinsService } from "../services/coins-service.js";
+
+// ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 
 const charts = new Map();
 let maxHistoryPoints = UI_CONFIG.CHART.HISTORY_POINTS;
 
-// Disposes all existing CanvasJS chart instances and cached data.
 const destroyAll = () => {
   charts.forEach((entry) => entry?.chart?.remove());
   charts.clear();
   maxHistoryPoints = UI_CONFIG.CHART.HISTORY_POINTS;
 };
 
-// Creates chart containers + Lightweight Charts candlestick series for each symbol.
 const setupCharts = (symbols, options = {}) => {
   const grid = $("#chartsGrid");
   if (!grid.length) return;
@@ -65,7 +66,6 @@ const setupCharts = (symbols, options = {}) => {
   });
 };
 
-// Streams new candle sets into the charts, enforcing history limits.
 const update = (candlesBySymbol = {}, options = {}) => {
   const limit = options.historyPoints ?? maxHistoryPoints;
 
@@ -78,14 +78,58 @@ const update = (candlesBySymbol = {}, options = {}) => {
   });
 };
 
-// Clears charts and removes DOM placeholders.
 const clear = () => {
   destroyAll();
   $("#chartsGrid").empty();
 };
 
+// ===== CANVASJS MINI CHARTS (Coin Details) =====
+
+const drawMiniChart = async (coinId) => {
+  const chartResult = await CoinsService.getCoinMarketChart(coinId);
+
+  if (!chartResult?.ok || !chartResult.data?.prices) {
+    console.warn(`Failed to load chart data for ${coinId}`);
+    return;
+  }
+
+  const prices = chartResult.data.prices.map(([time, price]) => ({
+    x: new Date(time),
+    y: price,
+  }));
+
+  const chart = new CanvasJS.Chart(`miniChart-${coinId}`, {
+    height: 220,
+    backgroundColor: "transparent",
+    axisX: {
+      labelFormatter: () => "",
+    },
+    axisY: {
+      prefix: "$",
+      labelFontSize: 10,
+    },
+    data: [
+      {
+        type: "line",
+        dataPoints: prices,
+        color: "#0d6efd",
+        markerSize: 4,
+        lineThickness: 2,
+      },
+    ],
+  });
+
+  chart.render();
+};
+
+// ===== EXPORTS =====
+
 export const ChartRenderer = {
+  // Lightweight Charts (Live Reports)
   setupCharts,
   update,
   clear,
+
+  // CanvasJS Mini Charts (Coin Details)
+  drawMiniChart,
 };
