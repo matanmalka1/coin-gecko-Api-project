@@ -17,24 +17,14 @@ const fetchWithRetry = async (url, options = {}, retries = 1) => {
         await new Promise((resolve) => setTimeout(resolve, 60000));
         return fetchWithRetry(url, options, retries - 1);
       }
-
+      
       if (status === 429) {
-        return {
-          ok: false,
-          code: "RATE_LIMIT",
-          error: API_ERRORS.RATE_LIMIT,
-          status,
-        };
+        return { ok: false, code: "RATE_LIMIT", error: API_ERRORS.RATE_LIMIT, status };
       }
-
-      return {
-        ok: false,
-        code: "HTTP_ERROR",
-        error: API_ERRORS.HTTP_STATUS(status),
-        status,
-      };
+      
+      return { ok: false, code: "HTTP_ERROR", error: API_ERRORS.HTTP_STATUS(status), status };
     }
-
+    
     const data = await response.json();
     return { ok: true, data, status };
   } catch {
@@ -71,18 +61,15 @@ const fetchCoinDetails = (coinId) => coinGecko(`/coins/${coinId}`);
 const fetchCoinMarketChart = (coinId, days = CHART_HISTORY_DAYS) =>
   coinGecko(`/coins/${coinId}/market_chart`, { vs_currency: "usd", days });
 
+const fetchCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
+  coinGecko(`/coins/${coinId}/ohlc`, { vs_currency: "usd", days });
+
 const fetchGlobalStats = () => coinGecko("/global");
 
 // ========== CryptoCompare API ==========
 const cryptoCompare = (path, params) =>
   fetchWithRetry(buildUrl(CRYPTOCOMPARE_BASE, path, params));
 
-const fetchCoinOhlc = (symbol, days = 30) =>
-  cryptoCompare("/data/v2/histoday", {
-    fsym: symbol.toUpperCase(),
-    tsym: "USD",
-    limit: days - 1,
-  });
 // const fetchLivePrices = (symbols = []) => {
 //   if (!symbols.length) {
 //     return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
@@ -110,7 +97,7 @@ export const coinAPI = {
   fetchCoinDetails,
   // fetchLivePrices,
   fetchCoinMarketChart,
-  fetchGlobalStats,
   fetchCoinOhlc,
+  fetchGlobalStats,
   fetchNewsData,
 };
