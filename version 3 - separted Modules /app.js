@@ -1,5 +1,10 @@
-import { registerEvents, registerNavigation } from "./src/controllers/event-handlers.js";
-import { showCurrenciesPage, initStatsBar } from "./src/controllers/pages-controller.js";
+import { CoinEvents } from "./src/controllers/coin-events.js";
+import { ReportsEvents } from "./src/controllers/reports-events.js";
+import { NavigationEvents } from "./src/controllers/navigation-events.js";
+import {
+  showCurrenciesPage,
+  initStatsBar,
+} from "./src/controllers/pages-controller.js";
 import { UI_CONFIG } from "./src/config/ui-config.js";
 
 let darkmodeInstance = null;
@@ -14,10 +19,13 @@ const initDarkmodeWidget = () => {
 };
 
 $(() => {
-  registerEvents();
-  registerNavigation();
-  showCurrenciesPage(); 
+  CoinEvents.register();
+  ReportsEvents.register();
+  NavigationEvents.registerDocumentEvents();
+  NavigationEvents.registerNavigation();
+
+  showCurrenciesPage();
 
   initDarkmodeWidget();
-  initStatsBar();    
+  initStatsBar();
 });
