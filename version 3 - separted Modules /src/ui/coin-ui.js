@@ -16,7 +16,6 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
     container.html(
       BaseComponents.infoAlert(emptyMessage || UI_CONFIG.UI.NO_COINS_FOUND)
     );
-    // container.data("coinCardCache", new Map());
     return;
   }
 

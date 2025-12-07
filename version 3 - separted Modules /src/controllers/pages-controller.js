@@ -9,19 +9,34 @@ import { BaseComponents } from "../ui/Components/base-components.js";
 import { CoinsService } from "../services/coins-service.js";
 import { ChartService } from "../services/chart-service.js";
 import { NewsService } from "../services/news-service.js";
-import { AppState } from "../state/state.js";
+import { StorageHelper } from "../services/storage-manager.js";
 import { BaseUI } from "../ui/base-ui.js";
 
 const { COINS_REFRESH_INTERVAL_MS } = CACHE_CONFIG.CACHE;
 const { REPORTS, CHART, ABOUT } = UI_CONFIG;
 
+// ===== LOADING STATE =====
+let isLoadingCoins = false;
+
+const setLoadingCoins = (value) => {
+  isLoadingCoins = !!value;
+};
+
+const getLoadingCoins = () => isLoadingCoins;
+
 // ===== HELPERS =====
 export const renderCoins = (coins, extras = {}) => {
-  CoinUI.displayCoins(coins, AppState.getSelectedReports(), {
-    favorites: AppState.getFavorites(),
-    compareSelection: AppState.getCompareSelection(),
+  CoinUI.displayCoins(coins, StorageHelper.getSelectedReports(), {
+    favorites: StorageHelper.getFavorites(),
+    compareSelection: getCompareSelection(),
     ...extras,
   });
+};
+
+const getCompareSelection = () => {
+  return $('.compare-row-active')
+    .map((_, el) => String($(el).data('id')))
+    .get();
 };
 
 const getNewsConfig = (isFavorites) => {
@@ -43,7 +58,7 @@ const getNewsConfig = (isFavorites) => {
       };
 };
 
-// ===== STATS BAR  =====
+// ===== STATS BAR =====
 export const initStatsBar = async () => {
   const { ok, data } = await CoinsService.getGlobalStats();
   const stats = data?.data || data;
@@ -68,11 +83,12 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   $compareStatus.html(`0 / ${REPORTS.MAX_COMPARE} coins selected`);
   CoinUI.clearCompareHighlights();
 
-  const cachedCoins = AppState.getAllCoins();
-  const lastUpdated = AppState.getCoinsLastUpdated();
+  const cachedCoins = CoinsService.getAllCoins();
+  const lastUpdated = CoinsService.getCoinsLastUpdated();
 
   cachedCoins.length ? renderCoins(cachedCoins) : CoinUI.showLoading();
-  if (AppState.isLoadingCoins()) return;
+  
+  if (getLoadingCoins()) return;
 
   const isCacheExpired =
     !lastUpdated || Date.now() - lastUpdated >= COINS_REFRESH_INTERVAL_MS;
@@ -81,9 +97,9 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     return;
   }
 
-  AppState.setLoadingCoins(true);
+  setLoadingCoins(true);
   const { ok, data, error, status } = await CoinsService.loadAllCoins();
-  AppState.setLoadingCoins(false);
+  setLoadingCoins(false);
 
   if (!ok) {
     BaseUI.showError("#coinsContainer", "COIN_LIST_ERROR", {
@@ -138,8 +154,8 @@ const loadNews = async (mode = "general") => {
   NewsUI.showNewsLoading(loading);
   NewsUI.setNewsFilterMode(mode);
 
-  const {ok,articles,usedFallback,code,errorMessage,status: httpStatus} = isFavorites
-    ? await NewsService.getNewsForFavorites(AppState.getFavorites())
+  const { ok, articles, usedFallback, code, errorMessage, status: httpStatus } = isFavorites
+    ? await NewsService.getNewsForFavorites(StorageHelper.getFavorites())
     : await NewsService.getGeneralNews();
 
   if (!ok) {
@@ -171,7 +187,7 @@ export const showFavoritesNewsPage = async () => {
 export const showAboutPage = () => {
   ChartService.cleanup();
 
-   const { NAME: name, IMAGE: image, LINKEDIN: linkedin } = ABOUT;
+  const { NAME: name, IMAGE: image, LINKEDIN: linkedin } = ABOUT;
 
   BaseUI.showPage(
     PageComponents.aboutPage({

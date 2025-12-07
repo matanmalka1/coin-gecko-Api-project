@@ -1,5 +1,6 @@
 import { coinAPI } from "./api.js";
-import { AppState } from "../state/state.js";
+import { CoinsService } from "./coins-service.js";
+import { StorageHelper } from "./storage-manager.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { CacheManager } from "./storage-manager.js";
 import { CACHE_CONFIG, API_CONFIG } from "../config/api-cache-config.js";
@@ -10,15 +11,14 @@ const { HISTORY_DAYS } = UI_CONFIG.REPORTS;
 const { fetchCoinOhlc } = coinAPI;
 const { fetchWithCache } = CacheManager;
 
-// ===== OHLC (open high low close) DATA FETCHING =====
-// Fetch candlestick-ready OHLC data for a coin id.
+// ===== OHLC DATA =====
 const getCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
   fetchWithCache(
     `ohlc:${coinId}:${days}`,
-    () => fetchCoinOhlc(coinId, days),CACHE_CONFIG.REPORTS_CACHE.CHART_TTL_MS
+    () => fetchCoinOhlc(coinId, days),
+    CACHE_CONFIG.REPORTS_CACHE.CHART_TTL_MS
   );
 
-// Map CoinGecko OHLC array to Lightweight Charts candlestick points.
 const mapOhlcToCandles = (ohlcArray = []) =>
   Array.isArray(ohlcArray)
     ? ohlcArray.map(([time, open, high, low, close]) => ({
@@ -30,10 +30,9 @@ const mapOhlcToCandles = (ohlcArray = []) =>
       }))
     : [];
 
-// ===== SYMBOLS TO CANDLES LOADER =====
-// Resolves AppState symbols to coin ids and pulls their OHLC candles.
+// ===== LOAD CANDLES =====
 const loadCandlesForSymbols = async (symbols) => {
-  const allCoins = AppState.getAllCoins();
+  const allCoins = CoinsService.getAllCoins();
 
   const coinsIndex = allCoins.reduce((acc, coin) => {
     const { symbol, id } = coin || {};
@@ -77,14 +76,12 @@ const loadCandlesForSymbols = async (symbols) => {
 };
 
 // ===== CHART LIFECYCLE =====
-// Stops any polling interval and resets state (no timers needed for OHLC load).
 const cleanup = () => {};
 
-// Loads OHLC candles for reports and feeds the renderer.
 const startLiveChart = async (chartCallbacks = {}) => {
   cleanup();
 
-  const symbols = AppState.getSelectedReports();
+  const symbols = StorageHelper.getSelectedReports();
 
   if (!symbols.length) {
     return { ok: false, code: "NONE_SELECTED" };

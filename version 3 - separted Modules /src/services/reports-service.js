@@ -1,4 +1,5 @@
-import { AppState } from "../state/state.js";
+import { StorageHelper } from "./storage-manager.js";
+import { CoinsService } from "./coins-service.js";
 import { coinAPI } from "./api.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 import { UI_CONFIG } from "../config/ui-config.js";
@@ -6,53 +7,64 @@ import { UI_CONFIG } from "../config/ui-config.js";
 const { MAX_COINS } = UI_CONFIG.REPORTS;
 const { fetchCoinDetails } = coinAPI;
 
-const getSelectedReports = () => AppState.getSelectedReports();
+const getSelectedReports = () => StorageHelper.getSelectedReports();
+
+const isReportsFull = () => getSelectedReports().length >= MAX_COINS;
 
 const toggleCoinSelection = (symbol) => {
   const symbolUpper = normalizeSymbol(symbol);
-  const alreadySelected = AppState.hasReport(symbolUpper);
+  const currentReports = getSelectedReports();
+  const alreadySelected = currentReports.includes(symbolUpper);
 
-  if (!alreadySelected && AppState.isReportsFull()) {
-    const selected = AppState.getSelectedReports();
+  if (!alreadySelected && isReportsFull()) {
     return {
       ok: false,
       code: "FULL",
       newSymbol: symbolUpper,
-      existing: selected,
+      existing: currentReports,
       limit: MAX_COINS,
-      selected,
+      selected: currentReports,
     };
   }
 
-  AppState[alreadySelected ? "removeReport" : "addReport"](symbolUpper);
+  if (alreadySelected) {
+    StorageHelper.removeReport(symbolUpper);
+  } else {
+    StorageHelper.addReport(symbolUpper);
+  }
 
-  return { ok: true, code: null, selected: AppState.getSelectedReports() };
+  return { ok: true, code: null, selected: getSelectedReports() };
 };
+
 const replaceReport = (oldSymbol, newSymbol) => {
   const oldUpper = normalizeSymbol(oldSymbol);
   const newUpper = normalizeSymbol(newSymbol);
-  const currentSelected = AppState.getSelectedReports();
+  const currentSelected = getSelectedReports();
 
   if (oldUpper === newUpper) {
     return { ok: true, code: null, selected: currentSelected };
   }
-  if (!AppState.hasReport(oldUpper)) {
+
+  if (!currentSelected.includes(oldUpper)) {
     return { ok: false, code: "NOT_FOUND", selected: currentSelected };
   }
-  if (AppState.hasReport(newUpper)) {
+
+  if (currentSelected.includes(newUpper)) {
     return { ok: false, code: "DUPLICATE", selected: currentSelected };
   }
-  const coinExists = AppState.getAllCoins().some(
+
+  const coinExists = CoinsService.getAllCoins().some(
     (coin) => coin.symbol === newUpper
   );
+  
   if (!coinExists) {
     return { ok: false, code: "INVALID_SYMBOL", selected: currentSelected };
   }
 
-  AppState.removeReport(oldUpper);
-  AppState.addReport(newUpper);
+  StorageHelper.removeReport(oldUpper);
+  StorageHelper.addReport(newUpper);
 
-  return { ok: true, code: null, selected: AppState.getSelectedReports() };
+  return { ok: true, code: null, selected: getSelectedReports() };
 };
 
 const getCompareData = async (ids) => {

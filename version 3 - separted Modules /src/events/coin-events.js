@@ -1,8 +1,8 @@
 import { CoinsService } from "../services/coins-service.js";
+import { StorageHelper } from "../services/storage-manager.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
-import { AppState, addUnique, removeItem } from "../state/state.js";
 import { ERRORS } from "../config/error.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
@@ -12,12 +12,14 @@ const { FAVORITES_EMPTY } = UI_CONFIG.UI;
 const { API: API_ERRORS, SEARCH: SEARCH_ERRORS } = ERRORS;
 
 let isRegistered = false;
+let isShowingFavoritesOnly = false;
+let isLoadingCoins = false;
 
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
   const searchTerm = $("#searchInput").val();
   const { ok, code, term, data, favorites } = CoinsService.searchCoin(searchTerm);
-  
+
   $("#clearSearchBtn").removeClass("d-none");
 
   if (!ok) {
@@ -33,27 +35,31 @@ const handleSearch = () => {
 
 const handleClearSearch = () => {
   $("#searchInput").val("");
-  renderCoins(AppState.getAllCoins(), {
-    favorites: AppState.getFavorites(),
+  renderCoins(CoinsService.getAllCoins(), {
+    favorites: StorageHelper.getFavorites(),
   });
 };
 
 const handleFavoriteToggle = (e) => {
   const coinSymbol = $(e.currentTarget).data("symbol");
-  const alreadyFavorite = AppState.isFavorite(coinSymbol);
+  const alreadyFavorite = StorageHelper.isFavorite(coinSymbol);
 
-  const action = alreadyFavorite ? removeItem : addUnique;
-  AppState.updateFavorite(coinSymbol, action);
+  if (alreadyFavorite) {
+    StorageHelper.removeFavorite(coinSymbol);
+  } else {
+    StorageHelper.addFavorite(coinSymbol);
+  }
+
   CoinUI.updateFavoriteIcon(coinSymbol, !alreadyFavorite);
 
-  if (AppState.isShowingFavoritesOnly()) {
+  if (isShowingFavoritesOnly) {
     renderFavoritesList();
   }
 };
 
 const renderFavoritesList = () => {
-  const favoriteSymbols = AppState.getFavorites();
-  const filtered = AppState.getAllCoins().filter((coin) =>
+  const favoriteSymbols = StorageHelper.getFavorites();
+  const filtered = CoinsService.getAllCoins().filter((coin) =>
     favoriteSymbols.includes(coin.symbol)
   );
 
@@ -97,16 +103,14 @@ const handleMoreInfo = async (e) => {
 };
 
 const handleShowFavorites = () => {
-  const isShowing = AppState.isShowingFavoritesOnly();
-
-  if (isShowing) {
-    renderCoins(AppState.getAllCoins());
+  if (isShowingFavoritesOnly) {
+    renderCoins(CoinsService.getAllCoins());
     BaseUI.setFavoritesButtonLabel(false);
-    AppState.setShowFavoritesOnly(false);
+    isShowingFavoritesOnly = false;
   } else {
     renderFavoritesList();
     BaseUI.setFavoritesButtonLabel(true);
-    AppState.setShowFavoritesOnly(true);
+    isShowingFavoritesOnly = true;
   }
 };
 
@@ -117,8 +121,11 @@ const handleSortChange = () => {
 
 const handleRefreshCoins = (e) => {
   e.preventDefault();
-  if (!AppState.isLoadingCoins()) {
-    showCurrenciesPage({ forceRefresh: true });
+  if (!isLoadingCoins) {
+    isLoadingCoins = true;
+    showCurrenciesPage({ forceRefresh: true }).finally(() => {
+      isLoadingCoins = false;
+    });
   }
 };
 

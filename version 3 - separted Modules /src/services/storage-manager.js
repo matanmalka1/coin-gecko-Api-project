@@ -1,12 +1,11 @@
 import { CACHE_CONFIG } from "../config/api-cache-config.js";
 
-// LRU cache with max entries and expiry
 const { MAX_ENTRIES = 100, EXPIRY_TIME } = CACHE_CONFIG.CACHE;
+const { STORAGE_KEYS } = CACHE_CONFIG;
 
 // ===== IN-MEMORY CACHE (LRU) =====
 const cacheStore = new Map();
 
-// Returns a cached entry if it exists and hasn't expired.
 const getCache = (key) => {
   const entry = cacheStore.get(key);
   if (!entry) return null;
@@ -23,7 +22,6 @@ const getCache = (key) => {
   return data;
 };
 
-// Stores a value in the cache and enforces LRU policy.
 const setCache = (key, data, ttl = EXPIRY_TIME) => {
   const entry = { data, timestamp: Date.now(), ttl };
 
@@ -35,39 +33,81 @@ const setCache = (key, data, ttl = EXPIRY_TIME) => {
     cacheStore.delete(oldestKey);
   }
 };
+
 const fetchWithCache = async (cacheKey, fetcher, ttl = EXPIRY_TIME) => {
   const cached = getCache(cacheKey);
   if (cached) return { ok: true, data: cached, fromCache: true };
 
   const { ok, data, code, error, status } = await fetcher();
   if (!ok) {
-    return {ok: false,code: code || "API_ERROR",error,status,};
+    return { ok: false, code: code || "API_ERROR", error, status };
   }
 
   setCache(cacheKey, data, ttl);
-  return {ok: true,data,fromCache: false,status,};
+  return { ok: true, data, fromCache: false, status };
 };
 
-// ===== LOCAL STORAGE  =====
-// Reads and parses JSON from localStorage with fallback on failures.
-const readJSON = (key, fallback) => {
+// ===== LOCAL STORAGE HELPERS =====
+const readJSON = (key, fallback = null) => {
   try {
-    const storedValue = localStorage.getItem(key);
-    return storedValue ? JSON.parse(storedValue) : fallback;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : fallback;
   } catch (error) {
-    console.warn(`Storage read failed for "${key}`, error);
+    console.warn(`Storage read failed for "${key}"`, error);
     return fallback;
   }
 };
 
-// Stringifies and stores JSON in localStorage safely.
-const writeJSON = (key, storedValue) => {
+const writeJSON = (key, value) => {
   try {
-    localStorage.setItem(key, JSON.stringify(storedValue));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.warn(`Storage write failed for "${key}":`, error);
   }
 };
+
+// ===== FAVORITES & REPORTS HELPERS =====
+const getFavorites = () => {
+  const stored = readJSON(STORAGE_KEYS.FAVORITES, []);
+  return Array.isArray(stored) ? stored : [];
+};
+
+const addFavorite = (symbol) => {
+  const favorites = getFavorites();
+  if (!favorites.includes(symbol)) {
+    writeJSON(STORAGE_KEYS.FAVORITES, [...favorites, symbol]);
+  }
+};
+
+const removeFavorite = (symbol) => {
+  const favorites = getFavorites();
+  writeJSON(STORAGE_KEYS.FAVORITES, favorites.filter(f => f !== symbol));
+};
+
+const isFavorite = (symbol) => getFavorites().includes(symbol);
+
+const getSelectedReports = () => {
+  const stored = readJSON(STORAGE_KEYS.REPORTS, []);
+  return Array.isArray(stored) ? stored : [];
+};
+
+const setSelectedReports = (reports) => {
+  writeJSON(STORAGE_KEYS.REPORTS, Array.isArray(reports) ? reports : []);
+};
+
+const addReport = (symbol) => {
+  const reports = getSelectedReports();
+  if (!reports.includes(symbol)) {
+    writeJSON(STORAGE_KEYS.REPORTS, [...reports, symbol]);
+  }
+};
+
+const removeReport = (symbol) => {
+  const reports = getSelectedReports();
+  writeJSON(STORAGE_KEYS.REPORTS, reports.filter(r => r !== symbol));
+};
+
+const hasReport = (symbol) => getSelectedReports().includes(symbol);
 
 export const CacheManager = {
   getCache,
@@ -76,7 +116,16 @@ export const CacheManager = {
   fetchWithCache,
 };
 
-export const localeStorage = {
+export const StorageHelper = {
   readJSON,
   writeJSON,
+  getFavorites,
+  addFavorite,
+  removeFavorite,
+  isFavorite,
+  getSelectedReports,
+  setSelectedReports,
+  addReport,
+  removeReport,
+  hasReport,
 };

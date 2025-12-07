@@ -1,17 +1,19 @@
 import { coinAPI } from "./api.js";
-import { CacheManager } from "./storage-manager.js";
-import { AppState } from "../state/state.js";
+import { CacheManager, StorageHelper } from "./storage-manager.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 import { API_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 
-const {SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {},} = UI_CONFIG;
+const { SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {} } = UI_CONFIG;
 const { CHART_HISTORY_DAYS } = API_CONFIG;
-const {fetchMarketData,fetchCoinDetails,fetchCoinMarketChart,fetchGlobalStats,} = coinAPI;
+const { fetchMarketData, fetchCoinDetails, fetchCoinMarketChart, fetchGlobalStats } = coinAPI;
+
+const COINS_CACHE_KEY = 'marketData';
+const COINS_TIMESTAMP_KEY = 'marketDataTimestamp';
 
 const ReportAndFavorites = () => ({
-  selected: AppState.getSelectedReports(),
-  favorites: AppState.getFavorites(),
+  selected: StorageHelper.getSelectedReports(),
+  favorites: StorageHelper.getFavorites(),
 });
 
 const sortFunctions = {
@@ -23,43 +25,58 @@ const sortFunctions = {
   marketcap_asc: (a, b) => a.market_cap - b.market_cap,
 };
 
-// Fetches full market list and stores it in AppState.
+// ===== COINS DATA =====
+const getAllCoins = () => {
+  const cached = CacheManager.getCache(COINS_CACHE_KEY);
+  return Array.isArray(cached) ? cached : [];
+};
+
+const getCoinsLastUpdated = () => {
+  return StorageHelper.readJSON(COINS_TIMESTAMP_KEY, 0);
+};
+
+const setCoinsLastUpdated = (timestamp) => {
+  StorageHelper.writeJSON(COINS_TIMESTAMP_KEY, timestamp);
+};
+
 const loadAllCoins = async () => {
   const { ok, data, error, status } = await fetchMarketData();
 
   if (!ok) {
-    return {ok: false,code: "API_ERROR",error,status,};
+    return { ok: false, code: "API_ERROR", error, status };
   }
-  const coinsArray = Array.isArray(data) ? data : [];
 
+  const coinsArray = Array.isArray(data) ? data : [];
   const filteredCoins = coinsArray
     .filter(({ id, symbol }) => id && symbol)
-    .map((coin) => ({...coin,symbol: normalizeSymbol(coin.symbol),
+    .map((coin) => ({
+      ...coin,
+      symbol: normalizeSymbol(coin.symbol),
     }));
 
-  AppState.setAllCoins(filteredCoins);
+  CacheManager.setCache(COINS_CACHE_KEY, filteredCoins);
+  setCoinsLastUpdated(Date.now());
+
   return { ok: true, data: filteredCoins };
 };
 
-// Sorts coins according to sortType and persists the new order.
 const sortCoins = (sortType) => {
-  const coins = AppState.getAllCoins();
+  const coins = getAllCoins();
   const sorter = sortFunctions[sortType];
   const sorted = sorter ? [...coins].sort(sorter) : coins;
-  AppState.setAllCoins(sorted, { updateTimestamp: false });
+  
+  CacheManager.setCache(COINS_CACHE_KEY, sorted);
 
   return {
     ok: true,
-    data: AppState.getAllCoins(),
+    data: sorted,
     ...ReportAndFavorites(),
   };
 };
 
-// Retrieves detailed information for a single coin (with cache).
 const getCoinDetails = (coinId) =>
   CacheManager.fetchWithCache(coinId, () => fetchCoinDetails(coinId));
 
-// Performs a fuzzy search by symbol/name on the in-memory coins list.
 const searchCoin = (term) => {
   const trimmed = (term || "").trim();
 
@@ -68,18 +85,18 @@ const searchCoin = (term) => {
   if (trimmed.length > MAX_LENGTH) return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
   if (ALLOWED_PATTERN && !ALLOWED_PATTERN.test(trimmed)) return { ok: false, code: "INVALID_TERM" };
 
- const allCoins = AppState.getAllCoins();
+  const allCoins = getAllCoins();
   if (!allCoins.length) return { ok: false, code: "LOAD_WAIT" };
 
   const searchTerm = trimmed.replace(/\s+/g, " ").toLowerCase();
   const filteredCoins = allCoins.filter((coin) => {
-  const symbolMatch = coin.symbol?.toLowerCase().includes(searchTerm) ?? false;
-  const nameMatch = coin.name?.toLowerCase().includes(searchTerm) ?? false;
+    const symbolMatch = coin.symbol?.toLowerCase().includes(searchTerm) ?? false;
+    const nameMatch = coin.name?.toLowerCase().includes(searchTerm) ?? false;
     return symbolMatch || nameMatch;
   });
 
   if (!filteredCoins.length) {
-    return { ok: false, code: "NO_MATCH", term: normalizedTerm };
+    return { ok: false, code: "NO_MATCH", term: trimmed };
   }
 
   return {
@@ -89,20 +106,19 @@ const searchCoin = (term) => {
   };
 };
 
-// Returns the coins that are selected for reports, cleaning stale symbols.
 const filterSelectedCoins = () => {
-  const selectedReports = AppState.getSelectedReports();
+  const selectedReports = StorageHelper.getSelectedReports();
   if (!selectedReports.length) {
     return { ok: false, code: "NONE_SELECTED" };
   }
 
-  const allCoins = AppState.getAllCoins();
+  const allCoins = getAllCoins();
   const filtered = allCoins.filter((coin) =>
     selectedReports.includes(coin.symbol)
   );
 
   if (!filtered.length) {
-    AppState.setSelectedReports([]);
+    StorageHelper.setSelectedReports([]);
     return { ok: false, code: "NOT_FOUND" };
   }
 
@@ -111,7 +127,7 @@ const filterSelectedCoins = () => {
     validSymbols.has(symbol)
   );
 
-  AppState.setSelectedReports(cleanedSelection);
+  StorageHelper.setSelectedReports(cleanedSelection);
 
   return {
     ok: true,
@@ -120,22 +136,23 @@ const filterSelectedCoins = () => {
   };
 };
 
-// Resets the stored search term and returns the full coins list.
 const clearSearch = () => ({
   ok: true,
-  data: AppState.getAllCoins(),
+  data: getAllCoins(),
   ...ReportAndFavorites(),
 });
 
-// Fetches historical price chart data for a coin (with caching).
 const getCoinMarketChart = (coinId) =>
   CacheManager.fetchWithCache(`chart:${coinId}`, () =>
     fetchCoinMarketChart(coinId, CHART_HISTORY_DAYS)
   );
+
 const getGlobalStats = () =>
   CacheManager.fetchWithCache("globalStats", () => fetchGlobalStats());
 
 export const CoinsService = {
+  getAllCoins,
+  getCoinsLastUpdated,
   loadAllCoins,
   getCoinDetails,
   searchCoin,
