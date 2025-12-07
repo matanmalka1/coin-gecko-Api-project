@@ -1,4 +1,3 @@
-// [NEWS] News service: fetches crypto news from NewsData with cache and freshness filter
 import { API_CONFIG, CACHE_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
@@ -8,50 +7,36 @@ import { coinAPI } from "./api.js";
 
 const { TTL_MS: CACHE_TTL_MS, FRESH_WINDOW_MS } = CACHE_CONFIG.NEWS_CACHE;
 const { DEFAULT_QUERY, CACHE_KEYS } = UI_CONFIG.NEWS;
+const { fetchNewsData } = coinAPI;
 
-// Fetches news articles (with caching) for either general or favorites queries.
-const fetchNews = async (cacheKey, params = {}) => {
+// ===== CACHE HELPERS =====
+const getCachedNews = (cacheKey) => {
   const cached = CacheManager.getCache(cacheKey);
-  if (cached) {
-    const cachedArticles = Array.isArray(cached) ? cached : [];
-    const freshArticles = filterLastHours(cachedArticles, FRESH_WINDOW_MS);
-    const usedFallback = !freshArticles.length && cachedArticles.length > 0;
-    return {
-      ok: true,
-      articles: freshArticles.length ? freshArticles : cachedArticles,
-      usedFallback,
-    };
-  }
+  if (!cached) return null;
 
-  const response = await coinAPI.fetchNewsData({
-    q: params.q || DEFAULT_QUERY,
-  });
+  const cachedArticles = Array.isArray(cached) ? cached : [];
+  const freshArticles = filterLastHours(cachedArticles, FRESH_WINDOW_MS);
+  const usedFallback = !freshArticles.length && cachedArticles.length > 0;
+  return {
+    ok: true,
+    articles: freshArticles.length ? freshArticles : cachedArticles,
+    usedFallback,
+  };
+};
 
-  if (!response.ok) {
-    return {
-      ok: false,
-      code: "NEWS_HTTP_ERROR",
-      status: response.status,
-      errorMessage:
-        ERRORS.API_STATUS?.(response.status) ||
-        response.error ||
-        ERRORS.API.DEFAULT,
-    };
-  }
+// ===== NORMALIZATION =====
+const normalizeArticle = ({title,description,pubDate,source_id,link,image_url,} = {}) => ({
+  title,
+  description,
+  published_at: pubDate,
+  source: { title: source_id, domain: source_id },
+  original_url: link,
+  url: link,
+  image: image_url,
+});
 
-  const data = response.data;
-  const normalized = (data?.results || []).map((article = {}) => ({
-    title: article.title,
-    description: article.description,
-    published_at: article.pubDate,
-    source: { title: article.source_id, domain: article.source_id },
-    original_url: article.link,
-    url: article.link,
-    image: article.image_url,
-  }));
-
-  CacheManager.setCache(cacheKey, normalized, CACHE_TTL_MS);
-
+// ===== RESPONSE BUILDER =====
+const buildNewsResponse = (normalized) => {
   const freshArticles = filterLastHours(normalized, FRESH_WINDOW_MS);
   const usedFallback = !freshArticles.length && normalized.length > 0;
 
@@ -62,16 +47,41 @@ const fetchNews = async (cacheKey, params = {}) => {
   };
 };
 
-// Returns general crypto news (last 5 hours).
+// ===== FETCH LAYER =====
+const fetchNews = async (cacheKey, params = {}) => {
+  const cachedResult = getCachedNews(cacheKey);
+  if (cachedResult) return cachedResult;
+
+  const { q = DEFAULT_QUERY } = params;
+
+  const { ok, data, status, error } = await fetchNewsData({ q });
+
+  if (!ok) {
+    return {
+      ok: false,
+      code: "NEWS_HTTP_ERROR",
+      status,
+      errorMessage:
+        ERRORS.API.HTTP_STATUS?.(status) || error || ERRORS.API.DEFAULT,
+    };
+  }
+
+ const normalized = (data?.results || []).map(normalizeArticle);
+  CacheManager.setCache(cacheKey, normalized, CACHE_TTL_MS);
+
+  return buildNewsResponse(normalized);
+};
+
 const getGeneralNews = () => fetchNews(CACHE_KEYS.GENERAL);
 
-// Returns crypto news filtered by the user's favorite symbols.
 const getNewsForFavorites = (favoriteSymbols = []) => {
-  const cleaned = (favoriteSymbols || [])
-    .filter(Boolean)
-    .map((symbol) => String(symbol).trim().toUpperCase());
-
-  const unique = Array.from(new Set(cleaned)).sort();
+  const unique = [
+    ...new Set(
+      (favoriteSymbols || [])
+        .filter(Boolean)
+        .map((symbol) => String(symbol).trim().toUpperCase())
+    ),
+  ].sort();
 
   const query = unique.join(" OR ");
   const cacheKey = `${CACHE_KEYS.FAVORITES}:${unique.join(",")}`;

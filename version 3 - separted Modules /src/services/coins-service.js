@@ -25,26 +25,19 @@ const sortFunctions = {
 
 // Fetches full market list and stores it in AppState.
 const loadAllCoins = async () => {
-  const result = await fetchMarketData();
+  const { ok, data, error, status } = await fetchMarketData();
 
-  if (!result.ok) {
-    return {
-      ok: false,
-      code: "API_ERROR",
-      error: result.error,
-      status: result.status,
-    };
+  if (!ok) {
+    return {ok: false,code: "API_ERROR",error,status,};
   }
+  const coinsArray = Array.isArray(data) ? data : [];
 
-  const filteredCoins = (Array.isArray(result.data) ? result.data : [])
-    .filter((coin) => coin && coin.id && coin.symbol)
-    .map((coin) => ({
-      ...coin,
-      symbol: normalizeSymbol(coin.symbol),
+  const filteredCoins = coinsArray
+    .filter(({ id, symbol }) => id && symbol)
+    .map((coin) => ({...coin,symbol: normalizeSymbol(coin.symbol),
     }));
 
   AppState.setAllCoins(filteredCoins);
-
   return { ok: true, data: filteredCoins };
 };
 
@@ -70,32 +63,18 @@ const getCoinDetails = (coinId) =>
 const searchCoin = (term) => {
   const trimmed = (term || "").trim();
 
-  const errors = {
-    empty: !trimmed,
-    tooShort: trimmed.length < MIN_LENGTH,
-    tooLong: trimmed.length > MAX_LENGTH,
-    invalid: ALLOWED_PATTERN && !ALLOWED_PATTERN.test(trimmed),
-  };
+  if (!trimmed) return { ok: false, code: "EMPTY_TERM" };
+  if (trimmed.length < MIN_LENGTH) return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
+  if (trimmed.length > MAX_LENGTH) return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
+  if (ALLOWED_PATTERN && !ALLOWED_PATTERN.test(trimmed)) return { ok: false, code: "INVALID_TERM" };
 
-  if (errors.empty) return { ok: false, code: "EMPTY_TERM" };
-  if (errors.tooShort)
-    return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
-  if (errors.tooLong)
-    return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
-  if (errors.invalid) return { ok: false, code: "INVALID_TERM" };
+ const allCoins = AppState.getAllCoins();
+  if (!allCoins.length) return { ok: false, code: "LOAD_WAIT" };
 
-  const normalizedTerm = trimmed.replace(/\s+/g, " ");
-  const searchTerm = normalizedTerm.toLowerCase();
-  const allCoins = AppState.getAllCoins();
-
-  if (!allCoins.length) {
-    return { ok: false, code: "LOAD_WAIT" };
-  }
-
-  const filteredCoins = allCoins.filter((coin = {}) => {
-    const symbolMatch =
-      coin.symbol?.toLowerCase().includes(searchTerm) ?? false;
-    const nameMatch = coin.name?.toLowerCase().includes(searchTerm) ?? false;
+  const searchTerm = trimmed.replace(/\s+/g, " ").toLowerCase();
+  const filteredCoins = allCoins.filter((coin) => {
+  const symbolMatch = coin.symbol?.toLowerCase().includes(searchTerm) ?? false;
+  const nameMatch = coin.name?.toLowerCase().includes(searchTerm) ?? false;
     return symbolMatch || nameMatch;
   });
 

@@ -4,45 +4,30 @@ import { normalizeSymbol } from "../utils/general-utils.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 
 const { MAX_COINS } = UI_CONFIG.REPORTS;
+const { fetchCoinDetails } = coinAPI;
 
-// Reports domain logic only: no UI/DOM.
 const getSelectedReports = () => AppState.getSelectedReports();
 
-// Adds or removes a symbol from the tracked reports list.
 const toggleCoinSelection = (symbol) => {
   const symbolUpper = normalizeSymbol(symbol);
+  const alreadySelected = AppState.hasReport(symbolUpper);
 
-  if (AppState.hasReport(symbolUpper)) {
-    AppState.removeReport(symbolUpper);
+  if (!alreadySelected && AppState.isReportsFull()) {
+    const selected = AppState.getSelectedReports();
     return {
-      ok: true,
-      code: null,
-      selected: AppState.getSelectedReports(),
+      ok: false,
+      code: "FULL",
+      newSymbol: symbolUpper,
+      existing: selected,
+      limit: MAX_COINS,
+      selected,
     };
   }
 
-  if (!AppState.isReportsFull()) {
-    AppState.addReport(symbolUpper);
-    return {
-      ok: true,
-      code: null,
-      selected: AppState.getSelectedReports(),
-    };
-  }
+  AppState[alreadySelected ? "removeReport" : "addReport"](symbolUpper);
 
-  const selected = AppState.getSelectedReports();
-
-  return {
-    ok: false,
-    code: "FULL",
-    newSymbol: symbolUpper,
-    existing: selected,
-    limit: MAX_COINS,
-    selected,
-  };
+  return { ok: true, code: null, selected: AppState.getSelectedReports() };
 };
-
-// Swaps one tracked symbol with another if possible.
 const replaceReport = (oldSymbol, newSymbol) => {
   const oldUpper = normalizeSymbol(oldSymbol);
   const newUpper = normalizeSymbol(newSymbol);
@@ -51,19 +36,15 @@ const replaceReport = (oldSymbol, newSymbol) => {
   if (oldUpper === newUpper) {
     return { ok: true, code: null, selected: currentSelected };
   }
-
   if (!AppState.hasReport(oldUpper)) {
     return { ok: false, code: "NOT_FOUND", selected: currentSelected };
   }
-
   if (AppState.hasReport(newUpper)) {
     return { ok: false, code: "DUPLICATE", selected: currentSelected };
   }
-
   const coinExists = AppState.getAllCoins().some(
     (coin) => coin.symbol === newUpper
   );
-
   if (!coinExists) {
     return { ok: false, code: "INVALID_SYMBOL", selected: currentSelected };
   }
@@ -74,27 +55,26 @@ const replaceReport = (oldSymbol, newSymbol) => {
   return { ok: true, code: null, selected: AppState.getSelectedReports() };
 };
 
-// Fetches coin details for compare modal (parallel requests).
 const getCompareData = async (ids) => {
   const compareIds = Array.isArray(ids)
-    ? ids.filter(Boolean).map((id) => id.toString())
+    ? ids.filter(Boolean).map((id) => String(id))
     : [];
+
   const results = await Promise.all(
-    compareIds.map((id) => coinAPI.fetchCoinDetails(id))
+    compareIds.map((id) => fetchCoinDetails(id))
   );
+
   const coins = [];
   const missing = [];
 
-  results.forEach((result, index) => {
-    const id = compareIds[index];
-
-    if (result.ok && result.data) {
+  results.forEach(({ ok, data }, index) => {
+    if (ok && data) {
       coins.push({
-        ...result.data,
-        symbol: normalizeSymbol(result.data.symbol),
+        ...data,
+        symbol: normalizeSymbol(data.symbol),
       });
     } else {
-      missing.push(id);
+      missing.push(compareIds[index]);
     }
   });
 
@@ -106,8 +86,8 @@ const getCompareData = async (ids) => {
 };
 
 export const ReportsService = {
+  getSelectedReports,
   toggleCoinSelection,
   replaceReport,
-  getSelectedReports,
   getCompareData,
 };
