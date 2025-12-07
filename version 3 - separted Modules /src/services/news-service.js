@@ -38,7 +38,7 @@ const fetchNews = async (cacheKey, params = {}) => {
         ok: false,
         code: "NEWS_HTTP_ERROR",
         status: response.status,
-        errorMessage: ERRORS.HTTP_STATUS(response.status),
+        errorMessage: ERRORS.API_STATUS(response.status),
       };
     }
     const data = await response.json();

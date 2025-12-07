@@ -20,17 +20,18 @@ const renderCoins = (data, selected, { favorites, emptyMessage } = {}) => {
 // Handles "Enter" search in the currencies page.
 const handleSearch = () => {
   const searchTerm = UIManager.getInputValue("#searchInput");
-  const { data, selected, favorites } = CoinsService.searchCoin(searchTerm);
+  const result = CoinsService.searchCoin(searchTerm);
   UIManager.showElement("#clearSearchBtn");
 
-  if (!result?.ok) {
+  if (!result.ok) {
     BaseUI.showError("#coinsContainer", result.code, {
       term: result.term,
       defaultMessage: ERRORS.SEARCH.NO_MATCH(result.term || ""),
     });
+    return;
   }
 
-  renderCoins(data, selected, { favorites });
+  renderCoins(result.data, result.selected, { favorites: result.favorites });
 };
 
 // Clears the search input and resets coins list.
