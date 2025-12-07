@@ -4,20 +4,18 @@ import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { filterLastHours } from "../utils/general-utils.js";
 import { CacheManager } from "./cache.js";
+import { coinAPI } from "./api.js";
 
-const { BASE_URL, API_KEY } = API_CONFIG.NEWS;
 const { TTL_MS: CACHE_TTL_MS, FRESH_WINDOW_MS } = CACHE_CONFIG.NEWS_CACHE;
-const { DEFAULT_QUERY, LANGUAGE, CACHE_KEYS } = UI_CONFIG.NEWS;
+const { DEFAULT_QUERY, CACHE_KEYS } = UI_CONFIG.NEWS;
 
 // Fetches news articles (with caching) for either general or favorites queries.
 const fetchNews = async (cacheKey, params = {}) => {
   const cached = CacheManager.getCache(cacheKey);
-
   if (cached) {
     const cachedArticles = Array.isArray(cached) ? cached : [];
     const freshArticles = filterLastHours(cachedArticles, FRESH_WINDOW_MS);
     const usedFallback = !freshArticles.length && cachedArticles.length > 0;
-
     return {
       ok: true,
       articles: freshArticles.length ? freshArticles : cachedArticles,
@@ -25,51 +23,43 @@ const fetchNews = async (cacheKey, params = {}) => {
     };
   }
 
-  const url = new URL(BASE_URL);
-  const searchParams = url.searchParams;
-  searchParams.set("apikey", API_KEY);
-  if (LANGUAGE) searchParams.set("language", LANGUAGE);
-  searchParams.set("q", params.q || DEFAULT_QUERY);
+  const response = await coinAPI.fetchNewsData({
+    q: params.q || DEFAULT_QUERY,
+  });
 
-  try {
-    const response = await fetch(url.toString());
-    if (!response.ok) {
-      return {
-        ok: false,
-        code: "NEWS_HTTP_ERROR",
-        status: response.status,
-        errorMessage: ERRORS.API_STATUS(response.status),
-      };
-    }
-    const data = await response.json();
-
-    const normalized = (data.results || []).map((article = {}) => ({
-      title: article.title,
-      description: article.description,
-      published_at: article.pubDate,
-      source: { title: article.source_id, domain: article.source_id },
-      original_url: article.link,
-      url: article.link,
-      image: article.image_url,
-    }));
-
-    CacheManager.setCache(cacheKey, normalized, CACHE_TTL_MS);
-
-    const freshArticles = filterLastHours(normalized, FRESH_WINDOW_MS);
-    const usedFallback = !freshArticles.length && normalized.length > 0;
-
-    return {
-      ok: true,
-      articles: freshArticles.length ? freshArticles : normalized,
-      usedFallback,
-    };
-  } catch (error) {
-    console.error("NewsService: API error", error);
+  if (!response.ok) {
     return {
       ok: false,
-      errorMessage: ERRORS.NEWS.GENERAL_ERROR,
+      code: "NEWS_HTTP_ERROR",
+      status: response.status,
+      errorMessage:
+        ERRORS.API_STATUS?.(response.status) ||
+        response.error ||
+        ERRORS.API.DEFAULT,
     };
   }
+
+  const data = response.data;
+  const normalized = (data?.results || []).map((article = {}) => ({
+    title: article.title,
+    description: article.description,
+    published_at: article.pubDate,
+    source: { title: article.source_id, domain: article.source_id },
+    original_url: article.link,
+    url: article.link,
+    image: article.image_url,
+  }));
+
+  CacheManager.setCache(cacheKey, normalized, CACHE_TTL_MS);
+
+  const freshArticles = filterLastHours(normalized, FRESH_WINDOW_MS);
+  const usedFallback = !freshArticles.length && normalized.length > 0;
+
+  return {
+    ok: true,
+    articles: freshArticles.length ? freshArticles : normalized,
+    usedFallback,
+  };
 };
 
 // Returns general crypto news (last 5 hours).

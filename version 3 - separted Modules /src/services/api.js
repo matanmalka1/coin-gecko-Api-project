@@ -2,41 +2,41 @@ import { API_CONFIG } from "../config/api-cache-config.js";
 import { ERRORS } from "../config/error.js";
 
 const { COINGECKO_BASE, CRYPTOCOMPARE_BASE, CHART_HISTORY_DAYS } = API_CONFIG;
-const COINS_PER_PAGE = 150;
+const COINS_PER_PAGE = 100;
 
 // ========== Core Fetch Layer ==========
 const fetchWithRetry = async (url, options = {}) => {
   try {
     const response = await fetch(url, options);
-
     if (!response.ok) {
-      const isRateLimit = response.status === 429;
+      if (response.status === 429) {
+        await new Promise((retry) => setTimeout(retry, 60000));
+
+        return {
+          ok: false,
+          code: "RATE_LIMIT",
+          error: ERRORS.API.RATE_LIMIT,
+          status: response.status,
+        };
+      }
       return {
         ok: false,
-        code: isRateLimit ? "RATE_LIMIT" : "HTTP_ERROR",
-        error: isRateLimit
-          ? ERRORS.API.RATE_LIMIT
-          : ERRORS.API.HTTP_STATUS(response.status),
+        code: "HTTP_ERROR",
+        error: ERRORS.API.HTTP_STATUS(response.status),
+        status: response.status,
       };
     }
-
-    const data = await response.json();
-    return { ok: true, data };
+    return { ok: true, data: await response.json(), status: response.status };
   } catch {
-    return {
-      ok: false,
-      code: "NETWORK_ERROR",
-      error: ERRORS.API.DEFAULT,
-    };
+    return { ok: false, code: "NETWORK_ERROR", error: ERRORS.API.DEFAULT };
   }
 };
 
 // ========== Simple API Builder ==========
 const buildUrl = (base, path, params = {}) => {
   const url = new URL(`${base}${path}`);
-
   Object.entries(params).forEach(([key, val]) => {
-    if (val !== undefined && val !== null) {
+    if (val !== undefined && val !== null && val !== "") {
       url.searchParams.set(key, val);
     }
   });
@@ -57,19 +57,10 @@ const fetchMarketData = (perPage = COINS_PER_PAGE) =>
   });
 
 const fetchCoinDetails = (coinId) => coinGecko(`/coins/${coinId}`);
-
 const fetchCoinMarketChart = (coinId, days = CHART_HISTORY_DAYS) =>
-  coinGecko(`/coins/${coinId}/market_chart`, {
-    vs_currency: "usd",
-    days,
-  });
-
+  coinGecko(`/coins/${coinId}/market_chart`, { vs_currency: "usd", days });
 const fetchCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
-  coinGecko(`/coins/${coinId}/ohlc`, {
-    vs_currency: "usd",
-    days,
-  });
-
+  coinGecko(`/coins/${coinId}/ohlc`, { vs_currency: "usd", days });
 const fetchGlobalStats = () => coinGecko("/global");
 
 // ========== CryptoCompare API ==========
@@ -80,12 +71,24 @@ const fetchLivePrices = (symbols = []) => {
   if (!symbols.length) {
     return { ok: false, code: "NO_SYMBOLS", error: ERRORS.API.NO_SYMBOLS };
   }
-
   return cryptoCompare("/pricemulti", {
     fsyms: symbols.join(",").toUpperCase(),
     tsyms: "USD",
   });
 };
+
+// ========== NewsData API ==========
+const fetchNewsData = (params = {}) => {
+  const { BASE_URL, API_KEY, LANGUAGE } = API_CONFIG.NEWS;
+  return fetchWithRetry(
+    buildUrl(BASE_URL, "", {
+      apikey: API_KEY,
+      ...(LANGUAGE ? { language: LANGUAGE } : {}),
+      ...params,
+    })
+  );
+};
+
 export const coinAPI = {
   fetchMarketData,
   fetchCoinDetails,
@@ -93,4 +96,5 @@ export const coinAPI = {
   fetchCoinMarketChart,
   fetchCoinOhlc,
   fetchGlobalStats,
+  fetchNewsData,
 };

@@ -89,7 +89,7 @@ const drawMiniChart = async (coinId) => {
   const chartResult = await CoinsService.getCoinMarketChart(coinId);
 
   if (!chartResult?.ok || !chartResult.data?.prices) {
-    console.warn(`Failed to load chart data for ${coinId}`);
+    console.warn(`Failed to load mini chart data for ${coinId}`);
     return;
   }
 
