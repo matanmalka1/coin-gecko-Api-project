@@ -16,7 +16,6 @@ const { REPORTS, CHART, ABOUT } = UI_CONFIG;
 const COINS_REFRESH_INTERVAL = CACHE_CONFIG.CACHE.COINS_REFRESH_INTERVAL_MS;
 
 // ===== HELPERS =====
-
 export const renderCoins = (coins, extras = {}) => {
   CoinUI.displayCoins(coins, AppState.getSelectedReports(), {
     favorites: AppState.getFavorites(),
@@ -24,6 +23,7 @@ export const renderCoins = (coins, extras = {}) => {
     ...extras,
   });
 };
+
 const getNewsConfig = (isFavorites) => {
   const newsUI = UI_CONFIG.NEWS_UI;
   return isFavorites
@@ -42,7 +42,6 @@ const getNewsConfig = (isFavorites) => {
 };
 
 // ===== STATS BAR (גלובלי) =====
-
 export const initStatsBar = async () => {
   const { ok, data } = await CoinsService.getGlobalStats();
   const stats = data?.data || data;
@@ -57,13 +56,11 @@ export const initStatsBar = async () => {
 };
 
 // ===== CURRENCIES PAGE =====
-
 export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   ChartService.cleanup();
 
   BaseUI.showPage(PageComponents.currenciesPage());
 
-  // Compare UI reset
   const $compareStatus = $("#compareStatus");
   $compareStatus.addClass("d-none");
   $compareStatus.text(`0 / ${REPORTS.MAX_COMPARE} coins selected`);
@@ -103,7 +100,6 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 };
 
 // ===== REPORTS PAGE =====
-
 export const showReportsPage = async () => {
   ChartService.cleanup();
 
@@ -137,7 +133,6 @@ export const showReportsPage = async () => {
 };
 
 // ===== NEWS PAGE =====
-
 const loadNews = async (mode = "general") => {
   const isFavorites = mode === "favorites";
   const config = getNewsConfig(isFavorites);
@@ -176,7 +171,6 @@ export const showFavoritesNewsPage = async () => {
 };
 
 // ===== ABOUT PAGE =====
-
 export const showAboutPage = () => {
   ChartService.cleanup();
 

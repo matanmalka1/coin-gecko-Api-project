@@ -26,12 +26,12 @@ const handleSearch = () => {
     return;
   }
 
-  renderCoins(result.data, result.selected, { favorites: result.favorites });
+  renderCoins(result.data, { favorites: result.favorites });
 };
 
 const handleClearSearch = () => {
   $("#searchInput").val("");
-  renderCoins(AppState.getAllCoins(), AppState.getSelectedReports(), {
+  renderCoins(AppState.getAllCoins(), {
     favorites: AppState.getFavorites(),
   });
 };
@@ -56,7 +56,7 @@ const renderFavoritesList = () => {
     favoriteSymbols.includes(c.symbol)
   );
 
-  renderCoins(filtered, AppState.getSelectedReports(), {
+  renderCoins(filtered, {
     favorites: favoriteSymbols,
     emptyMessage: UI_CONFIG.UI.FAVORITES_EMPTY,
   });
@@ -93,7 +93,7 @@ const handleMoreInfo = async (e) => {
       currencies: UI_CONFIG.CURRENCIES,
     });
 
-    // 👇 Draw chart AFTER rendering the HTML
+    // Draw chart AFTER rendering the HTML
     ChartRenderer.drawMiniChart(coinId);
   } catch (error) {
     BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
@@ -119,7 +119,7 @@ const handleSortChange = () => {
   const { data, selected, favorites } = CoinsService.sortCoins(
     $("#sortSelect").val()
   );
-  renderCoins(data, selected, { favorites });
+  renderCoins(data, { favorites });
 };
 
 const handleRefreshCoins = (e) => {

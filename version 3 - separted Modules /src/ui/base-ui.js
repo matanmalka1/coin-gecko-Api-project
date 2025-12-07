@@ -19,7 +19,7 @@ const showError = (container, codeOrMessage, context = {}) => {
     ...context,
   });
 
-  getCached(container).html(BaseComponents.errorAlert(msg));
+  $(container).html(BaseComponents.errorAlert(msg));
 };
 
 // Shows a spinner placeholder with optional text.

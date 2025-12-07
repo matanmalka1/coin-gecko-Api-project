@@ -8,6 +8,7 @@ import {
   showAboutPage,
   initStatsBar,
 } from "./src/controllers/pages-controller.js";
+
 import { UI_CONFIG } from "./src/config/ui-config.js";
 
 let darkmodeInstance = null;
