@@ -5,10 +5,7 @@ import { BaseUI } from "../ui/base-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
 import { ERRORS } from "../config/error.js";
 import { UI_CONFIG } from "../config/ui-config.js";
-import {
-  showCurrenciesPage,
-  renderCoins,
-} from "../controllers/pages-controller.js";
+import {showCurrenciesPage,renderCoins,getLoadingCoins,setLoadingCoins,} from "../controllers/pages-controller.js";
 
 const { CURRENCIES } = UI_CONFIG;
 const { FAVORITES_EMPTY } = UI_CONFIG.UI;
@@ -16,7 +13,6 @@ const { API: API_ERRORS, SEARCH: SEARCH_ERRORS } = ERRORS;
 
 let isRegistered = false;
 let isShowingFavoritesOnly = false;
-let isLoadingCoins = false;
 
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
@@ -94,7 +90,6 @@ const handleMoreInfo = async (e) => {
     if (!ok || !data) {
       BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
         status,
-        defaultMessage: error,
       });
       return;
     }
@@ -128,10 +123,10 @@ const handleSortChange = () => {
 
 const handleRefreshCoins = (e) => {
   e.preventDefault();
-  if (!isLoadingCoins) {
-    isLoadingCoins = true;
+  if (!getLoadingCoins()) {
+    setLoadingCoins(true);
     showCurrenciesPage({ forceRefresh: true }).finally(() => {
-      isLoadingCoins = false;
+      setLoadingCoins(false);
     });
   }
 };

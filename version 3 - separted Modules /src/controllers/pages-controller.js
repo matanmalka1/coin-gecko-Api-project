@@ -19,11 +19,11 @@ const { REPORTS, CHART, ABOUT } = UI_CONFIG;
 // ===== LOADING STATE =====
 let isLoadingCoins = false;
 
-const setLoadingCoins = (value) => {
+export const setLoadingCoins = (value) => {
   isLoadingCoins = !!value;
 };
 
-const getLoadingCoins = () => isLoadingCoins;
+export const getLoadingCoins = () => isLoadingCoins;
 
 // ===== HELPERS =====
 export const renderCoins = (coins, extras = {}) => {
@@ -108,7 +108,6 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   renderCoins(data);
 };
 
-// ===== REPORTS PAGE =====
 // ===== REPORTS PAGE =====
 export const showReportsPage = async () => {
   ChartService.cleanup();

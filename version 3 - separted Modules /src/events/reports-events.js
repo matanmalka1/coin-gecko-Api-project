@@ -127,6 +127,12 @@ const handleCompareClick = async function () {
     return;
   }
 
+  if (currentSelection.length > MAX_COMPARE) {
+    BaseUI.showError("#content", "COMPARE_FULL", {
+      limit: MAX_COMPARE,
+    });
+    return;
+  }
   const { ok, code, coins, missing } = await ReportsService.getCompareData(
     currentSelection
   );
