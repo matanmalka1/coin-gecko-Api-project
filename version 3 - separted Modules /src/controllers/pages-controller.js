@@ -1,5 +1,4 @@
-import { CACHE_CONFIG } from "../config/api-cache-config.js";
-import { UI_CONFIG } from "../config/ui-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { NewsUI } from "../ui/news-ui.js";
@@ -13,8 +12,20 @@ import { BaseUI } from "../ui/base-ui.js";
 import { BaseComponents } from "../ui/Components/base-components.js";
 import { ErrorUI } from "../ui/error-ui.js";
 
-const { COINS_REFRESH_INTERVAL_MS } = CACHE_CONFIG.CACHE;
-const { REPORTS, CHART, ABOUT } = UI_CONFIG;
+const {
+  CACHE_COINS_REFRESH_MS,
+  REPORTS_COMPARE_MAX,
+  CHART_POINTS,
+  ABOUT_NAME,
+  ABOUT_IMAGE,
+  ABOUT_LINKEDIN,
+  NEWS_STATUS_GEN,
+  NEWS_STATUS_FAV,
+  NEWS_STATUS_FALLBACK_GEN,
+  NEWS_STATUS_FALLBACK_FAV,
+  NEWS_LOAD_GEN,
+  NEWS_LOAD_FAV,
+} = APP_CONFIG;
 
 // ===== LOADING STATE =====
 let isLoadingCoins = false;
@@ -34,23 +45,20 @@ export const renderCoins = (coins, extras = {}) => {
   });
 };
 
-const getNewsConfig = (isFavorites) => {
-  const { NEWS_UI } = UI_CONFIG;
-
-  return isFavorites
+const getNewsConfig = (isFavorites) =>
+  isFavorites
     ? {
-        status: NEWS_UI.STATUS_FAVORITES,
-        loading: NEWS_UI.LOADING_FAVORITES,
-        fallback: NEWS_UI.STATUS_FALLBACK_FAVORITES,
+        status: NEWS_STATUS_FAV,
+        loading: NEWS_LOAD_FAV,
+        fallback: NEWS_STATUS_FALLBACK_FAV,
         error: ERRORS.FAVORITES_ERROR,
       }
     : {
-        status: NEWS_UI.STATUS_GENERAL,
-        loading: NEWS_UI.LOADING_GENERAL,
-        fallback: NEWS_UI.STATUS_FALLBACK_GENERAL,
+        status: NEWS_STATUS_GEN,
+        loading: NEWS_LOAD_GEN,
+        fallback: NEWS_STATUS_FALLBACK_GEN,
         error: ERRORS.GENERAL_ERROR,
       };
-};
 
 // ===== STATS BAR =====
 export const initStatsBar = async () => {
@@ -85,7 +93,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   if (getLoadingCoins()) return;
 
   const isCacheExpired =
-    !lastUpdated || Date.now() - lastUpdated >= COINS_REFRESH_INTERVAL_MS;
+    !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
 
   if (cachedCoins.length && !forceRefresh && !isCacheExpired) {
     return;
@@ -120,7 +128,7 @@ export const showReportsPage = async () => {
     },
     onData: ({ candlesBySymbol }) => {
       ChartRenderer.update(candlesBySymbol, {
-        historyPoints: CHART.HISTORY_POINTS,
+        historyPoints: CHART_POINTS,
       });
     },
     onError: ({ symbol, code, error, status }) => {
@@ -188,7 +196,9 @@ export const showFavoritesNewsPage = async () => {
 export const showAboutPage = () => {
   ChartService.cleanup();
 
-  const { NAME: name, IMAGE: image, LINKEDIN: linkedin } = ABOUT;
+  const name = ABOUT_NAME;
+  const image = ABOUT_IMAGE;
+  const linkedin = ABOUT_LINKEDIN;
 
   BaseUI.showPage(
     PageComponents.aboutPage({

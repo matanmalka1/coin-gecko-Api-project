@@ -1,4 +1,4 @@
-import { UI_CONFIG } from "../../config/ui-config.js";
+import { APP_CONFIG } from "../../config/app-config.js";
 import {
   shortenText,
   formatPrice,
@@ -99,7 +99,7 @@ const coinCard = (coin, isSelected = false, options = {}) => {
 const coinDetails = (data = {}, currencies = {}) => {
   const { image, name, symbol, description, platforms, market_data } = data;
   const desc = description?.en
-    ? shortenText(description.en, UI_CONFIG.COIN_DETAILS.DESCRIPTION_MAX_CHARS)
+    ? shortenText(description.en, APP_CONFIG.COIN_DESC_MAX)
     : "No description available.";
   const prices = market_data?.current_price || {};
   const priceUsd = prices.usd;

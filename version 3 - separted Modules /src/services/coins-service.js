@@ -1,13 +1,18 @@
 import { fetchWithRetry } from "./api.js";
 import { CacheManager, StorageHelper } from "./storage-manager.js";
-import { API_CONFIG } from "../config/api-cache-config.js";
-import { UI_CONFIG } from "../config/ui-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 
 const { fetchWithCache, getCache, setCache } = CacheManager;
 const { readJSON, writeJSON, getSelectedReports, setSelectedReports } = StorageHelper;
 
-const { SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {} } =UI_CONFIG;
-const { COINGECKO_BASE, CHART_HISTORY_DAYS, COINS_PER_PAGE } = API_CONFIG;
+const {
+  SEARCH_MIN: MIN_LENGTH = 1,
+  SEARCH_MAX: MAX_LENGTH = 50,
+  SEARCH_PATTERN: ALLOWED_PATTERN,
+  COINGECKO_URL: COINGECKO_BASE,
+  CHART_HISTORY_DAYS,
+  COINS_PER_PAGE,
+} = APP_CONFIG;
 
 const COINS_CACHE_KEY = "marketData";
 const COINS_TIMESTAMP_KEY = "marketDataTimestamp";

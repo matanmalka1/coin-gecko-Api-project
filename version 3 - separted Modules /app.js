@@ -9,14 +9,26 @@ import {
   initStatsBar,
 } from "./src/controllers/pages-controller.js";
 
-import { UI_CONFIG } from "./src/config/ui-config.js";
+import { APP_CONFIG } from "./src/config/app-config.js";
 
 let darkmodeInstance = null;
 
 const initDarkmodeWidget = () => {
   if (darkmodeInstance) return darkmodeInstance;
 
-  darkmodeInstance = new Darkmode(UI_CONFIG.DARKMODE);
+  darkmodeInstance = new Darkmode({
+    bottom: APP_CONFIG.DM_BOTTOM,
+    right: APP_CONFIG.DM_RIGHT,
+    left: APP_CONFIG.DM_LEFT,
+    time: APP_CONFIG.DM_TIME,
+    mixColor: APP_CONFIG.DM_MIX,
+    backgroundColor: APP_CONFIG.DM_BG,
+    buttonColorDark: APP_CONFIG.DM_BTN_DARK,
+    buttonColorLight: APP_CONFIG.DM_BTN_LIGHT,
+    saveInCookies: APP_CONFIG.DM_SAVE_COOKIES,
+    label: APP_CONFIG.DM_LABEL,
+    autoMatchOsTheme: APP_CONFIG.DM_AUTO_OS,
+  });
   darkmodeInstance.showWidget();
 
   return darkmodeInstance;

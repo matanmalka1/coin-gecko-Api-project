@@ -1,11 +1,11 @@
 import { CoinsService } from "../services/coins-service.js";
 import { ReportsService } from "../services/reports-service.js";
 import { ERRORS } from "../config/error.js";
-import { UI_CONFIG } from "../config/ui-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { CoinUI } from "../ui/coin-ui.js";
 
-const { MAX_COMPARE } = UI_CONFIG.REPORTS;
+const { REPORTS_COMPARE_MAX: MAX_COMPARE } = APP_CONFIG;
 
 let eventsRegistered = false;
 let compareModalOpen = false;

@@ -1,14 +1,12 @@
 import { StorageHelper } from "./storage-manager.js";
 import { CoinsService } from "./coins-service.js";
-import { UI_CONFIG } from "../config/ui-config.js";
-import { API_CONFIG } from "../config/api-cache-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 import { fetchWithRetry } from "./api.js";
 
 const { getSelectedReports, removeReport, addReport } = StorageHelper;
 const { getAllCoins } = CoinsService;
 
-const { MAX_COINS } = UI_CONFIG.REPORTS;
-const { COINGECKO_BASE } = API_CONFIG;
+const { REPORTS_MAX: MAX_COINS, COINGECKO_URL: COINGECKO_BASE } = APP_CONFIG;
 
 const toggleCoinSelection = (symbol) => {
   if (

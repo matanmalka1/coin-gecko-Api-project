@@ -3,7 +3,7 @@ import { StorageHelper } from "../services/storage-manager.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { ERRORS } from "../config/error.js";
-import { UI_CONFIG } from "../config/ui-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import {
   showCurrenciesPage,
@@ -12,8 +12,12 @@ import {
   setLoadingCoins,
 } from "../controllers/pages-controller.js";
 
-const { CURRENCIES } = UI_CONFIG;
-const { FAVORITES_EMPTY } = UI_CONFIG.UI;
+const CURRENCIES = {
+  USD: { symbol: APP_CONFIG.USD_SYMBOL, label: APP_CONFIG.USD_LABEL },
+  EUR: { symbol: APP_CONFIG.EUR_SYMBOL, label: APP_CONFIG.EUR_LABEL },
+  ILS: { symbol: APP_CONFIG.ILS_SYMBOL, label: APP_CONFIG.ILS_LABEL },
+};
+const FAVORITES_EMPTY = APP_CONFIG.UI_FAV_EMPTY;
 
 let isRegistered = false;
 let isShowingFavoritesOnly = false;

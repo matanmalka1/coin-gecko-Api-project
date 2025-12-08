@@ -1,16 +1,16 @@
-import { UI_CONFIG } from "../config/ui-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 import { CoinsService } from "../services/coins-service.js";
 import { ErrorUI } from "./error-ui.js";
 
 // ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 
 const charts = new Map();
-let maxHistoryPoints = UI_CONFIG.CHART.HISTORY_POINTS;
+let maxHistoryPoints = APP_CONFIG.CHART_POINTS;
 
 const destroyAll = () => {
   charts.forEach((entry) => entry?.chart?.remove());
   charts.clear();
-  maxHistoryPoints = UI_CONFIG.CHART.HISTORY_POINTS;
+  maxHistoryPoints = APP_CONFIG.CHART_POINTS;
 };
 
 const setupCharts = (symbols, options = {}) => {
@@ -20,12 +20,12 @@ const setupCharts = (symbols, options = {}) => {
   destroyAll();
   grid.empty();
 
-  maxHistoryPoints = options.historyPoints ?? UI_CONFIG.CHART.HISTORY_POINTS;
+  maxHistoryPoints = options.historyPoints ?? APP_CONFIG.CHART_POINTS;
 
   const isMobile = window.innerWidth <= 576;
   const height = isMobile
-    ? UI_CONFIG.CHART.HEIGHT_MOBILE_PX ?? UI_CONFIG.CHART.HEIGHT_PX
-    : UI_CONFIG.CHART.HEIGHT_PX;
+    ? APP_CONFIG.CHART_H_MOBILE ?? APP_CONFIG.CHART_H
+    : APP_CONFIG.CHART_H;
 
   symbols.forEach((symbol) => {
     const containerId = `chart-${symbol}`;
@@ -34,7 +34,7 @@ const setupCharts = (symbols, options = {}) => {
         <div class="card shadow-sm p-3 h-100 rounded-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">${symbol}</h6>
-            <small class="text-muted">${UI_CONFIG.CHART.CARD_BADGE_TEXT}</small>
+            <small class="text-muted">${APP_CONFIG.CHART_BADGE}</small>
           </div>
           <div id="${containerId}" style="height:${height}px;"></div>
         </div>
@@ -48,20 +48,23 @@ const setupCharts = (symbols, options = {}) => {
       width: container.clientWidth,
       height,
       layout: {
-        background: { type: "solid", color: UI_CONFIG.CHART.LAYOUT.BACKGROUND },
-        textColor: UI_CONFIG.CHART.LAYOUT.TEXT,
+        background: {
+          type: "solid",
+          color: APP_CONFIG.CHART_BG,
+        },
+        textColor: APP_CONFIG.CHART_TEXT,
       },
-      rightPriceScale: { borderColor: UI_CONFIG.CHART.LAYOUT.BORDER },
-      timeScale: { borderColor: UI_CONFIG.CHART.LAYOUT.BORDER },
+      rightPriceScale: { borderColor: APP_CONFIG.CHART_BORDER },
+      timeScale: { borderColor: APP_CONFIG.CHART_BORDER },
     });
 
     const series = chart.addSeries(LightweightCharts.CandlestickSeries, {
-      upColor: UI_CONFIG.CHART.CANDLE_COLORS.UP,
-      downColor: UI_CONFIG.CHART.CANDLE_COLORS.DOWN,
-      borderUpColor: UI_CONFIG.CHART.CANDLE_COLORS.BORDER_UP,
-      borderDownColor: UI_CONFIG.CHART.CANDLE_COLORS.BORDER_DOWN,
-      wickUpColor: UI_CONFIG.CHART.CANDLE_COLORS.WICK_UP,
-      wickDownColor: UI_CONFIG.CHART.CANDLE_COLORS.WICK_DOWN,
+      upColor: APP_CONFIG.CHART_UP,
+      downColor: APP_CONFIG.CHART_DOWN,
+      borderUpColor: APP_CONFIG.CHART_BORDER_UP,
+      borderDownColor: APP_CONFIG.CHART_BORDER_DOWN,
+      wickUpColor: APP_CONFIG.CHART_WICK_UP,
+      wickDownColor: APP_CONFIG.CHART_WICK_DOWN,
     });
     charts.set(symbol, { chart, series });
   });

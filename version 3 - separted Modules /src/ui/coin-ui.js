@@ -1,6 +1,6 @@
 import { BaseComponents } from "./Components/base-components.js";
 import { CoinComponents } from "./Components/coin-components.js";
-import { UI_CONFIG } from "../config/ui-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "./error-ui.js";
 import {
@@ -9,6 +9,18 @@ import {
   formatPercent,
 } from "../utils/general-utils.js";
 import { ChartRenderer } from "./chart-renderer.js";
+
+const UI_TEXT = {
+  noCoins: APP_CONFIG.UI_NO_COINS,
+  loadingCoins: APP_CONFIG.UI_LOAD_COINS,
+  compareTitle: APP_CONFIG.UI_COMPARE_TITLE,
+};
+
+const CURRENCIES = {
+  USD: { symbol: APP_CONFIG.USD_SYMBOL, label: APP_CONFIG.USD_LABEL },
+  EUR: { symbol: APP_CONFIG.EUR_SYMBOL, label: APP_CONFIG.EUR_LABEL },
+  ILS: { symbol: APP_CONFIG.ILS_SYMBOL, label: APP_CONFIG.ILS_LABEL },
+};
 
 // ===== COIN LIST RENDERING =====
 const displayCoins = (coins, selectedReports = [], options = {}) => {
@@ -29,7 +41,7 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
     : [];
 
   if (!coins.length) {
-    ErrorUI.showInfo(container, emptyMessage || UI_CONFIG.UI.NO_COINS_FOUND);
+    ErrorUI.showInfo(container, emptyMessage || UI_TEXT.noCoins);
     return;
   }
 
@@ -58,7 +70,7 @@ const showLoading = () => {
 
   container.html(
     `${BaseComponents.spinner(
-      UI_CONFIG.UI.LOADING_COINS
+      UI_TEXT.loadingCoins
     )}${BaseComponents.skeleton("coins", 6)}`
   );
 };
@@ -105,7 +117,7 @@ const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
       if (!selectedToRemove) {
         ErrorUI.showInfo(
           container,
-          emptyMessage || UI_CONFIG.UI.NO_COINS_FOUND
+          emptyMessage || UI_TEXT.noCoins
         );
         return;
       }
@@ -166,7 +178,7 @@ const showCompareModal = (coins, options = {}) => {
 
   const content = buildCompareTable(coins);
   const modalHTML = CoinComponents.compareModal(content, {
-    title: title || UI_CONFIG.UI.COMPARE_TITLE,
+    title: title || UI_TEXT.compareTitle,
   });
 
   $("body").append(modalHTML);

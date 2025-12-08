@@ -1,7 +1,11 @@
-import { CACHE_CONFIG } from "../config/api-cache-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 
-const { MAX_ENTRIES = 100, EXPIRY_TIME } = CACHE_CONFIG.CACHE;
-const { STORAGE_KEYS } = CACHE_CONFIG;
+const {
+  CACHE_MAX: MAX_ENTRIES = 100,
+  CACHE_TTL: EXPIRY_TIME,
+  KEY_FAVORITES,
+  KEY_REPORTS,
+} = APP_CONFIG;
 
 // ===== IN-MEMORY CACHE (LRU) =====
 const cacheStore = new Map();
@@ -68,21 +72,21 @@ const writeJSON = (key, value) => {
 
 // ===== FAVORITES & REPORTS HELPERS =====
 const getFavorites = () => {
-  const stored = readJSON(STORAGE_KEYS.FAVORITES, []);
+  const stored = readJSON(KEY_FAVORITES, []);
   return Array.isArray(stored) ? stored : [];
 };
 
 const addFavorite = (symbol) => {
   const favorites = getFavorites();
   if (!favorites.includes(symbol)) {
-    writeJSON(STORAGE_KEYS.FAVORITES, [...favorites, symbol]);
+    writeJSON(KEY_FAVORITES, [...favorites, symbol]);
   }
 };
 
 const removeFavorite = (symbol) => {
   const favorites = getFavorites();
   writeJSON(
-    STORAGE_KEYS.FAVORITES,
+    KEY_FAVORITES,
     favorites.filter((f) => f !== symbol)
   );
 };
@@ -90,25 +94,25 @@ const removeFavorite = (symbol) => {
 const isFavorite = (symbol) => getFavorites().includes(symbol);
 
 const getSelectedReports = () => {
-  const stored = readJSON(STORAGE_KEYS.REPORTS, []);
+  const stored = readJSON(KEY_REPORTS, []);
   return Array.isArray(stored) ? stored : [];
 };
 
 const setSelectedReports = (reports) => {
-  writeJSON(STORAGE_KEYS.REPORTS, Array.isArray(reports) ? reports : []);
+  writeJSON(KEY_REPORTS, Array.isArray(reports) ? reports : []);
 };
 
 const addReport = (symbol) => {
   const reports = getSelectedReports();
   if (!reports.includes(symbol)) {
-    writeJSON(STORAGE_KEYS.REPORTS, [...reports, symbol]);
+    writeJSON(KEY_REPORTS, [...reports, symbol]);
   }
 };
 
 const removeReport = (symbol) => {
   const reports = getSelectedReports();
   writeJSON(
-    STORAGE_KEYS.REPORTS,
+    KEY_REPORTS,
     reports.filter((r) => r !== symbol)
   );
 };

@@ -1,13 +1,11 @@
-import { UI_CONFIG } from "../../config/ui-config.js";
+import { APP_CONFIG } from "../../config/app-config.js";
 import { shortenText } from "../../utils/general-utils.js";
 import { BaseComponents } from "./base-components.js";
 
 const { cardContainer } = BaseComponents;
-const {
-  REPORTS: {
-    CREDIT: { LABEL, LINK, NAME },
-  },
-} = UI_CONFIG;
+const CREDIT_LABEL = APP_CONFIG.REPORTS_CREDIT_LABEL;
+const CREDIT_LINK = APP_CONFIG.REPORTS_CREDIT_LINK;
+const CREDIT_NAME = APP_CONFIG.REPORTS_CREDIT_NAME;
 
 // Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `
@@ -41,13 +39,13 @@ const reportsPage = () => `
   <div id="chartsGrid" class="row g-3"></div>
   <div class="mt-2">
     <small class="text-muted">
-      ${LABEL}
-      <a href="${LINK}" target="_blank" rel="noreferrer">${NAME}</a>
+      ${CREDIT_LABEL}
+      <a href="${CREDIT_LINK}" target="_blank" rel="noreferrer">${CREDIT_NAME}</a>
     </small>
   </div>
 `;
 
-// Static about page with author details pulled from UI_CONFIG.
+// Static about page with author details pulled from APP_CONFIG.
 const aboutPage = (userData = {}) => {
   const { image, name, linkedin } = userData;
   return `
@@ -118,7 +116,7 @@ const newsPage = () => `
                   <i class="bi bi-info-circle me-1"></i>Live monitor
               </span>
             </div>
-                <p id="newsStatus" class="mb-0 text-white-75">${UI_CONFIG.NEWS_UI.STATUS_GENERAL}</p>
+                <p id="newsStatus" class="mb-0 text-white-75">${APP_CONFIG.NEWS_STATUS_GEN}</p>
           </div>
         </div>
       </div>
@@ -136,7 +134,7 @@ const newsArticleCard = (article) => {
     article || {};
 
   const displayTitle = title || "Untitled";
-  const displayDesc = shortenText(description, UI_CONFIG.NEWS_UI.DESC_MAX);
+  const displayDesc = shortenText(description, APP_CONFIG.NEWS_DESC_MAX);
   const link = original_url || url || "#";
   const publishedDate = published_at
     ? new Date(published_at).toLocaleString()

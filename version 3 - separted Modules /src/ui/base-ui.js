@@ -1,4 +1,4 @@
-import { UI_CONFIG } from "../config/ui-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 import { BaseComponents } from "./Components/base-components.js";
 import { formatLargeNumber, formatPercent } from "../utils/general-utils.js";
 
@@ -27,9 +27,7 @@ const toggleCollapse = (collapseId, show) => {
 
 // Updates the favorites toggle button caption based on mode.
 const setFavoritesButtonLabel = (showingFavorites) => {
-  const label = showingFavorites
-    ? UI_CONFIG.UI.FAVORITES_HIDE_LABEL
-    : UI_CONFIG.UI.FAVORITES_SHOW_LABEL;
+  const label = showingFavorites ? APP_CONFIG.UI_FAV_HIDE : APP_CONFIG.UI_FAV_SHOW;
   $("#showFavoritesBtn").text(label);
 };
 
@@ -39,10 +37,6 @@ const setStatsBar = ({
   btcDominance,
   marketChange,
 } = {}) => {
-  const {
-    LABELS: { MARKET_CAP, VOLUME_24H, BTC_DOMINANCE, MARKET_CHANGE_24H },
-  } = UI_CONFIG.STATSBAR;
-
   const btcDominanceText = formatPercent(btcDominance, { decimals: 1 });
   const marketChangeText = formatPercent(marketChange, {
     decimals: 2,
@@ -50,16 +44,26 @@ const setStatsBar = ({
   });
 
   return [
-    { label: MARKET_CAP, value: formatLargeNumber(totalMarketCap) },
-    { label: VOLUME_24H, value: formatLargeNumber(totalVolume) },
-    { label: BTC_DOMINANCE, value: btcDominanceText },
-    { label: MARKET_CHANGE_24H, value: marketChangeText },
+    {
+      label: APP_CONFIG.STATS_MARKET_CAP,
+      value: formatLargeNumber(totalMarketCap),
+    },
+    {
+      label: APP_CONFIG.STATS_VOLUME_24H,
+      value: formatLargeNumber(totalVolume),
+    },
+    {
+      label: APP_CONFIG.STATS_BTC_DOM,
+      value: btcDominanceText,
+    },
+    {
+      label: APP_CONFIG.STATS_MARKET_CHANGE,
+      value: marketChangeText,
+    },
   ];
 };
 
 const renderStatsBar = (targetSelector, props = {}) => {
-  const { ICON } = UI_CONFIG.STATSBAR;
-
   $(targetSelector).html(`
     <div class="container">
       <div class="row g-3 text-center">
@@ -70,7 +74,7 @@ const renderStatsBar = (targetSelector, props = {}) => {
                 <div class="card shadow-sm h-100">
                   <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
                     <div class="mb-2">
-                      ${ICON}
+                      ${APP_CONFIG.STATS_ICON}
                     </div>
                     <div class="text-muted small mb-1">
                       ${stat.label}

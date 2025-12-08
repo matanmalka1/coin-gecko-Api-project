@@ -1,5 +1,4 @@
-import { API_CONFIG, CACHE_CONFIG } from "../config/api-cache-config.js";
-import { UI_CONFIG } from "../config/ui-config.js";
+import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { filterLastHours } from "../utils/general-utils.js";
 import { CacheManager } from "./storage-manager.js";
@@ -7,9 +6,16 @@ import { fetchWithRetry } from "./api.js"; // במקום coinAPI
 
 const { getCache, setCache } = CacheManager;
 
-const { TTL_MS: CACHE_TTL_MS, FRESH_WINDOW_MS } = CACHE_CONFIG.NEWS_CACHE;
-const { DEFAULT_QUERY, CACHE_KEYS, LANGUAGE } = UI_CONFIG.NEWS;
-const { BASE_URL, API_KEY } = API_CONFIG.NEWS;
+const CACHE_TTL_MS = APP_CONFIG.NEWS_TTL;
+const FRESH_WINDOW_MS = APP_CONFIG.NEWS_FRESH_MS;
+const DEFAULT_QUERY = APP_CONFIG.NEWS_QUERY;
+const LANGUAGE = APP_CONFIG.NEWS_LANG;
+const CACHE_KEYS = {
+  GENERAL: APP_CONFIG.NEWS_CACHE_GEN,
+  FAVORITES: APP_CONFIG.NEWS_CACHE_FAV,
+};
+const BASE_URL = APP_CONFIG.NEWS_URL;
+const API_KEY = APP_CONFIG.NEWS_KEY;
 
 // ===== CACHE HELPERS =====
 const getCachedNews = (cacheKey) => {
