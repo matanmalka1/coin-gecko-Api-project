@@ -31,7 +31,7 @@ const currenciesPage = () => `
       <option value="volume_low">Volume Low</option>
     </select>
   </div>
-  <div id="compareStatus" class="alert alert-info py-2 px-3 small d-none"></div>
+  <div id="compareStatus" class="d-none mb-3"></div>
   <div id="coinsContainer" class="row g-3"></div>
 `;
 

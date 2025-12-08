@@ -5,13 +5,13 @@ import { CoinUI } from "../ui/coin-ui.js";
 import { NewsUI } from "../ui/news-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
 import { PageComponents } from "../ui/Components/page-components.js";
-import { BaseComponents } from "../ui/Components/base-components.js";
 import { CoinsService } from "../services/coins-service.js";
 import { ChartService } from "../services/chart-service.js";
 import { NewsService } from "../services/news-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
 import { BaseUI } from "../ui/base-ui.js";
-import { ErrorResolver } from "../utils/error-resolver.js";
+import { BaseComponents } from "../ui/Components/base-components.js";
+import { ErrorUI } from "../ui/error-ui.js";
 
 const { COINS_REFRESH_INTERVAL_MS } = CACHE_CONFIG.CACHE;
 const { REPORTS, CHART, ABOUT } = UI_CONFIG;
@@ -75,8 +75,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   BaseUI.showPage(PageComponents.currenciesPage());
 
   const $compareStatus = $("#compareStatus");
-  $compareStatus.addClass("d-none");
-  $compareStatus.html(`0 / ${REPORTS.MAX_COMPARE} coins selected`);
+  $compareStatus.addClass("d-none").empty();
   CoinUI.clearCompareHighlights();
 
   const cachedCoins = CoinsService.getAllCoins();
@@ -98,7 +97,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   setLoadingCoins(false);
 
   if (!ok) {
-    BaseUI.showError("#coinsContainer", code || "COIN_LIST_ERROR", {
+    ErrorUI.showError("#coinsContainer", code || "COIN_LIST_ERROR", {
       status,
       defaultMessage: error,
     });
@@ -115,7 +114,7 @@ export const showReportsPage = async () => {
   BaseUI.showPage(PageComponents.reportsPage());
   $("#chartsGrid").html(BaseComponents.skeleton("charts", 6));
 
-  const { ok, status } = await ChartService.startLiveChart({
+  await ChartService.startLiveChart({
     onChartReady: ({ symbols, historyPoints }) => {
       ChartRenderer.clear();
       ChartRenderer.setupCharts(symbols, { historyPoints });
@@ -126,30 +125,19 @@ export const showReportsPage = async () => {
       });
     },
     onError: ({ symbol, code, error, status }) => {
+      const context = { defaultMessage: error, status };
+
       if (symbol) {
-        const chartContainer = $(`#chart-${symbol}`).closest(".card");
-        chartContainer.find(".card-body").prepend(
-          BaseComponents.errorAlert(
-            ErrorResolver.resolve(code || "LIVE_CHART_ERROR", {
-              defaultMessage: error,
-              status,
-            })
-          )
-        );
+        const $cardBody = $(`#chart-${symbol}`)
+          .closest(".card")
+          .find(".card-body");
+
+        ErrorUI.showError($cardBody, code || "LIVE_CHART_ERROR", context);
       } else {
-        BaseUI.showError("#chartsGrid", code || "LIVE_CHART_ERROR", {
-          status,
-          defaultMessage: error,
-        });
+        ErrorUI.showError("#chartsGrid", code || "LIVE_CHART_ERROR", context);
       }
     },
   });
-
-  if (!ok) {
-    BaseUI.showError("#chartsGrid", "LIVE_CHART_ERROR", {
-      status,
-    });
-  }
 };
 
 // ===== NEWS PAGE =====
@@ -173,7 +161,7 @@ const loadNews = async (mode = "general") => {
     : await NewsService.getGeneralNews();
 
   if (!ok) {
-    BaseUI.showError("#newsList", code || "NEWS_ERROR", {
+    ErrorUI.showError("#newsList", code || "NEWS_ERROR", {
       defaultMessage: errorMessage || error || ERRORS.NEWS.GENERAL_ERROR,
       status: httpStatus,
     });

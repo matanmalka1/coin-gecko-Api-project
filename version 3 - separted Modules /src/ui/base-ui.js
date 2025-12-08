@@ -1,6 +1,4 @@
 import { UI_CONFIG } from "../config/ui-config.js";
-import { ERRORS } from "../config/error.js";
-import { ErrorResolver } from "../utils/error-resolver.js";
 import { BaseComponents } from "./Components/base-components.js";
 import { formatLargeNumber, formatPercent } from "../utils/general-utils.js";
 
@@ -11,16 +9,6 @@ const showPage = (html, containerSelector = "#content") => {
 
 // Safe wrapper for reading data-* attributes.
 const getDataAttr = (element, key) => $(element).data(key);
-
-// Renders an alert error message inside a container.
-const showError = (container, codeOrMessage, context = {}) => {
-  const msg = ErrorResolver.resolve(codeOrMessage, {
-    defaultMessage: ERRORS.UI.GENERIC,
-    ...context,
-  });
-
-  $(container).html(BaseComponents.errorAlert(msg));
-};
 
 // Shows a spinner placeholder with optional text.
 const showSpinner = (container, message) => {
@@ -139,7 +127,6 @@ const showToast = (message, type = "info") => {
 export const BaseUI = {
   showPage,
   getDataAttr,
-  showError,
   showSpinner,
   toggleCollapse,
   setFavoritesButtonLabel,

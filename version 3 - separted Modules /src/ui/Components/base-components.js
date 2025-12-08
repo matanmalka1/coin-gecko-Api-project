@@ -1,9 +1,3 @@
-// Builds a Bootstrap alert block with icon + text.
-const alertBox = (type, icon, message) => `
-  <div class="alert alert-${type} text-center mt-4">
-    <i class="${icon}"></i> ${message}
-  </div>
-`;
 
 // Returns a spinner block with an accessible status message.
 const spinner = (message = "Loading...") => `
@@ -15,19 +9,6 @@ const spinner = (message = "Loading...") => `
   </div>
 `;
 
-// Specialized variant for danger alerts.
-const errorAlert = (message) =>
-  alertBox("danger", "bi bi-exclamation-triangle-fill", message);
-
-// Specialized variant for informational alerts.
-const infoAlert = (message) =>
-  alertBox("info", "bi bi-info-circle-fill", message);
-
-// // Wraps arbitrary content inside a styled div.
-// const cardShell = (content, classes = "") =>
-//   `<div class="${classes}">${content}</div>`;
-
-// Renders a responsive column with a Bootstrap card inside.
 const cardContainer = (
   content,
   colClasses = "col-md-6 col-lg-4",
@@ -87,8 +68,6 @@ const skeleton = (type = "coins", count = 6) => {
 
 export const BaseComponents = {
   spinner,
-  errorAlert,
-  infoAlert,
   cardContainer,
   skeleton,
 };

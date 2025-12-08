@@ -225,6 +225,7 @@ const compareModal = (coinsHTML, options = {}) => {
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <div id="compareModalMessage" class="mb-3"></div>
             ${coinsHTML}
           </div>
         </div>

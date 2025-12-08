@@ -1,13 +1,14 @@
 import { ERRORS } from "../config/error.js";
 import { BaseComponents } from "./Components/base-components.js";
 import { PageComponents } from "./Components/page-components.js";
+import { ErrorUI } from "./error-ui.js";
 
 // Renders the list of article cards or an empty-state message.
 const showNews = (articles = [], { emptyMessage = ERRORS.NEWS.EMPTY } = {}) =>
   $("#newsList").html(
     articles.length
       ? articles.map(PageComponents.newsArticleCard).join("")
-      : BaseComponents.infoAlert(emptyMessage)
+      : ErrorUI.showInfo("#newsList", emptyMessage)
   );
 
 // Updates the hero status text (freshness/fallback).

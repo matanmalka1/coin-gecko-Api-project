@@ -2,7 +2,7 @@ import { BaseComponents } from "./Components/base-components.js";
 import { CoinComponents } from "./Components/coin-components.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
-import { BaseUI } from "./base-ui.js";
+import { ErrorUI } from "./error-ui.js";
 import {
   formatPrice,
   formatLargeNumber,
@@ -29,9 +29,7 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
     : [];
 
   if (!coins.length) {
-    container.html(
-      BaseComponents.infoAlert(emptyMessage || UI_CONFIG.UI.NO_COINS_FOUND)
-    );
+    ErrorUI.showInfo(container, emptyMessage || UI_CONFIG.UI.NO_COINS_FOUND);
     return;
   }
 
@@ -105,9 +103,10 @@ const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
       if (!selectedToRemove) {
-        BaseUI.showError("#replaceModalError", "REPLACE_SELECTION_REQUIRED", {
-          defaultMessage: ERRORS.REPORTS.REPLACE_SELECTION_REQUIRED,
-        });
+        ErrorUI.showInfo(
+          container,
+          emptyMessage || UI_CONFIG.UI.NO_COINS_FOUND
+        );
         return;
       }
 
@@ -142,7 +141,7 @@ const buildCompareRow = (coin) => {
     </tr>
   `;
 };
-const buildCompareTable = (coins, missingSymbols = []) => {
+const buildCompareTable = (coins) => {
   const rows = coins.map(buildCompareRow).join("");
 
   const table = `
@@ -159,20 +158,13 @@ const buildCompareTable = (coins, missingSymbols = []) => {
       <tbody>${rows}</tbody>
     </table>
   `;
-
-  const warning = missingSymbols.length
-    ? `<div class="alert alert-warning mt-3">
-         ${ERRORS.REPORTS.MISSING_DATA(missingSymbols.join(", "))}
-       </div>`
-    : "";
-
-  return table + warning;
+  return table;
 };
 
 const showCompareModal = (coins, options = {}) => {
   const { missingSymbols = [], title, onClose } = options;
 
-  const content = buildCompareTable(coins, missingSymbols);
+  const content = buildCompareTable(coins);
   const modalHTML = CoinComponents.compareModal(content, {
     title: title || UI_CONFIG.UI.COMPARE_TITLE,
   });
@@ -180,6 +172,14 @@ const showCompareModal = (coins, options = {}) => {
   $("body").append(modalHTML);
   const modalElement = document.getElementById("compareModal");
   const modal = new bootstrap.Modal(modalElement);
+
+  if (missingSymbols.length) {
+    ErrorUI.showInfo(
+      "#compareModalMessage",
+      ERRORS.REPORTS.MISSING_DATA(missingSymbols.join(", ")),
+      "warning"
+    );
+  }
 
   $("#compareModal").on("hidden.bs.modal", () => {
     $("#compareModal").remove();

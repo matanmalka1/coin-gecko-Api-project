@@ -1,6 +1,6 @@
-// Centralized user-facing error messages for the app.
+// Centralized error messages + resolver for the entire app.
 export const ERRORS = {
-  // Errors surfaced when communicating with remote APIs
+  // ===== API ERRORS =====
   API: {
     DEFAULT: "Failed to load data. Please try again.",
     API_ERROR: "Failed to load data. Please try again.",
@@ -13,45 +13,97 @@ export const ERRORS = {
     NO_SYMBOLS: "No symbols provided",
   },
 
-  // Messages guiding users as they interact with the coin search UI
+  // ===== SEARCH ERRORS =====
   SEARCH: {
     EMPTY_TERM: "Please enter a search term.",
-    LOAD_WAIT: "Please wait for coins to load...",
+    TERM_TOO_SHORT: "Search term is too short.",
+    TERM_TOO_LONG: "Search term is too long.",
     NO_MATCH: (term) => `No coins found matching "${term}".`,
-    TERM_TOO_SHORT: (min = 1) =>
-      `Please enter at least ${min} characters for search.`,
-    TERM_TOO_LONG: (max = "") =>
-      `Search term is too long. Maximum allowed is ${max} characters.`,
-    INVALID_TERM:
-      "Search term contains invalid characters. Use letters, numbers, spaces, dots or hyphens.",
   },
 
-  // Report-builder specific validations and failures
+  // ===== REPORTS / COMPARE ERRORS =====
   REPORTS: {
-    NONE_SELECTED: "No coins selected. Please choose coins first.",
-    NOT_FOUND: "Selected coins not found. Try refreshing data.",
-    MISSING_DATA: (symbols) => `Failed to load data for: ${symbols}`,
-    FULL: (limit = 5) =>
-      `You can select up to ${limit} coins. Please replace an existing one.`,
-    DUPLICATE: "This coin is already selected.",
-    INVALID_SYMBOL: "Coin not found in the current list. Please refresh.",
-    NO_DATA: "No data available for the selected coins.",
-    REPLACE_SELECTION_REQUIRED:
-      "Please choose a coin to replace before confirming.",
-    COMPARE_FULL: (
-      limit = 2 
-    ) => `Maximum ${limit} coins for comparison. Deselect one first.`,
+    NONE_SELECTED: "No coins selected for reports.",
+    LIMIT: (max) => `You can select up to ${max} coins for reports.`,
+    INVALID_SYMBOL: "The selected coin is invalid.",
+    DUPLICATE: "This coin is already in your reports list.",
+    NOT_FOUND: "Coin not found in your reports.",
+    REPLACE_SELECTION_REQUIRED: "Please choose a coin to replace.",
   },
 
-  // Errors specific to the news feed module
+  // ===== NEWS ERRORS =====
   NEWS: {
     GENERAL_ERROR: "Failed to load general news. Please try again later.",
     FAVORITES_ERROR: "Failed to load favorites news. Please try again later.",
     EMPTY: "No news found for the last 5 hours.",
   },
 
-  // Catch-all UI errors that are not module-specific
+  // ===== GENERIC UI ERRORS =====
   UI: {
     GENERIC: "An error occurred. Please try again.",
+  },
+};
+
+// ===== RESOLVER (לשעבר error-resolver.js) =====
+
+const HANDLERS = {
+  // Search / input
+  EMPTY_TERM: () => ERRORS.SEARCH.EMPTY_TERM,
+  TERM_TOO_SHORT: () => ERRORS.SEARCH.TERM_TOO_SHORT,
+  TERM_TOO_LONG: () => ERRORS.SEARCH.TERM_TOO_LONG,
+
+  // API-level errors
+  API_ERROR: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.API.API_ERROR || ERRORS.API.DEFAULT,
+
+  COIN_LIST_ERROR: ({ defaultMessage, status }) =>
+    defaultMessage || ERRORS.API.REQUEST_FAILED(status) || ERRORS.API.DEFAULT,
+
+  COIN_DETAILS_ERROR: ({ defaultMessage, status }) =>
+    defaultMessage || ERRORS.API.REQUEST_FAILED(status) || ERRORS.API.DEFAULT,
+
+  LIVE_CHART_ERROR: ({ defaultMessage, status }) =>
+    defaultMessage || ERRORS.API.REQUEST_FAILED(status) || ERRORS.API.DEFAULT,
+
+  HTTP_ERROR: ({ status, defaultMessage }) =>
+    status
+      ? ERRORS.API.REQUEST_FAILED(status)
+      : defaultMessage || ERRORS.API.DEFAULT,
+
+  RATE_LIMIT: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.API.RATE_LIMIT || ERRORS.API.DEFAULT,
+
+  NO_SYMBOLS: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.API.NO_SYMBOLS || ERRORS.API.DEFAULT,
+
+  // Reports / compare
+  NONE_SELECTED: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.REPORTS.NONE_SELECTED,
+
+  COMPARE_FULL: ({ limit, defaultMessage }) =>
+    defaultMessage || ERRORS.REPORTS.LIMIT(limit),
+
+  INVALID_SYMBOL: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.REPORTS.INVALID_SYMBOL,
+
+  DUPLICATE: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.REPORTS.DUPLICATE,
+
+  NOT_FOUND: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.REPORTS.NOT_FOUND,
+
+  REPLACE_SELECTION_REQUIRED: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.REPORTS.REPLACE_SELECTION_REQUIRED,
+
+  NEWS_ERROR: ({ defaultMessage }) =>
+    defaultMessage || ERRORS.NEWS.GENERAL_ERROR,
+};
+
+export const ErrorResolver = {
+  resolve(code, options = {}) {
+    const handler = HANDLERS[code];
+    return handler
+      ? handler(options)
+      : options.defaultMessage || ERRORS.API.DEFAULT;
   },
 };

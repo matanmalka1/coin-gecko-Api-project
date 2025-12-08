@@ -1,9 +1,8 @@
 import { CoinsService } from "../services/coins-service.js";
 import { ReportsService } from "../services/reports-service.js";
-import { StorageHelper } from "../services/storage-manager.js";
 import { ERRORS } from "../config/error.js";
-import { BaseUI } from "../ui/base-ui.js";
 import { UI_CONFIG } from "../config/ui-config.js";
+import { ErrorUI } from "../ui/error-ui.js";
 import { CoinUI } from "../ui/coin-ui.js";
 
 const { MAX_COMPARE } = UI_CONFIG.REPORTS;
@@ -28,14 +27,14 @@ const updateCompareIndicator = (selected = CoinUI.getCompareSelection()) => {
   const selectedCount = selectionArray.length;
 
   const $status = $("#compareStatus");
-  $status.text(`${selectedCount} / ${MAX_COMPARE} coins selected`);
-
   if (!selectedCount) {
-    $status.addClass("d-none");
+    $status.addClass("d-none").empty();
     CoinUI.clearCompareHighlights();
-  } else {
-    $status.removeClass("d-none");
+    return;
   }
+
+  ErrorUI.showInfo("#compareStatus", `${selectedCount} / ${MAX_COMPARE} coins selected`);
+  $status.removeClass("d-none");
 };
 
 // ===== EVENT HANDLERS =====
@@ -45,7 +44,7 @@ const handleFilterReports = () => {
   $("#clearSearchBtn").removeClass("d-none");
 
   if (!ok) {
-    BaseUI.showError("#coinsContainer", code, {
+    ErrorUI.showError("#coinsContainer", code, {
       defaultMessage: REPORTS_ERRORS.NONE_SELECTED,
     });
     return;
@@ -64,7 +63,7 @@ const openReplaceFlow = (serviceResult) => {
       CoinUI.updateToggleStates(selected);
 
       if (!ok) {
-        BaseUI.showError("#content", code);
+        ErrorUI.showError("#content", code);
         modal.hide();
         return;
       }
@@ -95,7 +94,7 @@ const handleCompareClick = async function () {
   );
 
   if (!coinExists) {
-    BaseUI.showError("#content", "NO_MATCH", {
+    ErrorUI.showError("#content", "NO_MATCH", {
       defaultMessage: REPORTS_ERRORS.NOT_FOUND,
     });
     return;
@@ -110,7 +109,7 @@ const handleCompareClick = async function () {
   } else {
     if (currentSelection.length >= MAX_COMPARE) {
       updateCompareIndicator(currentSelection);
-      BaseUI.showError("#content", "COMPARE_FULL", {
+      ErrorUI.showError("#content", "COMPARE_FULL", {
         limit: MAX_COMPARE,
       });
       return;
@@ -128,7 +127,7 @@ const handleCompareClick = async function () {
   }
 
   if (currentSelection.length > MAX_COMPARE) {
-    BaseUI.showError("#content", "COMPARE_FULL", {
+    ErrorUI.showError("#content", "COMPARE_FULL", {
       limit: MAX_COMPARE,
     });
     return;
@@ -138,7 +137,7 @@ const handleCompareClick = async function () {
   );
 
   if (!ok) {
-    BaseUI.showError("#content", code, {
+    ErrorUI.showError("#content", code, {
       defaultMessage: API_ERRORS.DEFAULT,
     });
     resetCompareSelection();

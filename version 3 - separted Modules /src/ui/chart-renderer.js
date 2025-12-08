@@ -1,6 +1,6 @@
 import { UI_CONFIG } from "../config/ui-config.js";
 import { CoinsService } from "../services/coins-service.js";
-import { BaseComponents } from "./Components/base-components.js";
+import { ErrorUI } from "./error-ui.js";
 
 // ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 
@@ -90,12 +90,13 @@ const drawMiniChart = async (coinId) => {
   const { ok, data } = await CoinsService.getCoinMarketChart(coinId);
 
   if (!ok || !data?.prices || data.prices.length === 0) {
-    $(`#miniChart-${coinId}`).html(
-      BaseComponents.infoAlert("No chart data available for this period")
+    ErrorUI.showInfo(
+      `#miniChart-${coinId}`,
+      "No chart data available for this period"
     );
     return;
   }
-
+  
   const prices = data.prices.map(([time, price]) => ({
     x: new Date(time),
     y: price,
