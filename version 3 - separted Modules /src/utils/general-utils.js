@@ -4,6 +4,17 @@ export const shortenText = (text = "", max = 200) =>
 
 const PLACEHOLDER_THUMB = "images/cryptocurrency.png";
 
+const formatFractionDigits = (value, options = {}) => {
+  const minDigits = options.minimumFractionDigits ?? 2;
+  const maxDigits =
+    options.maximumFractionDigits ?? (Math.abs(value) >= 1 ? minDigits : 8);
+
+  return {
+    minimumFractionDigits: minDigits,
+    maximumFractionDigits: Math.max(minDigits, maxDigits),
+  };
+};
+
 // Filters articles that fall within the last `maxAgeInMs` window.
 export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
   if (!maxAgeInMs) return articles;
@@ -16,25 +27,40 @@ export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
     return Date.now() - publishedTime <= maxAgeInMs;
   });
 };
-export const formatPercent = (percentValue, config = {}) => {
-  if (typeof percentValue !== "number" || Number.isNaN(percentValue)) {
-    return "N/A";
-  }
-  const { fractionDigits = 2, withSign = false } = config;
-  const signPrefix = withSign && percentValue >= 0 ? "+" : "";
-
-  return `${signPrefix}${percentValue.toFixed(fractionDigits)}%`;
-};
 export const formatPriceWithCurrency = (value, currency = {}, options = {}) => {
-  if (typeof value !== "number") return "N/A";
+  if (typeof value !== "number" || Number.isNaN(value)) return "N/A";
 
-  const formatted = value.toLocaleString("en-US", {
-    minimumFractionDigits: options.minimumFractionDigits ?? 2,
-    maximumFractionDigits: options.maximumFractionDigits ?? 2,
-  });
+  const formatted = value.toLocaleString(
+    "en-US",
+    formatFractionDigits(value, options)
+  );
 
   const symbol = currency?.symbol ?? "$";
   return `${symbol}${formatted}`;
+};
+
+export const formatLargeNumber = (value) => {
+  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  return `$${value.toLocaleString()}`;
+};
+
+export const formatPrice = (value) => {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "N/A";
+  }
+
+  const formatted = value.toLocaleString("en-US", formatFractionDigits(value));
+  return `$${formatted}`;
+};
+export const formatPercent = (percentValue, options = {}) => {
+  if (typeof percentValue !== "number" || Number.isNaN(percentValue)) {
+    return "N/A";
+  }
+  const { decimals = 2, showSign = false } = options;
+  const signPrefix = showSign && percentValue >= 0 ? "+" : "";
+
+  return `${signPrefix}${percentValue.toFixed(decimals)}%`;
 };
 
 export const resolveImage = (image) =>
@@ -58,10 +84,4 @@ export const isValidUrl = (string) => {
   } catch {
     return false;
   }
-};
-
-export const formatLargeNumber = (value) => {
-  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
-  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
-  return `$${value.toLocaleString()}`;
 };

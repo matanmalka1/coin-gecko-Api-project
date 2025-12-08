@@ -3,7 +3,11 @@ import { CoinComponents } from "./Components/coin-components.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { BaseUI } from "./base-ui.js";
-import { formatPrice, formatPercent } from "../utils/general-utils.js";
+import {
+  formatPrice,
+  formatLargeNumber,
+  formatPercent,
+} from "../utils/general-utils.js";
 import { ChartRenderer } from "./chart-renderer.js";
 
 // ===== COIN LIST RENDERING =====
@@ -11,6 +15,18 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
   const { favorites = [], emptyMessage, compareSelection = [] } = options;
   const container = $("#coinsContainer");
   if (!container.length) return;
+
+  const selectedSymbols = Array.isArray(selectedReports)
+    ? selectedReports
+    : Array.isArray(selectedReports?.selected)
+    ? selectedReports.selected
+    : [];
+
+  const favoriteSymbols = Array.isArray(favorites)
+    ? favorites
+    : Array.isArray(favorites?.favorites)
+    ? favorites.favorites
+    : [];
 
   if (!coins.length) {
     container.html(
@@ -27,8 +43,8 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
 
   const html = coins
     .map((coin) =>
-      CoinComponents.coinCard(coin, selectedReports.includes(coin.symbol), {
-        isFavorite: favorites.includes(coin.symbol),
+      CoinComponents.coinCard(coin, selectedSymbols.includes(coin.symbol), {
+        isFavorite: favoriteSymbols.includes(coin.symbol),
         isInCompare: compareSet.has(String(coin.id)),
       })
     )
@@ -119,14 +135,13 @@ const buildCompareRow = (coin) => {
   return `
     <tr>
       <td>${coin?.symbol?.toUpperCase() || "N/A"}</td>
-      <td>${formatPrice(priceUsd)}</td>
-      <td>${formatPrice(marketCapUsd)}</td>
-      <td>${formatPercent(changePercent)}</td>
-      <td>${formatPrice(volumeUsd)}</td>
+      <td>${formatPrice(priceUsd)}</td>            
+      <td>${formatLargeNumber(marketCapUsd)}</td>   
+      <td>${formatPercent(changePercent)}</td>       
+      <td>${formatLargeNumber(volumeUsd)}</td>       
     </tr>
   `;
 };
-
 const buildCompareTable = (coins, missingSymbols = []) => {
   const rows = coins.map(buildCompareRow).join("");
 
@@ -177,9 +192,11 @@ const showCompareModal = (coins, options = {}) => {
 
 // ===== TOGGLE STATES =====
 const updateToggleStates = (selectedReports) => {
+  const selectedSymbols = Array.isArray(selectedReports) ? selectedReports : [];
+
   $(".coin-toggle").each(function () {
     const symbol = $(this).data("symbol");
-    $(this).prop("checked", selectedReports.includes(symbol));
+    $(this).prop("checked", selectedSymbols.includes(symbol));
   });
 };
 

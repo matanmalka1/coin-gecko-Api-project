@@ -3,15 +3,17 @@ import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { filterLastHours } from "../utils/general-utils.js";
 import { CacheManager } from "./storage-manager.js";
-import { coinAPI } from "./api.js";
+import { fetchWithRetry } from "./api.js"; // במקום coinAPI
+
+const { getCache, setCache } = CacheManager;
 
 const { TTL_MS: CACHE_TTL_MS, FRESH_WINDOW_MS } = CACHE_CONFIG.NEWS_CACHE;
-const { DEFAULT_QUERY, CACHE_KEYS } = UI_CONFIG.NEWS;
-const { fetchNewsData } = coinAPI;
+const { DEFAULT_QUERY, CACHE_KEYS, LANGUAGE } = UI_CONFIG.NEWS;
+const { BASE_URL, API_KEY } = API_CONFIG.NEWS;
 
 // ===== CACHE HELPERS =====
 const getCachedNews = (cacheKey) => {
-  const cached = CacheManager.getCache(cacheKey);
+  const cached = getCache(cacheKey);
   if (!cached) return null;
 
   const cachedArticles = Array.isArray(cached) ? cached : [];
@@ -36,7 +38,10 @@ const normalizeArticle = ({
   title,
   description,
   published_at: pubDate,
-  source: {title: source_id || "Unknown source", domain: source_id || "unknown" },
+  source: {
+    title: source_id || "Unknown source",
+    domain: source_id || "unknown",
+  },
   original_url: link,
   url: link,
   image: image_url,
@@ -56,12 +61,16 @@ const buildNewsResponse = (normalized) => {
 
 // ===== FETCH LAYER =====
 const fetchNews = async (cacheKey, params = {}) => {
-  const cachedResult = getCachedNews(cacheKey);
-  if (cachedResult) return cachedResult;
+  const cached = getCachedNews(cacheKey);
+  if (cached) return cached;
 
-  const { q = DEFAULT_QUERY } = params;
+  const query = params.q || DEFAULT_QUERY;
 
-  const { ok, data, status, error } = await fetchNewsData({ q });
+  const { ok, data, status, error } = await fetchWithRetry(
+    `${BASE_URL}?apikey=${API_KEY}` +
+      (LANGUAGE ? `&language=${LANGUAGE}` : "") +
+      `&q=${query}`
+  );
 
   if (!ok || !data) {
     return {
@@ -69,11 +78,13 @@ const fetchNews = async (cacheKey, params = {}) => {
       code: "NEWS_HTTP_ERROR",
       status,
       errorMessage:
-        ERRORS.API.HTTP_STATUS?.(status) || error || ERRORS.API.DEFAULT,
+        (status && ERRORS.API.HTTP_STATUS
+          ? ERRORS.API.HTTP_STATUS(status)
+          : error) || ERRORS.API.DEFAULT,
     };
   }
 
-  const normalized = (data?.results || []).map(normalizeArticle);
+  const normalized = (data.results || []).map(normalizeArticle);
   CacheManager.setCache(cacheKey, normalized, CACHE_TTL_MS);
 
   return buildNewsResponse(normalized);

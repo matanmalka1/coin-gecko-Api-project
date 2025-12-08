@@ -2,14 +2,13 @@ import { CoinsService } from "../services/coins-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { BaseUI } from "../ui/base-ui.js";
-import { ChartRenderer } from "../ui/chart-renderer.js";
 import { ERRORS } from "../config/error.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 import {showCurrenciesPage,renderCoins,getLoadingCoins,setLoadingCoins,} from "../controllers/pages-controller.js";
 
 const { CURRENCIES } = UI_CONFIG;
 const { FAVORITES_EMPTY } = UI_CONFIG.UI;
-const { API: API_ERRORS, SEARCH: SEARCH_ERRORS } = ERRORS;
+const { SEARCH: SEARCH_ERRORS } = ERRORS;
 
 let isRegistered = false;
 let isShowingFavoritesOnly = false;
@@ -58,7 +57,7 @@ const handleFavoriteToggle = (e) => {
 };
 
 const renderFavoritesList = () => {
-  const favoriteSymbols = StorageHelper.getUIState();
+  const favoriteSymbols = StorageHelper.getFavorites();
   const filtered = CoinsService.getAllCoins().filter((coin) =>
     favoriteSymbols.includes(coin.symbol)
   );
@@ -95,7 +94,6 @@ const handleMoreInfo = async (e) => {
     }
 
     CoinUI.showCoinDetails(collapseId, data, { currencies: CURRENCIES });
-    ChartRenderer.drawMiniChart(coinId);
   } catch (error) {
     BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
       status: null,

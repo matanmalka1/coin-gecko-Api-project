@@ -123,7 +123,7 @@ const handleCompareClick = async function () {
   setCompareSelection(currentSelection);
   updateCompareIndicator(currentSelection);
 
-  if (currentSelection.length >= MAX_COMPARE) {
+  if (currentSelection.length < MAX_COMPARE) {
     return;
   }
 

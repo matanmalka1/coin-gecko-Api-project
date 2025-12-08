@@ -4,7 +4,10 @@ import { BaseComponents } from "./base-components.js";
 
 const { cardContainer } = BaseComponents;
 const {
-  REPORTS: {CREDIT: { LABEL, LINK, NAME },},} = UI_CONFIG;
+  REPORTS: {
+    CREDIT: { LABEL, LINK, NAME },
+  },
+} = UI_CONFIG;
 
 // Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `
@@ -21,10 +24,9 @@ const currenciesPage = () => `
   <div id="sortArea" class="my-3">
     <select id="sortSelect" class="form-select w-auto d-inline-block">
       <option value="marketcap_desc">Top Coins (Default)</option>
+       <option value="marketcap_asc">Market Cap ↑</option>
       <option value="price_desc">Price ↓</option>
       <option value="price_asc">Price ↑</option>
-      <option value="marketcap_desc">Market Cap ↓</option>
-      <option value="marketcap_asc">Market Cap ↑</option>
       <option value="volume_high">Volume High</option>
       <option value="volume_low">Volume Low</option>
     </select>

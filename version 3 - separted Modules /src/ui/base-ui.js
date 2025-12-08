@@ -2,7 +2,7 @@ import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
 import { BaseComponents } from "./Components/base-components.js";
-import { formatLargeNumberת, formatPercent } from "../utils/general-utils.js";
+import { formatLargeNumber, formatPercent } from "../utils/general-utils.js";
 
 // Replaces the entire page container with provided HTML and resets cache.
 const showPage = (html, containerSelector = "#content") => {
@@ -101,6 +101,41 @@ const renderStatsBar = (targetSelector, props = {}) => {
   `);
 };
 
+let notyfInstance = null;
+
+const getNotifier = () => {
+  if (!notyfInstance) {
+    notyfInstance = new Notyf({
+      duration: 3000,
+      position: { x: "right", y: "top" },
+      dismissible: true,
+      types: [
+        {
+          type: "info",
+          background: "#0ea5e9",
+        },
+        {
+          type: "warning",
+          background: "#f97316",
+        },
+      ],
+    });
+  }
+  return notyfInstance;
+};
+
+const showToast = (message, type = "info") => {
+  const notyf = getNotifier();
+
+  if (type === "success") {
+    notyf.success(message);
+  } else if (type === "error") {
+    notyf.error(message);
+  } else {
+    notyf.open({ type, message });
+  }
+};
+
 export const BaseUI = {
   showPage,
   getDataAttr,
@@ -109,4 +144,5 @@ export const BaseUI = {
   toggleCollapse,
   setFavoritesButtonLabel,
   renderStatsBar,
+  showToast,
 };

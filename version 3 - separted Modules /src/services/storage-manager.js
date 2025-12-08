@@ -116,8 +116,8 @@ const removeReport = (symbol) => {
 const hasReport = (symbol) => getSelectedReports().includes(symbol);
 
 const getUIState = () => ({
-  selected: StorageHelper.getSelectedReports(),
-  favorites: StorageHelper.getFavorites(),
+  selected: getSelectedReports(),
+  favorites: getFavorites(),
 });
 
 export const CacheManager = {

@@ -1,17 +1,13 @@
-import { coinAPI } from "./api.js";
+import { fetchWithRetry } from "./api.js";
 import { CacheManager, StorageHelper } from "./storage-manager.js";
 import { API_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 
-const { SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {} } =
-  UI_CONFIG;
-const { CHART_HISTORY_DAYS } = API_CONFIG;
-const {
-  fetchMarketData,
-  fetchCoinDetails,
-  fetchCoinMarketChart,
-  fetchGlobalStats,
-} = coinAPI;
+const { fetchWithCache, getCache, setCache } = CacheManager;
+const { readJSON, writeJSON, getSelectedReports, setSelectedReports } = StorageHelper;
+
+const { SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {} } =UI_CONFIG;
+const { COINGECKO_BASE, CHART_HISTORY_DAYS, COINS_PER_PAGE } = API_CONFIG;
 
 const COINS_CACHE_KEY = "marketData";
 const COINS_TIMESTAMP_KEY = "marketDataTimestamp";
@@ -26,24 +22,25 @@ const sortFunctions = {
 };
 
 // ===== COINS DATA =====
-const getAllCoins = () => {
-  const cached = CacheManager.getCache(COINS_CACHE_KEY);
-  return Array.isArray(cached) ? cached : [];
-};
+const getAllCoins = () => getCache(COINS_CACHE_KEY) || [];
 
 const getCoinsLastUpdated = () => {
-  return StorageHelper.readJSON(COINS_TIMESTAMP_KEY, 0);
+  return readJSON(COINS_TIMESTAMP_KEY, 0);
 };
 
 const setCoinsLastUpdated = (timestamp) => {
-  StorageHelper.writeJSON(COINS_TIMESTAMP_KEY, timestamp);
+  writeJSON(COINS_TIMESTAMP_KEY, timestamp);
 };
 
 const loadAllCoins = async () => {
-  const { ok, data, error, status } = await fetchMarketData();
+  const { ok, data, status } = await fetchWithRetry(
+    `${COINGECKO_BASE}/coins/markets` +
+      `?vs_currency=usd&order=market_cap_desc` +
+      `&per_page=${COINS_PER_PAGE}&page=1&sparkline=false`
+  );
 
   if (!ok) {
-    return { ok: false, code: "API_ERROR", error, status };
+    return { ok: false, code: "COIN_LIST_ERROR", status };
   }
 
   const coinsArray = Array.isArray(data) ? data : [];
@@ -54,18 +51,35 @@ const loadAllCoins = async () => {
       symbol: String(coin.symbol).trim().toUpperCase(),
     }));
 
-  CacheManager.setCache(COINS_CACHE_KEY, filteredCoins);
+  setCache(COINS_CACHE_KEY, filteredCoins);
   setCoinsLastUpdated(Date.now());
 
   return { ok: true, data: filteredCoins };
 };
 
+const getCoinDetails = (coinId) =>
+  fetchWithCache(coinId, () =>
+    fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}`)
+  );
+
+const getCoinMarketChart = (coinId) =>
+  fetchWithCache(`chart:${coinId}`, () =>
+    fetchWithRetry(
+      `${COINGECKO_BASE}/coins/${coinId}/market_chart` +
+        `?vs_currency=usd&days=${CHART_HISTORY_DAYS}`
+    )
+  );
+
+const getGlobalStats = () =>
+  fetchWithCache("globalStats", () =>
+    fetchWithRetry(`${COINGECKO_BASE}/global`)
+  );
 const sortCoins = (sortType) => {
   const coins = getAllCoins();
   const sorter = sortFunctions[sortType];
   const sorted = sorter ? [...coins].sort(sorter) : coins;
 
-  CacheManager.setCache(COINS_CACHE_KEY, sorted);
+  setCache(COINS_CACHE_KEY, sorted);
 
   return {
     ok: true,
@@ -73,9 +87,6 @@ const sortCoins = (sortType) => {
     ...StorageHelper.getUIState(),
   };
 };
-
-const getCoinDetails = (coinId) =>
-  CacheManager.fetchWithCache(coinId, () => fetchCoinDetails(coinId));
 
 const searchCoin = (term) => {
   const trimmed = (term || "").trim();
@@ -111,7 +122,7 @@ const searchCoin = (term) => {
 };
 
 const filterSelectedCoins = () => {
-  const selectedReports = StorageHelper.getSelectedReports();
+  const selectedReports = getSelectedReports();
   if (!selectedReports.length) {
     return { ok: false, code: "NONE_SELECTED" };
   }
@@ -131,7 +142,7 @@ const filterSelectedCoins = () => {
     validSymbols.has(symbol)
   );
 
-  StorageHelper.setSelectedReports(cleanedSelection);
+  setSelectedReports(cleanedSelection);
 
   return {
     ok: true,
@@ -145,14 +156,6 @@ const clearSearch = () => ({
   data: getAllCoins(),
   ...StorageHelper.getUIState(),
 });
-
-const getCoinMarketChart = (coinId) =>
-  CacheManager.fetchWithCache(`chart:${coinId}`, () =>
-    fetchCoinMarketChart(coinId, CHART_HISTORY_DAYS)
-  );
-
-const getGlobalStats = () =>
-  CacheManager.fetchWithCache("globalStats", () => fetchGlobalStats());
 
 export const CoinsService = {
   getAllCoins,

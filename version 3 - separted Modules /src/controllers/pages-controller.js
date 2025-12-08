@@ -27,7 +27,7 @@ export const getLoadingCoins = () => isLoadingCoins;
 
 // ===== HELPERS =====
 export const renderCoins = (coins, extras = {}) => {
-  CoinUI.displayCoins(coins, StorageHelper.getUIState(), {
+  CoinUI.displayCoins(coins, StorageHelper.getSelectedReports(), {
     favorites: StorageHelper.getFavorites(),
     compareSelection: CoinUI.getCompareSelection(),
     ...extras,
@@ -94,7 +94,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   }
 
   setLoadingCoins(true);
-  const { ok, data, error, status } = await CoinsService.loadAllCoins();
+  const { ok, data, code, error, status } = await CoinsService.loadAllCoins();
   setLoadingCoins(false);
 
   if (!ok) {

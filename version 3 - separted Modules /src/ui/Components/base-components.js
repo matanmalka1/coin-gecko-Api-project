@@ -90,6 +90,5 @@ export const BaseComponents = {
   errorAlert,
   infoAlert,
   cardContainer,
-  buildSkeletonGrid,
   skeleton,
 };

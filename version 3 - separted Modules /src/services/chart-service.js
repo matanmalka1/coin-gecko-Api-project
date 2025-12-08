@@ -1,22 +1,29 @@
-import { coinAPI } from "./api.js";
+import { fetchWithRetry } from "./api.js";
 import { CoinsService } from "./coins-service.js";
-import { StorageHelper } from "./storage-manager.js";
+import { StorageHelper, CacheManager } from "./storage-manager.js";
 import { UI_CONFIG } from "../config/ui-config.js";
-import { CacheManager } from "./storage-manager.js";
 import { CACHE_CONFIG, API_CONFIG } from "../config/api-cache-config.js";
 
-const { CHART_HISTORY_DAYS } = API_CONFIG;
+const { fetchWithCache } = CacheManager;
+const { getAllCoins } = CoinsService;
+const { getSelectedReports } = StorageHelper;
+
+const { COINGECKO_BASE, CHART_HISTORY_DAYS } = API_CONFIG;
 const { HISTORY_POINTS } = UI_CONFIG.CHART;
 const { HISTORY_DAYS } = UI_CONFIG.REPORTS;
-const { fetchCoinOhlc } = coinAPI;
-const { fetchWithCache } = CacheManager;
+const { REPORTS_CACHE } = CACHE_CONFIG;
+const { CHART_TTL_MS } = REPORTS_CACHE;
 
 // ===== OHLC DATA =====
 const getCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
   fetchWithCache(
     `ohlc:${coinId}:${days}`,
-    () => fetchCoinOhlc(coinId, days),
-    CACHE_CONFIG.REPORTS_CACHE.CHART_TTL_MS
+    () =>
+      fetchWithRetry(
+        `${COINGECKO_BASE}/coins/${coinId}/ohlc` +
+          `?vs_currency=usd&days=${days}`
+      ),
+    CHART_TTL_MS
   );
 
 const mapOhlcToCandles = (ohlcArray = []) =>
@@ -32,7 +39,7 @@ const mapOhlcToCandles = (ohlcArray = []) =>
 
 // ===== LOAD CANDLES =====
 const loadCandlesForSymbols = async (symbols) => {
-  const allCoins = CoinsService.getAllCoins();
+  const allCoins = getAllCoins();
 
   const coinsIndex = allCoins.reduce((acc, coin) => {
     const { symbol, id } = coin || {};
@@ -81,7 +88,7 @@ const cleanup = () => {};
 const startLiveChart = async (chartCallbacks = {}) => {
   cleanup();
 
-  const symbols = StorageHelper.getSelectedReports();
+  const symbols = getSelectedReports();
 
   if (!symbols.length) {
     return { ok: false, code: "NONE_SELECTED" };
@@ -111,4 +118,9 @@ const startLiveChart = async (chartCallbacks = {}) => {
 
   chartCallbacks.onError?.({ code: "NO_DATA" });
   return { ok: false, code: "NO_DATA" };
+};
+
+export const ChartService = {
+  cleanup,
+  startLiveChart,
 };
