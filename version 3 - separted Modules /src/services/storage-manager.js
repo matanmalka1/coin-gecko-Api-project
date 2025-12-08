@@ -81,7 +81,10 @@ const addFavorite = (symbol) => {
 
 const removeFavorite = (symbol) => {
   const favorites = getFavorites();
-  writeJSON(STORAGE_KEYS.FAVORITES, favorites.filter(f => f !== symbol));
+  writeJSON(
+    STORAGE_KEYS.FAVORITES,
+    favorites.filter((f) => f !== symbol)
+  );
 };
 
 const isFavorite = (symbol) => getFavorites().includes(symbol);
@@ -104,10 +107,18 @@ const addReport = (symbol) => {
 
 const removeReport = (symbol) => {
   const reports = getSelectedReports();
-  writeJSON(STORAGE_KEYS.REPORTS, reports.filter(r => r !== symbol));
+  writeJSON(
+    STORAGE_KEYS.REPORTS,
+    reports.filter((r) => r !== symbol)
+  );
 };
 
 const hasReport = (symbol) => getSelectedReports().includes(symbol);
+
+const getUIState = () => ({
+  selected: StorageHelper.getSelectedReports(),
+  favorites: StorageHelper.getFavorites(),
+});
 
 export const CacheManager = {
   getCache,
@@ -128,4 +139,5 @@ export const StorageHelper = {
   addReport,
   removeReport,
   hasReport,
+  getUIState,
 };

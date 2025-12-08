@@ -2,10 +2,6 @@
 export const shortenText = (text = "", max = 200) =>
   !text ? "" : text.length > max ? `${text.slice(0, max)}...` : text;
 
-// Normalizes coin symbols to uppercase trimmed strings.
-export const normalizeSymbol = (symbol = "") =>
-  String(symbol).trim().toUpperCase();
-
 const PLACEHOLDER_THUMB = "images/cryptocurrency.png";
 
 // Filters articles that fall within the last `maxAgeInMs` window.
@@ -20,18 +16,26 @@ export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
     return Date.now() - publishedTime <= maxAgeInMs;
   });
 };
+export const formatPercent = (percentValue, config = {}) => {
+  if (typeof percentValue !== "number" || Number.isNaN(percentValue)) {
+    return "N/A";
+  }
+  const { fractionDigits = 2, withSign = false } = config;
+  const signPrefix = withSign && percentValue >= 0 ? "+" : "";
 
-export const formatPercent = (value) =>
-  typeof value === "number" ? `${value.toFixed(2)}%` : "N/A";
+  return `${signPrefix}${percentValue.toFixed(fractionDigits)}%`;
+};
+export const formatPriceWithCurrency = (value, currency = {}, options = {}) => {
+  if (typeof value !== "number") return "N/A";
 
-// Formats numeric price values into USD with fraction digits.
-export const formatPrice = (value, options = {}) =>
-  typeof value === "number"
-    ? `$${value.toLocaleString("en-US", {
-        minimumFractionDigits: options.minimumFractionDigits ?? 2,
-        maximumFractionDigits: options.maximumFractionDigits ?? 2,
-      })}`
-    : "N/A";
+  const formatted = value.toLocaleString("en-US", {
+    minimumFractionDigits: options.minimumFractionDigits ?? 2,
+    maximumFractionDigits: options.maximumFractionDigits ?? 2,
+  });
+
+  const symbol = currency?.symbol ?? "$";
+  return `${symbol}${formatted}`;
+};
 
 export const resolveImage = (image) =>
   (typeof image === "string"

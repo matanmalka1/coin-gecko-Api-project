@@ -94,24 +94,21 @@ const startLiveChart = async (chartCallbacks = {}) => {
 
   const { candlesBySymbol, errors } = await loadCandlesForSymbols(symbols);
 
-  if (!Object.keys(candlesBySymbol).length) {
-    const { code = "NO_DATA", error } = errors[0] || {};
-
-    chartCallbacks.onError?.({ code, error });
-    return { ok: false, code: "NO_DATA" };
+  if (errors.length > 0) {
+    errors.forEach(({ symbol, code, error }) => {
+      chartCallbacks.onError?.({
+        symbol,
+        code,
+        error,
+      });
+    });
   }
 
-  chartCallbacks.onData?.({ candlesBySymbol });
-
-  if (errors.length) {
-    const { code, error } = errors[0];
-    chartCallbacks.onError?.({ code, error });
+  if (Object.keys(candlesBySymbol).length > 0) {
+    chartCallbacks.onData?.({ candlesBySymbol });
+    return { ok: true, symbols: Object.keys(candlesBySymbol) };
   }
 
-  return { ok: true, symbols };
-};
-
-export const ChartService = {
-  startLiveChart,
-  cleanup,
+  chartCallbacks.onError?.({ code: "NO_DATA" });
+  return { ok: false, code: "NO_DATA" };
 };

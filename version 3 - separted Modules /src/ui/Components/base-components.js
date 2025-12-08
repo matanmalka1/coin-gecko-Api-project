@@ -35,18 +35,6 @@ const cardContainer = (
 ) =>
   `<div class="${colClasses}"><div class="${cardClasses}">${content}</div></div>`;
 
-// Builds a grid of placeholder cards using a provided builder.
-const buildSkeletonGrid = (
-  count,
-  cardBuilder,
-  rowClasses = "row g-4 align-items-stretch"
-) => {
-  const cards = Array.from({ length: count }, (_, idx) =>
-    cardBuilder(idx)
-  ).join("");
-  return `<div class="${rowClasses}">${cards}</div>`;
-};
-
 const skeleton = (type = "coins", count = 6) => {
   const templates = {
     news: `
@@ -80,20 +68,21 @@ const skeleton = (type = "coins", count = 6) => {
   };
 
   const colClasses =
-    type === "news" ? "col-12 col-md-6 col-lg-4 d-flex" : "col-12 col-md-6 col-lg-4";
+    type === "news"
+      ? "col-12 col-md-6 col-lg-4 d-flex"
+      : "col-12 col-md-6 col-lg-4";
 
   const template = templates[type] || templates.coins;
 
-  return buildSkeletonGrid(
-    count,
-    () =>
-      cardContainer(
-        template,
-        colClasses,
-        "card border shadow-sm placeholder-wave h-100 p-3"
-      ),
-    "row g-4 align-items-stretch"
-  );
+  const cards = Array.from({ length: count }, () =>
+    cardContainer(
+      template,
+      colClasses,
+      "card border shadow-sm placeholder-wave h-100 p-3"
+    )
+  ).join("");
+
+  return `<div class="row g-4 align-items-stretch">${cards}</div>`;
 };
 
 export const BaseComponents = {

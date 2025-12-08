@@ -38,6 +38,9 @@ export const ERRORS = {
     NO_DATA: "No data available for the selected coins.",
     REPLACE_SELECTION_REQUIRED:
       "Please choose a coin to replace before confirming.",
+    COMPARE_FULL: (
+      limit = 2 
+    ) => `Maximum ${limit} coins for comparison. Deselect one first.`,
   },
 
   // Errors specific to the news feed module

@@ -1,7 +1,6 @@
 import { StorageHelper } from "./storage-manager.js";
 import { CoinsService } from "./coins-service.js";
 import { coinAPI } from "./api.js";
-import { normalizeSymbol } from "../utils/general-utils.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 
 const { MAX_COINS } = UI_CONFIG.REPORTS;
@@ -12,7 +11,7 @@ const getSelectedReports = () => StorageHelper.getSelectedReports();
 const isReportsFull = () => getSelectedReports().length >= MAX_COINS;
 
 const toggleCoinSelection = (symbol) => {
-  const symbolUpper = normalizeSymbol(symbol);
+  const symbolUpper = String(symbol).trim().toUpperCase();
   const currentReports = getSelectedReports();
   const alreadySelected = currentReports.includes(symbolUpper);
 
@@ -37,8 +36,8 @@ const toggleCoinSelection = (symbol) => {
 };
 
 const replaceReport = (oldSymbol, newSymbol) => {
-  const oldUpper = normalizeSymbol(oldSymbol);
-  const newUpper = normalizeSymbol(newSymbol);
+  const oldUpper = String(oldSymbol).trim().toUpperCase();
+  const newUpper = String(newSymbol).trim().toUpperCase();
   const currentSelected = getSelectedReports();
 
   if (oldUpper === newUpper) {
@@ -83,7 +82,7 @@ const getCompareData = async (ids) => {
     if (ok && data) {
       coins.push({
         ...data,
-        symbol: normalizeSymbol(data.symbol),
+        symbol: String(data.symbol).trim().toUpperCase(),
       });
     } else {
       missing.push(compareIds[index]);

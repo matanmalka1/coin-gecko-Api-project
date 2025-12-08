@@ -11,6 +11,7 @@ import { ChartService } from "../services/chart-service.js";
 import { NewsService } from "../services/news-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
 import { BaseUI } from "../ui/base-ui.js";
+import { ErrorResolver } from "../utils/error-resolver.js";
 
 const { COINS_REFRESH_INTERVAL_MS } = CACHE_CONFIG.CACHE;
 const { REPORTS, CHART, ABOUT } = UI_CONFIG;
@@ -26,7 +27,7 @@ const getLoadingCoins = () => isLoadingCoins;
 
 // ===== HELPERS =====
 export const renderCoins = (coins, extras = {}) => {
-  CoinUI.displayCoins(coins, StorageHelper.getSelectedReports(), {
+  CoinUI.displayCoins(coins, StorageHelper.getUIState(), {
     favorites: StorageHelper.getFavorites(),
     compareSelection: CoinUI.getCompareSelection(),
     ...extras,
@@ -70,7 +71,7 @@ export const initStatsBar = async () => {
 export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   ChartService.cleanup();
   setLoadingCoins(false);
-  
+
   BaseUI.showPage(PageComponents.currenciesPage());
 
   const $compareStatus = $("#compareStatus");
@@ -97,9 +98,9 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   setLoadingCoins(false);
 
   if (!ok) {
-    BaseUI.showError("#coinsContainer", "COIN_LIST_ERROR", {
-      defaultMessage: error || ERRORS.API.COIN_LIST_ERROR,
+    BaseUI.showError("#coinsContainer", code || "COIN_LIST_ERROR", {
       status,
+      defaultMessage: error,
     });
     return;
   }
@@ -108,11 +109,12 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 };
 
 // ===== REPORTS PAGE =====
+// ===== REPORTS PAGE =====
 export const showReportsPage = async () => {
   ChartService.cleanup();
 
   BaseUI.showPage(PageComponents.reportsPage());
-  $("#chartsGrid").html(BaseComponents.skeleton());
+  $("#chartsGrid").html(BaseComponents.skeleton("charts", 6));
 
   const { ok, status } = await ChartService.startLiveChart({
     onChartReady: ({ symbols, historyPoints }) => {
@@ -124,17 +126,28 @@ export const showReportsPage = async () => {
         historyPoints: CHART.HISTORY_POINTS,
       });
     },
-    onError: ({ code, error, status }) => {
-      BaseUI.showError("#chartsGrid", code || "LIVE_CHART_ERROR", {
-        defaultMessage: error || ERRORS.API.LIVE_CHART_ERROR,
-        status,
-      });
+    onError: ({ symbol, code, error, status }) => {
+      if (symbol) {
+        const chartContainer = $(`#chart-${symbol}`).closest(".card");
+        chartContainer.find(".card-body").prepend(
+          BaseComponents.errorAlert(
+            ErrorResolver.resolve(code || "LIVE_CHART_ERROR", {
+              defaultMessage: error,
+              status,
+            })
+          )
+        );
+      } else {
+        BaseUI.showError("#chartsGrid", code || "LIVE_CHART_ERROR", {
+          status,
+          defaultMessage: error,
+        });
+      }
     },
   });
 
   if (!ok) {
     BaseUI.showError("#chartsGrid", "LIVE_CHART_ERROR", {
-      defaultMessage: ERRORS.API.LIVE_CHART_ERROR,
       status,
     });
   }

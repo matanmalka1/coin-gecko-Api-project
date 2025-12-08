@@ -5,7 +5,10 @@ import { BaseUI } from "../ui/base-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
 import { ERRORS } from "../config/error.js";
 import { UI_CONFIG } from "../config/ui-config.js";
-import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
+import {
+  showCurrenciesPage,
+  renderCoins,
+} from "../controllers/pages-controller.js";
 
 const { CURRENCIES } = UI_CONFIG;
 const { FAVORITES_EMPTY } = UI_CONFIG.UI;
@@ -18,7 +21,8 @@ let isLoadingCoins = false;
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
   const searchTerm = $("#searchInput").val();
-  const { ok, code, term, data, favorites } = CoinsService.searchCoin(searchTerm);
+  const { ok, code, term, data, favorites } =
+    CoinsService.searchCoin(searchTerm);
 
   $("#clearSearchBtn").removeClass("d-none");
 
@@ -58,7 +62,7 @@ const handleFavoriteToggle = (e) => {
 };
 
 const renderFavoritesList = () => {
-  const favoriteSymbols = StorageHelper.getFavorites();
+  const favoriteSymbols = StorageHelper.getUIState();
   const filtered = CoinsService.getAllCoins().filter((coin) =>
     favoriteSymbols.includes(coin.symbol)
   );
@@ -83,12 +87,14 @@ const handleMoreInfo = async (e) => {
   BaseUI.toggleCollapse(collapseId, true);
 
   try {
-    const { ok, data, status, error } = await CoinsService.getCoinDetails(coinId);
+    const { ok, data, status, error } = await CoinsService.getCoinDetails(
+      coinId
+    );
 
     if (!ok || !data) {
       BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
         status,
-        defaultMessage: typeof error === "string" ? error : API_ERRORS.COIN_DETAILS_ERROR,
+        defaultMessage: error,
       });
       return;
     }
@@ -97,7 +103,7 @@ const handleMoreInfo = async (e) => {
     ChartRenderer.drawMiniChart(coinId);
   } catch (error) {
     BaseUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
-      defaultMessage: API_ERRORS.COIN_DETAILS_ERROR,
+      status: null,
     });
   }
 };
@@ -115,7 +121,8 @@ const handleShowFavorites = () => {
 };
 
 const handleSortChange = () => {
-  const { data, favorites } = CoinsService.sortCoins($("#sortSelect").val());
+  const { data } = CoinsService.sortCoins($("#sortSelect").val());
+  const { favorites } = StorageHelper.getUIState();
   renderCoins(data, { favorites });
 };
 

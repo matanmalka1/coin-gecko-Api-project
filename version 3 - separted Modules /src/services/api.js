@@ -3,7 +3,7 @@ import { ERRORS } from "../config/error.js";
 
 const { COINGECKO_BASE, CRYPTOCOMPARE_BASE, CHART_HISTORY_DAYS } = API_CONFIG;
 const { API: API_ERRORS } = ERRORS;
-const COINS_PER_PAGE = 100;
+const COINS_PER_PAGE = 50;
 
 // ========== Core Fetch Layer ==========
 const fetchWithRetry = async (url, options = {}, retries = 1) => {

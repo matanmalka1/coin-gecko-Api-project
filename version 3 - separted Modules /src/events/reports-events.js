@@ -70,7 +70,6 @@ const openReplaceFlow = (serviceResult) => {
       }
 
       modal.hide();
-      updateCompareIndicator(selected);
     },
   });
 };
@@ -111,6 +110,9 @@ const handleCompareClick = async function () {
   } else {
     if (currentSelection.length >= MAX_COMPARE) {
       updateCompareIndicator(currentSelection);
+      BaseUI.showError("#content", "COMPARE_FULL", {
+        limit: MAX_COMPARE,
+      });
       return;
     }
 
@@ -122,13 +124,9 @@ const handleCompareClick = async function () {
   updateCompareIndicator(currentSelection);
 
   if (currentSelection.length >= MAX_COMPARE) {
-    updateCompareIndicator(currentSelection);
-    BaseUI.showError("#content", "COMPARE_FULL", {
-      defaultMessage: `Maximum ${MAX_COMPARE} coins for comparison. Deselect one first.`,
-    });
     return;
   }
-  
+
   const { ok, code, coins, missing } = await ReportsService.getCompareData(
     currentSelection
   );

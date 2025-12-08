@@ -2,6 +2,7 @@ import { UI_CONFIG } from "../../config/ui-config.js";
 import {
   shortenText,
   formatPrice,
+  formatPriceWithCurrency,
   resolveImage,
   formatLargeNumber,
 } from "../../utils/general-utils.js";
@@ -114,23 +115,16 @@ const coinDetails = (data = {}, currencies = {}) => {
 
   // Helper for rendering a badge showing a specific currency value.
   const priceItem = (label, value, curr) => {
-    const formatted =
-      typeof value === "number"
-        ? value.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : "N/A";
+    const formatted = formatPriceWithCurrency(value, curr); 
 
     return `
-      <div class="price-badge mb-2 p-2 border-left rounded ${
-        typeof value !== "number" ? "text-muted" : ""
-      }">
-        ${label}: ${curr?.symbol ?? ""}${formatted}
-      </div>
-    `;
+    <div class="price-badge mb-2 p-2 border-left rounded ${
+      typeof value !== "number" ? "text-muted" : ""
+    }">
+      ${label}: ${formatted}
+    </div>
+  `;
   };
-
   const contractAddress =
     platforms && typeof platforms === "object"
       ? Object.values(platforms).find((addr) => addr)

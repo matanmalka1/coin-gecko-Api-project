@@ -1,20 +1,20 @@
 import { coinAPI } from "./api.js";
 import { CacheManager, StorageHelper } from "./storage-manager.js";
-import { normalizeSymbol } from "../utils/general-utils.js";
 import { API_CONFIG } from "../config/api-cache-config.js";
 import { UI_CONFIG } from "../config/ui-config.js";
 
-const { SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {} } = UI_CONFIG;
+const { SEARCH: { MIN_LENGTH = 1, MAX_LENGTH = 50, ALLOWED_PATTERN } = {} } =
+  UI_CONFIG;
 const { CHART_HISTORY_DAYS } = API_CONFIG;
-const { fetchMarketData, fetchCoinDetails, fetchCoinMarketChart, fetchGlobalStats } = coinAPI;
+const {
+  fetchMarketData,
+  fetchCoinDetails,
+  fetchCoinMarketChart,
+  fetchGlobalStats,
+} = coinAPI;
 
-const COINS_CACHE_KEY = 'marketData';
-const COINS_TIMESTAMP_KEY = 'marketDataTimestamp';
-
-const ReportAndFavorites = () => ({
-  selected: StorageHelper.getSelectedReports(),
-  favorites: StorageHelper.getFavorites(),
-});
+const COINS_CACHE_KEY = "marketData";
+const COINS_TIMESTAMP_KEY = "marketDataTimestamp";
 
 const sortFunctions = {
   price_desc: (a, b) => b.current_price - a.current_price,
@@ -51,7 +51,7 @@ const loadAllCoins = async () => {
     .filter(({ id, symbol }) => id && symbol)
     .map((coin) => ({
       ...coin,
-      symbol: normalizeSymbol(coin.symbol),
+      symbol: String(coin.symbol).trim().toUpperCase(),
     }));
 
   CacheManager.setCache(COINS_CACHE_KEY, filteredCoins);
@@ -64,13 +64,13 @@ const sortCoins = (sortType) => {
   const coins = getAllCoins();
   const sorter = sortFunctions[sortType];
   const sorted = sorter ? [...coins].sort(sorter) : coins;
-  
+
   CacheManager.setCache(COINS_CACHE_KEY, sorted);
 
   return {
     ok: true,
     data: sorted,
-    ...ReportAndFavorites(),
+    ...StorageHelper.getUIState(),
   };
 };
 
@@ -81,16 +81,20 @@ const searchCoin = (term) => {
   const trimmed = (term || "").trim();
 
   if (!trimmed) return { ok: false, code: "EMPTY_TERM" };
-  if (trimmed.length < MIN_LENGTH) return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
-  if (trimmed.length > MAX_LENGTH) return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
-  if (ALLOWED_PATTERN && !ALLOWED_PATTERN.test(trimmed)) return { ok: false, code: "INVALID_TERM" };
+  if (trimmed.length < MIN_LENGTH)
+    return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
+  if (trimmed.length > MAX_LENGTH)
+    return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
+  if (ALLOWED_PATTERN && !ALLOWED_PATTERN.test(trimmed))
+    return { ok: false, code: "INVALID_TERM" };
 
   const allCoins = getAllCoins();
   if (!allCoins.length) return { ok: false, code: "LOAD_WAIT" };
 
   const searchTerm = trimmed.replace(/\s+/g, " ").toLowerCase();
   const filteredCoins = allCoins.filter((coin) => {
-    const symbolMatch = coin.symbol?.toLowerCase().includes(searchTerm) ?? false;
+    const symbolMatch =
+      coin.symbol?.toLowerCase().includes(searchTerm) ?? false;
     const nameMatch = coin.name?.toLowerCase().includes(searchTerm) ?? false;
     return symbolMatch || nameMatch;
   });
@@ -102,7 +106,7 @@ const searchCoin = (term) => {
   return {
     ok: true,
     data: filteredCoins,
-    ...ReportAndFavorites(),
+    ...StorageHelper.getUIState(),
   };
 };
 
@@ -132,14 +136,14 @@ const filterSelectedCoins = () => {
   return {
     ok: true,
     data: filtered,
-    ...ReportAndFavorites(),
+    ...StorageHelper.getUIState(),
   };
 };
 
 const clearSearch = () => ({
   ok: true,
   data: getAllCoins(),
-  ...ReportAndFavorites(),
+  ...StorageHelper.getUIState(),
 });
 
 const getCoinMarketChart = (coinId) =>

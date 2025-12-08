@@ -2,7 +2,7 @@ import { UI_CONFIG } from "../config/ui-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorResolver } from "../utils/error-resolver.js";
 import { BaseComponents } from "./Components/base-components.js";
-import { formatLargeNumber } from "../utils/general-utils.js";
+import { formatLargeNumberת, formatPercent } from "../utils/general-utils.js";
 
 // Replaces the entire page container with provided HTML and resets cache.
 const showPage = (html, containerSelector = "#content") => {
@@ -55,15 +55,11 @@ const setStatsBar = ({
     LABELS: { MARKET_CAP, VOLUME_24H, BTC_DOMINANCE, MARKET_CHANGE_24H },
   } = UI_CONFIG.STATSBAR;
 
-  const btcDominanceText =
-    typeof btcDominance === "number" && !Number.isNaN(btcDominance)
-      ? `${btcDominance.toFixed(1)}%`
-      : "N/A";
-
-  const marketChangeText =
-    typeof marketChange === "number" && !Number.isNaN(marketChange)
-      ? `${marketChange >= 0 ? "+" : ""}${marketChange.toFixed(2)}%`
-      : "N/A";
+  const btcDominanceText = formatPercent(btcDominance, { decimals: 1 });
+  const marketChangeText = formatPercent(marketChange, {
+    decimals: 2,
+    showSign: true,
+  });
 
   return [
     { label: MARKET_CAP, value: formatLargeNumber(totalMarketCap) },
@@ -72,6 +68,7 @@ const setStatsBar = ({
     { label: MARKET_CHANGE_24H, value: marketChangeText },
   ];
 };
+
 const renderStatsBar = (targetSelector, props = {}) => {
   const { ICON } = UI_CONFIG.STATSBAR;
 
