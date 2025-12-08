@@ -7,9 +7,6 @@ const showPage = (html, containerSelector = "#content") => {
   $(containerSelector).empty().html(html);
 };
 
-// Safe wrapper for reading data-* attributes.
-const getDataAttr = (element, key) => $(element).data(key);
-
 // Shows a spinner placeholder with optional text.
 const showSpinner = (container, message) => {
   const el = $(container);
@@ -93,47 +90,10 @@ const renderStatsBar = (targetSelector, props = {}) => {
   `);
 };
 
-let notyfInstance = null;
-
-const getNotifier = () => {
-  if (!notyfInstance) {
-    notyfInstance = new Notyf({
-      duration: 3000,
-      position: { x: "right", y: "top" },
-      dismissible: true,
-      types: [
-        {
-          type: "info",
-          background: "#0ea5e9",
-        },
-        {
-          type: "warning",
-          background: "#f97316",
-        },
-      ],
-    });
-  }
-  return notyfInstance;
-};
-
-const showToast = (message, type = "info") => {
-  const notyf = getNotifier();
-
-  if (type === "success") {
-    notyf.success(message);
-  } else if (type === "error") {
-    notyf.error(message);
-  } else {
-    notyf.open({ type, message });
-  }
-};
-
 export const BaseUI = {
   showPage,
-  getDataAttr,
   showSpinner,
   toggleCollapse,
   setFavoritesButtonLabel,
   renderStatsBar,
-  showToast,
 };

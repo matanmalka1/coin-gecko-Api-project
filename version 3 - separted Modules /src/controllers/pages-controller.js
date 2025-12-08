@@ -30,12 +30,6 @@ const {
 // ===== LOADING STATE =====
 let isLoadingCoins = false;
 
-export const setLoadingCoins = (value) => {
-  isLoadingCoins = !!value;
-};
-
-export const getLoadingCoins = () => isLoadingCoins;
-
 // ===== HELPERS =====
 export const renderCoins = (coins, extras = {}) => {
   CoinUI.displayCoins(coins, StorageHelper.getSelectedReports(), {
@@ -44,21 +38,6 @@ export const renderCoins = (coins, extras = {}) => {
     ...extras,
   });
 };
-
-const getNewsConfig = (isFavorites) =>
-  isFavorites
-    ? {
-        status: NEWS_STATUS_FAV,
-        loading: NEWS_LOAD_FAV,
-        fallback: NEWS_STATUS_FALLBACK_FAV,
-        error: ERRORS.FAVORITES_ERROR,
-      }
-    : {
-        status: NEWS_STATUS_GEN,
-        loading: NEWS_LOAD_GEN,
-        fallback: NEWS_STATUS_FALLBACK_GEN,
-        error: ERRORS.GENERAL_ERROR,
-      };
 
 // ===== STATS BAR =====
 export const initStatsBar = async () => {
@@ -77,7 +56,8 @@ export const initStatsBar = async () => {
 // ===== CURRENCIES PAGE =====
 export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   ChartService.cleanup();
-  setLoadingCoins(false);
+  if (isLoadingCoins) return;
+  isLoadingCoins = true;
 
   BaseUI.showPage(PageComponents.currenciesPage());
 
@@ -90,28 +70,29 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 
   cachedCoins.length ? renderCoins(cachedCoins) : CoinUI.showLoading();
 
-  if (getLoadingCoins()) return;
-
   const isCacheExpired =
     !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
 
   if (cachedCoins.length && !forceRefresh && !isCacheExpired) {
+    isLoadingCoins = false;
     return;
   }
 
-  setLoadingCoins(true);
-  const { ok, data, code, error, status } = await CoinsService.loadAllCoins();
-  setLoadingCoins(false);
+  try {
+    const { ok, data, code, error, status } = await CoinsService.loadAllCoins();
 
-  if (!ok) {
-    ErrorUI.showError("#coinsContainer", code || "COIN_LIST_ERROR", {
-      status,
-      defaultMessage: error,
-    });
-    return;
+    if (!ok) {
+      ErrorUI.showError("#coinsContainer", code || "COIN_LIST_ERROR", {
+        status,
+        defaultMessage: error,
+      });
+      return;
+    }
+
+    renderCoins(data);
+  } finally {
+    isLoadingCoins = false;
   }
-
-  renderCoins(data);
 };
 
 // ===== REPORTS PAGE =====
@@ -150,20 +131,16 @@ export const showReportsPage = async () => {
 // ===== NEWS PAGE =====
 const loadNews = async (mode = "general") => {
   const isFavorites = mode === "favorites";
-  const { status, loading, fallback, error } = getNewsConfig(isFavorites);
+  const status = isFavorites ? NEWS_STATUS_FAV : NEWS_STATUS_GEN;
+  const loading = isFavorites ? NEWS_LOAD_FAV : NEWS_LOAD_GEN;
+  const fallback = isFavorites ? NEWS_STATUS_FALLBACK_FAV : NEWS_STATUS_FALLBACK_GEN;
 
   NewsUI.updateNewsStatus(status);
   NewsUI.showNewsLoading(loading);
   NewsUI.setNewsFilterMode(mode);
 
-  const {
-    ok,
-    articles,
-    usedFallback,
-    code,
-    errorMessage,
-    status: httpStatus,
-  } = isFavorites
+  const { ok, articles, usedFallback, code, errorMessage, status: httpStatus } =
+    isFavorites
     ? await NewsService.getNewsForFavorites(StorageHelper.getFavorites())
     : await NewsService.getGeneralNews();
 
@@ -196,15 +173,11 @@ export const showFavoritesNewsPage = async () => {
 export const showAboutPage = () => {
   ChartService.cleanup();
 
-  const name = ABOUT_NAME;
-  const image = ABOUT_IMAGE;
-  const linkedin = ABOUT_LINKEDIN;
-
   BaseUI.showPage(
     PageComponents.aboutPage({
-      name,
-      image,
-      linkedin,
+      name: ABOUT_NAME,
+      image: ABOUT_IMAGE,
+      linkedin: ABOUT_LINKEDIN,
     })
   );
 };

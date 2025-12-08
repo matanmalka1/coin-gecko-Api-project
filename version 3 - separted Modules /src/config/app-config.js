@@ -2,7 +2,6 @@
 export const APP_CONFIG = {
   // ===== API ENDPOINTS =====
   COINGECKO_URL: "https://api.coingecko.com/api/v3",
-  CRYPTOCOMPARE_URL: "https://min-api.cryptocompare.com/data",
   NEWS_URL: "https://newsdata.io/api/1/crypto",
   NEWS_KEY: "pub_f179a246e66740f4943967a02e0bd77e",
   CHART_HISTORY_DAYS: 7,
@@ -25,7 +24,6 @@ export const APP_CONFIG = {
 
   // ===== GENERAL UI TEXT =====
   UI_LOAD_COINS: "Loading coins...",
-  UI_REPLACE: "Please select a coin to replace",
   UI_COMPARE_TITLE: "Compare Coins",
   UI_NO_COINS: "No coins found.",
   UI_FAV_EMPTY: "No favorites yet. Tap the star to add coins.",
@@ -34,10 +32,7 @@ export const APP_CONFIG = {
 
   // ===== NEWS UI =====
   NEWS_STATUS_GEN: "Showing general crypto news from the last 5 hours.",
-  NEWS_STATUS_FAV:
-    "Showing news for your favorite coins from the last 5 hours.",
-  NEWS_STATUS_NOFAV:
-    "No favorite coins selected. Please add favorites to see related news.",
+  NEWS_STATUS_FAV: "Showing news for your favorite coins from the last 5 hours.",
   NEWS_STATUS_FALLBACK_GEN:
     "No articles from the last 5 hours. Showing latest available news.",
   NEWS_STATUS_FALLBACK_FAV:
@@ -53,10 +48,7 @@ export const APP_CONFIG = {
   NEWS_CACHE_FAV: "news_cache_favorites",
 
   // ===== CHART SETTINGS =====
-  CHART_TICK_MS: 2000,
   CHART_POINTS: 70,
-  CHART_TIME_FMT: "HH:mm:ss",
-  CHART_Y_PREFIX: "$",
   CHART_BADGE: "Live",
   CHART_H: 220,
   CHART_H_MOBILE: 180,

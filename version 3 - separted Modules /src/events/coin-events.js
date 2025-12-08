@@ -5,18 +5,8 @@ import { BaseUI } from "../ui/base-ui.js";
 import { ERRORS } from "../config/error.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { ErrorUI } from "../ui/error-ui.js";
-import {
-  showCurrenciesPage,
-  renderCoins,
-  getLoadingCoins,
-  setLoadingCoins,
-} from "../controllers/pages-controller.js";
+import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
 
-const CURRENCIES = {
-  USD: { symbol: APP_CONFIG.USD_SYMBOL, label: APP_CONFIG.USD_LABEL },
-  EUR: { symbol: APP_CONFIG.EUR_SYMBOL, label: APP_CONFIG.EUR_LABEL },
-  ILS: { symbol: APP_CONFIG.ILS_SYMBOL, label: APP_CONFIG.ILS_LABEL },
-};
 const FAVORITES_EMPTY = APP_CONFIG.UI_FAV_EMPTY;
 
 let isRegistered = false;
@@ -102,7 +92,7 @@ const handleMoreInfo = async (e) => {
       return;
     }
 
-    CoinUI.showCoinDetails(collapseId, data, { currencies: CURRENCIES });
+    CoinUI.showCoinDetails(collapseId, data);
   } catch (error) {
     ErrorUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
       status: null,
@@ -130,12 +120,7 @@ const handleSortChange = () => {
 
 const handleRefreshCoins = (e) => {
   e.preventDefault();
-  if (!getLoadingCoins()) {
-    setLoadingCoins(true);
-    showCurrenciesPage({ forceRefresh: true }).finally(() => {
-      setLoadingCoins(false);
-    });
-  }
+  showCurrenciesPage({ forceRefresh: true });
 };
 
 // ===== REGISTRATION =====

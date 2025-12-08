@@ -22,9 +22,11 @@ const CURRENCIES = {
   ILS: { symbol: APP_CONFIG.ILS_SYMBOL, label: APP_CONFIG.ILS_LABEL },
 };
 
-// ===== COIN LIST RENDERING =====
-const displayCoins = (coins, selectedReports = [], options = {}) => {
-  const { favorites = [], emptyMessage, compareSelection = [] } = options;
+const displayCoins = (
+  coins,
+  selectedReports = [],
+  { favorites = [], emptyMessage, compareSelection = [] } = {}
+) => {
   const container = $("#coinsContainer");
   if (!container.length) return;
 
@@ -40,10 +42,8 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
     ? favorites.favorites
     : [];
 
-  if (!coins.length) {
-    ErrorUI.showInfo(container, emptyMessage || UI_TEXT.noCoins);
-    return;
-  }
+  if (!coins.length)
+    return ErrorUI.showInfo(container, emptyMessage || UI_TEXT.noCoins);
 
   const compareSet = new Set(
     Array.isArray(compareSelection)
@@ -51,27 +51,27 @@ const displayCoins = (coins, selectedReports = [], options = {}) => {
       : []
   );
 
-  const html = coins
-    .map((coin) =>
-      CoinComponents.coinCard(coin, selectedSymbols.includes(coin.symbol), {
-        isFavorite: favoriteSymbols.includes(coin.symbol),
-        isInCompare: compareSet.has(String(coin.id)),
-      })
-    )
-    .join("");
-
-  container.html(html);
+  container.html(
+    coins
+      .map((coin) =>
+        CoinComponents.coinCard(coin, selectedSymbols.includes(coin.symbol), {
+          isFavorite: favoriteSymbols.includes(coin.symbol),
+          isInCompare: compareSet.has(String(coin.id)),
+        })
+      )
+      .join("")
+  );
 };
 
 // ===== LOADING STATE =====
 const showLoading = () => {
   const container = $("#coinsContainer");
   if (!container.length) return;
-
   container.html(
-    `${BaseComponents.spinner(
-      UI_TEXT.loadingCoins
-    )}${BaseComponents.skeleton("coins", 6)}`
+    `${BaseComponents.spinner(UI_TEXT.loadingCoins)}${BaseComponents.skeleton(
+      "coins",
+      6
+    )}`
   );
 };
 
@@ -79,152 +79,120 @@ const showLoading = () => {
 const updateFavoriteIcon = (symbol, isFavorite) => {
   const favoriteIcon = $(`.favorite-btn[data-symbol="${symbol}"] i`);
   if (!favoriteIcon.length) return;
-  favoriteIcon.toggleClass("text-primary", isFavorite);
-  favoriteIcon.toggleClass("text-muted", !isFavorite);
-  const btn = favoriteIcon.closest(".favorite-btn");
-  btn.attr("title", isFavorite ? "Remove from favorites" : "Add to favorites");
+  favoriteIcon
+    .toggleClass("text-primary", isFavorite)
+    .toggleClass("text-muted", !isFavorite);
+  favoriteIcon
+    .closest(".favorite-btn")
+    .attr("title", isFavorite ? "Remove from favorites" : "Add to favorites");
 };
 
-// ===== COIN DETAILS PANEL =====
-const showCoinDetails = (containerId, data, options = {}) => {
-  const { currencies = {} } = options;
-  const container = $(`#${containerId}`);
-
-  const html =
+const showCoinDetails = (
+  containerId,
+  data,
+  { currencies = CURRENCIES } = {}
+) => {
+  $(`#${containerId}`).html(
     CoinComponents.coinDetails(data, currencies) +
-    CoinComponents.coinMiniChart(data.id);
-
-  container.html(html);
+      CoinComponents.coinMiniChart(data.id)
+  );
   ChartRenderer.drawMiniChart(data.id);
 };
 
-// ===== REPLACE MODAL =====
-const showReplaceModal = (newSymbol, existingCoins, options = {}) => {
-  const { maxCoins, onConfirm, onClose } = options;
-
+const showReplaceModal = (
+  newSymbol,
+  existingCoins,
+  { maxCoins, onConfirm, onClose } = {}
+) => {
   const modalHTML = CoinComponents.replaceModal(newSymbol, existingCoins, {
     maxCoins,
   });
   $("body").append(modalHTML);
-  const modalElement = document.getElementById("replaceModal");
-  const modal = new bootstrap.Modal(modalElement);
+  const modal = new bootstrap.Modal(document.getElementById("replaceModal"));
   modal.show();
-
   $("#confirmReplace")
     .off()
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
-      if (!selectedToRemove) {
-        ErrorUI.showInfo(
-          container,
-          emptyMessage || UI_TEXT.noCoins
-        );
-        return;
-      }
-
+      if (!selectedToRemove)
+        return ErrorUI.showInfo("#replaceModalError", UI_TEXT.noCoins);
       typeof onConfirm === "function"
         ? onConfirm({ remove: selectedToRemove, add: newSymbol, modal })
         : modal.hide();
     });
-
-  $("#replaceModal").one("hidden.bs.modal", function () {
+  $("#replaceModal").one("hidden.bs.modal", () => {
     $("#replaceModal").remove();
     onClose?.();
   });
-
   return modal;
 };
 
-// ===== COMPARE MODAL =====
 const buildCompareRow = (coin) => {
-  const marketData = coin.market_data || {};
-  const priceUsd = marketData.current_price?.usd;
-  const marketCapUsd = marketData.market_cap?.usd;
-  const changePercent = marketData.price_change_percentage_24h;
-  const volumeUsd = marketData.total_volume?.usd;
+  const md = coin.market_data || {};
+  return `<tr>
+  <td>${coin?.symbol?.toUpperCase() || "N/A"}</td>
+  <td>${formatPrice(md.current_price?.usd)}</td>
+  <td>${formatLargeNumber(md.market_cap?.usd)}</td>
+  <td>${formatPercent(md.price_change_percentage_24h)}</td>
+  <td>${formatLargeNumber(md.total_volume?.usd)}</td></tr>`;
+};
 
-  return `
+const buildCompareTable = (coins) =>
+  `<table class="table table-striped text-center align-middle">
+    <thead>
     <tr>
-      <td>${coin?.symbol?.toUpperCase() || "N/A"}</td>
-      <td>${formatPrice(priceUsd)}</td>            
-      <td>${formatLargeNumber(marketCapUsd)}</td>   
-      <td>${formatPercent(changePercent)}</td>       
-      <td>${formatLargeNumber(volumeUsd)}</td>       
+    <th>Coin</th>
+    <th>Price</th>
+    <th>Market Cap</th>
+    <th>24h %</th>
+    <th>Volume</th>
     </tr>
-  `;
-};
-const buildCompareTable = (coins) => {
-  const rows = coins.map(buildCompareRow).join("");
+    </thead>
+    <tbody>${coins.map(buildCompareRow).join("")}</tbody>
+  </table>`;
 
-  const table = `
-    <table class="table table-striped text-center align-middle">
-      <thead>
-        <tr>
-          <th>Coin</th>
-          <th>Price</th>
-          <th>Market Cap</th>
-          <th>24h %</th>
-          <th>Volume</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `;
-  return table;
-};
-
-const showCompareModal = (coins, options = {}) => {
-  const { missingSymbols = [], title, onClose } = options;
-
+const showCompareModal = (
+  coins,
+  { missingSymbols = [], title, onClose } = {}
+) => {
   const content = buildCompareTable(coins);
   const modalHTML = CoinComponents.compareModal(content, {
     title: title || UI_TEXT.compareTitle,
   });
-
   $("body").append(modalHTML);
-  const modalElement = document.getElementById("compareModal");
-  const modal = new bootstrap.Modal(modalElement);
+  const modal = new bootstrap.Modal(document.getElementById("compareModal"));
 
-  if (missingSymbols.length) {
+  if (missingSymbols.length)
     ErrorUI.showInfo(
       "#compareModalMessage",
       ERRORS.MISSING_DATA(missingSymbols.join(", ")),
       "warning"
     );
-  }
-
   $("#compareModal").on("hidden.bs.modal", () => {
     $("#compareModal").remove();
     onClose?.();
   });
-
   modal.show();
   return modal;
 };
 
-// ===== TOGGLE STATES =====
 const updateToggleStates = (selectedReports) => {
   const selectedSymbols = Array.isArray(selectedReports) ? selectedReports : [];
-
   $(".coin-toggle").each(function () {
     const symbol = $(this).data("symbol");
     $(this).prop("checked", selectedSymbols.includes(symbol));
   });
 };
 
-// ===== COMPARE HIGHLIGHTS =====
 const getCompareSelection = () =>
   $(".compare-row-active")
     .map((_, el) => String($(el).data("id")))
     .get();
-
 const setCompareHighlight = (coinId, isActive) => {
-  const safeId = String(coinId);
-  const $rows = $(`.compare-row[data-id="${safeId}"]`);
+  const $rows = $(`.compare-row[data-id="${String(coinId)}"]`);
   $rows.toggleClass("compare-row-active", !!isActive);
   $rows.closest(".card").toggleClass("compare-card-active", !!isActive);
 };
-
 const clearCompareHighlights = () => {
   $(".compare-row").removeClass("compare-row-active");
   $(".card.compare-card-active").removeClass("compare-card-active");
