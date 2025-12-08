@@ -6,19 +6,19 @@ import { fetchWithRetry } from "./api.js";
 const { getSelectedReports, removeReport, addReport } = StorageHelper;
 const { getAllCoins } = CoinsService;
 
-const { REPORTS_MAX: MAX_COINS, COINGECKO_URL: COINGECKO_BASE } = APP_CONFIG;
+const { REPORTS_MAX, COINGECKO_BASE } = APP_CONFIG;
 
 const toggleCoinSelection = (symbol) => {
   if (
     !getSelectedReports().includes(String(symbol).trim().toUpperCase()) &&
-    getSelectedReports().length >= MAX_COINS
+    getSelectedReports().length >= REPORTS_MAX
   ) {
     return {
       ok: false,
       code: "FULL",
       newSymbol: String(symbol).trim().toUpperCase(),
       existing: getSelectedReports(),
-      limit: MAX_COINS,
+      limit: REPORTS_MAX,
       selected: getSelectedReports(),
     };
   }
@@ -67,7 +67,7 @@ const replaceReport = (oldSymbol, newSymbol) => {
 };
 
 const getCompareData = async (ids) => {
-  const uniqueIds = Array.from(new Set(ids)).slice(0, MAX_COINS);
+  const uniqueIds = Array.from(new Set(ids)).slice(0, REPORTS_MAX);
 
   const results = await Promise.all(
     uniqueIds.map((id) => fetchWithRetry(`${COINGECKO_BASE}/coins/${id}`))
@@ -89,7 +89,7 @@ const getCompareData = async (ids) => {
     return { ok: false, code: "NO_DATA", coins: [], missing };
   }
 
-  return { ok: true, coins, missing, limit: MAX_COINS };
+  return { ok: true, coins, missing, limit: REPORTS_MAX };
 };
 
 export const ReportsService = {

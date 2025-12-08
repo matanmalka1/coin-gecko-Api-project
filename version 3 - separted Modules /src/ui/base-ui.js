@@ -24,7 +24,9 @@ const toggleCollapse = (collapseId, show) => {
 
 // Updates the favorites toggle button caption based on mode.
 const setFavoritesButtonLabel = (showingFavorites) => {
-  const label = showingFavorites ? APP_CONFIG.UI_FAV_HIDE : APP_CONFIG.UI_FAV_SHOW;
+  const label = showingFavorites
+    ? APP_CONFIG.UI_FAV_HIDE
+    : APP_CONFIG.UI_FAV_SHOW;
   $("#showFavoritesBtn").text(label);
 };
 
@@ -42,19 +44,19 @@ const setStatsBar = ({
 
   return [
     {
-      label: APP_CONFIG.STATS_MARKET_CAP,
+      label: "Market Cap",
       value: formatLargeNumber(totalMarketCap),
     },
     {
-      label: APP_CONFIG.STATS_VOLUME_24H,
+      label: "24h Volume",
       value: formatLargeNumber(totalVolume),
     },
     {
-      label: APP_CONFIG.STATS_BTC_DOM,
+      label: "BTC Dominance",
       value: btcDominanceText,
     },
     {
-      label: APP_CONFIG.STATS_MARKET_CHANGE,
+      label: "Market Change",
       value: marketChangeText,
     },
   ];
@@ -71,7 +73,7 @@ const renderStatsBar = (targetSelector, props = {}) => {
                 <div class="card shadow-sm h-100">
                   <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
                     <div class="mb-2">
-                      ${APP_CONFIG.STATS_ICON}
+                      ${`<i class="fas fa-chart-bar"></i>`}
                     </div>
                     <div class="text-muted small mb-1">
                       ${stat.label}

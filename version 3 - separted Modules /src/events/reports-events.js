@@ -5,12 +5,10 @@ import { APP_CONFIG } from "../config/app-config.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { CoinUI } from "../ui/coin-ui.js";
 
-const { REPORTS_COMPARE_MAX: MAX_COMPARE } = APP_CONFIG;
+const MAX_COMPARE = APP_CONFIG.REPORTS_COMPARE_MAX;
 
 let eventsRegistered = false;
 let compareModalOpen = false;
-
-// ===== HELPERS =====
 
 const setCompareSelection = (ids) => {
   CoinUI.clearCompareHighlights();
@@ -24,49 +22,43 @@ const resetCompareSelection = () => {
 const updateCompareIndicator = (selected = CoinUI.getCompareSelection()) => {
   const selectionArray = Array.isArray(selected) ? selected : [];
   const selectedCount = selectionArray.length;
-
   const $status = $("#compareStatus");
   if (!selectedCount) {
     $status.addClass("d-none").empty();
     CoinUI.clearCompareHighlights();
     return;
   }
-
-  ErrorUI.showInfo("#compareStatus", `${selectedCount} / ${MAX_COMPARE} coins selected`);
+  ErrorUI.showInfo(
+    "#compareStatus",
+    `${selectedCount} / ${MAX_COMPARE} coins selected`
+  );
   $status.removeClass("d-none");
 };
 
-// ===== EVENT HANDLERS =====
 const handleFilterReports = () => {
   const { ok, code, data, selected, favorites } =
     CoinsService.filterSelectedCoins();
   $("#clearSearchBtn").removeClass("d-none");
-
   if (!ok) {
     ErrorUI.showError("#coinsContainer", code, {
       defaultMessage: ERRORS.NONE_SELECTED,
     });
     return;
   }
-
   CoinUI.displayCoins(data, selected, { favorites });
 };
 
-const openReplaceFlow = (serviceResult) => {
-  const { newSymbol, existing, limit } = serviceResult;
-
+const openReplaceFlow = ({ newSymbol, existing, limit }) => {
   CoinUI.showReplaceModal(newSymbol, existing, {
     maxCoins: limit,
     onConfirm: ({ remove, add, modal }) => {
       const { ok, code, selected } = ReportsService.replaceReport(remove, add);
       CoinUI.updateToggleStates(selected);
-
       if (!ok) {
         ErrorUI.showError("#content", code);
         modal.hide();
         return;
       }
-
       modal.hide();
     },
   });
@@ -76,7 +68,6 @@ const handleCoinToggle = function () {
   const coinSymbol = $(this).data("symbol");
   const { ok, code, selected, ...rest } =
     ReportsService.toggleCoinSelection(coinSymbol);
-
   if (ok) {
     CoinUI.updateToggleStates(selected);
   } else if (code === "FULL") {
@@ -91,7 +82,6 @@ const handleCompareClick = async function () {
   const coinExists = CoinsService.getAllCoins().some(
     (coin) => String(coin.id) === coinId
   );
-
   if (!coinExists) {
     ErrorUI.showError("#content", "NO_MATCH", {
       defaultMessage: ERRORS.NOT_FOUND,
@@ -108,37 +98,22 @@ const handleCompareClick = async function () {
   } else {
     if (currentSelection.length >= MAX_COMPARE) {
       updateCompareIndicator(currentSelection);
-      ErrorUI.showError("#content", "COMPARE_FULL", {
-        limit: MAX_COMPARE,
-      });
+      ErrorUI.showError("#content", "COMPARE_FULL", { limit: MAX_COMPARE });
       return;
     }
-
     currentSelection = [...currentSelection, coinId];
-    CoinUI.setCompareHighlight(coinId, true);
   }
 
   setCompareSelection(currentSelection);
   updateCompareIndicator(currentSelection);
 
-  if (currentSelection.length < MAX_COMPARE) {
-    return;
-  }
+  if (currentSelection.length < MAX_COMPARE) return;
 
-  if (currentSelection.length > MAX_COMPARE) {
-    ErrorUI.showError("#content", "COMPARE_FULL", {
-      limit: MAX_COMPARE,
-    });
-    return;
-  }
   const { ok, code, coins, missing } = await ReportsService.getCompareData(
     currentSelection
   );
-
   if (!ok) {
-    ErrorUI.showError("#content", code, {
-      defaultMessage: ERRORS.DEFAULT,
-    });
+    ErrorUI.showError("#content", code, { defaultMessage: ERRORS.DEFAULT });
     resetCompareSelection();
     updateCompareIndicator();
     return;
@@ -152,20 +127,16 @@ const handleCompareClick = async function () {
       resetCompareSelection();
       compareModalOpen = false;
       updateCompareIndicator();
-      previousSelection.forEach((id) => CoinUI.setCompareHighlight(id, false));
     },
   });
 };
 
-// ===== REGISTRATION =====
 const setupEventListeners = () => {
   if (eventsRegistered) return;
-
   $(document)
     .on("click", "#filterReportsBtn", handleFilterReports)
     .on("change", ".coin-toggle", handleCoinToggle)
     .on("click", ".compare-btn", handleCompareClick);
-
   eventsRegistered = true;
 };
 

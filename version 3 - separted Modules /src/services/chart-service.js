@@ -6,12 +6,7 @@ import { APP_CONFIG } from "../config/app-config.js";
 const { fetchWithCache } = CacheManager;
 const { getAllCoins } = CoinsService;
 const { getSelectedReports } = StorageHelper;
-
-const COINGECKO_BASE = APP_CONFIG.COINGECKO_URL;
-const CHART_HISTORY_DAYS = APP_CONFIG.CHART_HISTORY_DAYS;
-const HISTORY_POINTS = APP_CONFIG.CHART_POINTS;
-const HISTORY_DAYS = APP_CONFIG.REPORTS_DAYS;
-const CHART_TTL_MS = APP_CONFIG.REPORTS_CHART_TTL;
+const {COINGECKO_BASE, CHART_HISTORY_DAYS, CHART_POINTS, REPORTS_DAYS, REPORTS_CHART_TTL } = APP_CONFIG;
 
 // ===== OHLC DATA =====
 const getCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
@@ -22,7 +17,7 @@ const getCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
         `${COINGECKO_BASE}/coins/${coinId}/ohlc` +
           `?vs_currency=usd&days=${days}`
       ),
-    CHART_TTL_MS
+    REPORTS_CHART_TTL
   );
 
 const mapOhlcToCandles = (ohlcArray = []) =>
@@ -55,7 +50,7 @@ const loadCandlesForSymbols = async (symbols) => {
         return { symbol, candles: [], code: "NO_COIN_ID" };
       }
 
-      const { ok, data, code, error } = await getCoinOhlc(coinId, HISTORY_DAYS);
+      const { ok, data, code, error } = await getCoinOhlc(coinId, REPORTS_DAYS);
 
       if (!ok || !data) {
         return {
@@ -95,7 +90,7 @@ const startLiveChart = async (chartCallbacks = {}) => {
 
   chartCallbacks.onChartReady?.({
     symbols,
-    historyPoints: HISTORY_POINTS,
+    historyPoints: CHART_POINTS,
   });
 
   const { candlesBySymbol, errors } = await loadCandlesForSymbols(symbols);

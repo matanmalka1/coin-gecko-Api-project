@@ -17,9 +17,9 @@ const UI_TEXT = {
 };
 
 const CURRENCIES = {
-  USD: { symbol: APP_CONFIG.USD_SYMBOL, label: APP_CONFIG.USD_LABEL },
-  EUR: { symbol: APP_CONFIG.EUR_SYMBOL, label: APP_CONFIG.EUR_LABEL },
-  ILS: { symbol: APP_CONFIG.ILS_SYMBOL, label: APP_CONFIG.ILS_LABEL },
+  USD: { symbol: "$", label: "USD" },
+  EUR: { symbol: "€", label: "EUR" },
+  ILS: { symbol: "₪", label: "ILS" },
 };
 
 const displayCoins = (

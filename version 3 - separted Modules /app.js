@@ -15,19 +15,19 @@ let darkmodeInstance = null;
 
 const initDarkmodeWidget = () => {
   if (darkmodeInstance) return darkmodeInstance;
-
+  // ===== DARKMODE WIDGET =====
   darkmodeInstance = new Darkmode({
-    bottom: APP_CONFIG.DM_BOTTOM,
-    right: APP_CONFIG.DM_RIGHT,
-    left: APP_CONFIG.DM_LEFT,
-    time: APP_CONFIG.DM_TIME,
-    mixColor: APP_CONFIG.DM_MIX,
-    backgroundColor: APP_CONFIG.DM_BG,
-    buttonColorDark: APP_CONFIG.DM_BTN_DARK,
-    buttonColorLight: APP_CONFIG.DM_BTN_LIGHT,
-    saveInCookies: APP_CONFIG.DM_SAVE_COOKIES,
-    label: APP_CONFIG.DM_LABEL,
-    autoMatchOsTheme: APP_CONFIG.DM_AUTO_OS,
+    bottom: "20px",
+    right: "5px",
+    left: "unset",
+    time: "0.3s",
+    mixColor: "#fff",
+    backgroundColor: "#f5f5f5",
+    buttonColorDark: "#ffffff",
+    buttonColorLight: "#000000",
+    saveInCookies: true,
+    label: "☀️",
+    autoMatchOsTheme: true,
   });
   darkmodeInstance.showWidget();
 

@@ -2,15 +2,30 @@ import { APP_CONFIG } from "../config/app-config.js";
 import { CoinsService } from "../services/coins-service.js";
 import { ErrorUI } from "./error-ui.js";
 
+const {
+  CHART_POINTS,
+  CHART_H,
+  CHART_H_MOBILE,
+  CHART_BADGE,
+  CHART_BG,
+  CHART_TEXT,
+  CHART_BORDER,
+  CHART_UP,
+  CHART_DOWN,
+  CHART_BORDER_UP,
+  CHART_BORDER_DOWN,
+  CHART_WICK_UP,
+  CHART_WICK_DOWN,
+} = APP_CONFIG;
 // ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 
 const charts = new Map();
-let maxHistoryPoints = APP_CONFIG.CHART_POINTS;
+let maxHistoryPoints = CHART_POINTS;
 
 const destroyAll = () => {
   charts.forEach((entry) => entry?.chart?.remove());
   charts.clear();
-  maxHistoryPoints = APP_CONFIG.CHART_POINTS;
+  maxHistoryPoints = CHART_POINTS;
 };
 
 const setupCharts = (symbols, options = {}) => {
@@ -20,12 +35,10 @@ const setupCharts = (symbols, options = {}) => {
   destroyAll();
   grid.empty();
 
-  maxHistoryPoints = options.historyPoints ?? APP_CONFIG.CHART_POINTS;
+  maxHistoryPoints = options.historyPoints ?? CHART_POINTS;
 
   const isMobile = window.innerWidth <= 576;
-  const height = isMobile
-    ? APP_CONFIG.CHART_H_MOBILE ?? APP_CONFIG.CHART_H
-    : APP_CONFIG.CHART_H;
+  const height = isMobile ? CHART_H_MOBILE ?? CHART_H : CHART_H;
 
   symbols.forEach((symbol) => {
     const containerId = `chart-${symbol}`;
@@ -34,7 +47,7 @@ const setupCharts = (symbols, options = {}) => {
         <div class="card shadow-sm p-3 h-100 rounded-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">${symbol}</h6>
-            <small class="text-muted">${APP_CONFIG.CHART_BADGE}</small>
+            <small class="text-muted">${CHART_BADGE}</small>
           </div>
           <div id="${containerId}" style="height:${height}px;"></div>
         </div>
@@ -50,21 +63,21 @@ const setupCharts = (symbols, options = {}) => {
       layout: {
         background: {
           type: "solid",
-          color: APP_CONFIG.CHART_BG,
+          color: CHART_BG,
         },
-        textColor: APP_CONFIG.CHART_TEXT,
+        textColor: CHART_TEXT,
       },
-      rightPriceScale: { borderColor: APP_CONFIG.CHART_BORDER },
-      timeScale: { borderColor: APP_CONFIG.CHART_BORDER },
+      rightPriceScale: { borderColor: CHART_BORDER },
+      timeScale: { borderColor: CHART_BORDER },
     });
 
     const series = chart.addSeries(LightweightCharts.CandlestickSeries, {
-      upColor: APP_CONFIG.CHART_UP,
-      downColor: APP_CONFIG.CHART_DOWN,
-      borderUpColor: APP_CONFIG.CHART_BORDER_UP,
-      borderDownColor: APP_CONFIG.CHART_BORDER_DOWN,
-      wickUpColor: APP_CONFIG.CHART_WICK_UP,
-      wickDownColor: APP_CONFIG.CHART_WICK_DOWN,
+      upColor: CHART_UP,
+      downColor: CHART_DOWN,
+      borderUpColor: CHART_BORDER_UP,
+      borderDownColor: CHART_BORDER_DOWN,
+      wickUpColor: CHART_WICK_UP,
+      wickDownColor: CHART_WICK_DOWN,
     });
     charts.set(symbol, { chart, series });
   });
@@ -99,7 +112,7 @@ const drawMiniChart = async (coinId) => {
     );
     return;
   }
-  
+
   const prices = data.prices.map(([time, price]) => ({
     x: new Date(time),
     y: price,

@@ -2,17 +2,20 @@
 export const shortenText = (text = "", max = 200) =>
   !text ? "" : text.length > max ? `${text.slice(0, max)}...` : text;
 
-const PLACEHOLDER_THUMB = "images/cryptocurrency.png";
+export const formatPrice = (value, currency = {}, options = {}) => {
+  if (!value || Number.isNaN(value)) return "N/A";
 
-const formatFractionDigits = (value, options = {}) => {
   const minDigits = options.minimumFractionDigits ?? 2;
   const maxDigits =
     options.maximumFractionDigits ?? (Math.abs(value) >= 1 ? minDigits : 8);
 
-  return {
+  const formatted = value.toLocaleString("en-US", {
     minimumFractionDigits: minDigits,
     maximumFractionDigits: Math.max(minDigits, maxDigits),
-  };
+  });
+
+  const symbol = currency?.symbol ?? "$";
+  return `${symbol}${formatted}`;
 };
 
 // Filters articles that fall within the last `maxAgeInMs` window.
@@ -27,17 +30,6 @@ export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
     return Date.now() - publishedTime <= maxAgeInMs;
   });
 };
-export const formatPriceWithCurrency = (value, currency = {}, options = {}) => {
-  if (typeof value !== "number" || Number.isNaN(value)) return "N/A";
-
-  const formatted = value.toLocaleString(
-    "en-US",
-    formatFractionDigits(value, options)
-  );
-
-  const symbol = currency?.symbol ?? "$";
-  return `${symbol}${formatted}`;
-};
 
 export const formatLargeNumber = (value) => {
   if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
@@ -45,18 +37,10 @@ export const formatLargeNumber = (value) => {
   return `$${value.toLocaleString()}`;
 };
 
-export const formatPrice = (value) => {
-  if (typeof value !== "number" || Number.isNaN(value)) {
-    return "N/A";
-  }
-
-  const formatted = value.toLocaleString("en-US", formatFractionDigits(value));
-  return `$${formatted}`;
-};
 export const formatPercent = (percentValue, options = {}) => {
-  if (typeof percentValue !== "number" || Number.isNaN(percentValue)) {
+  if (typeof percentValue !== "number" || Number.isNaN(percentValue))
     return "N/A";
-  }
+
   const { decimals = 2, showSign = false } = options;
   const signPrefix = showSign && percentValue >= 0 ? "+" : "";
 

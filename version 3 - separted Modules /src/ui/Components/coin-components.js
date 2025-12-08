@@ -2,20 +2,24 @@ import { APP_CONFIG } from "../../config/app-config.js";
 import {
   shortenText,
   formatPrice,
-  formatPriceWithCurrency,
   resolveImage,
   formatLargeNumber,
 } from "../../utils/general-utils.js";
 
-const PLACEHOLDER_LARGE = "https://via.placeholder.com/80";
+const PLACEHOLDER_THUMB = "images/3.png";
 
 // Builds a coin summary card (price, market cap, actions, toggle states).
 const coinCardHeader = (coin) => {
   const { name, symbol, image } = coin;
 
+  const imageSource =
+    (typeof image === "string"
+      ? image
+      : image?.thumb || image?.small || image?.large) || PLACEHOLDER_THUMB;
+
   return `
     <div class="d-flex align-items-center gap-3 mb-3">
-      <img src="${resolveImage(image)}" 
+      <img src="${imageSource}" 
            alt="${symbol?.toUpperCase() || ""}" 
            loading="lazy"
            class="rounded-circle coin-image">
@@ -26,7 +30,6 @@ const coinCardHeader = (coin) => {
     </div>
   `;
 };
-
 const coinCardActions = (
   coin,
   isSelected,
@@ -110,12 +113,12 @@ const coinDetails = (data = {}, currencies = {}) => {
     image?.large ||
     image?.small ||
     image?.thumb ||
-    (typeof image === "string" ? image : PLACEHOLDER_LARGE);
+    (typeof image === "string" ? image : PLACEHOLDER_THUMB);
   const displaySymbol = symbol ? symbol.toUpperCase() : "";
 
   // Helper for rendering a badge showing a specific currency value.
   const priceItem = (label, value, curr) => {
-    const formatted = formatPriceWithCurrency(value, curr); 
+    const formatted = formatPrice(value, curr);
 
     return `
     <div class="price-badge mb-2 p-2 border-left rounded ${

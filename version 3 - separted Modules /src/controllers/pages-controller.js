@@ -1,4 +1,4 @@
-import { APP_CONFIG } from "../config/app-config.js";
+import { CONFIG_CHART } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { NewsUI } from "../ui/news-ui.js";
@@ -25,7 +25,7 @@ const {
   NEWS_STATUS_FALLBACK_FAV,
   NEWS_LOAD_GEN,
   NEWS_LOAD_FAV,
-} = APP_CONFIG;
+} = CONFIG_CHART;
 
 // ===== LOADING STATE =====
 let isLoadingCoins = false;
@@ -133,14 +133,22 @@ const loadNews = async (mode = "general") => {
   const isFavorites = mode === "favorites";
   const status = isFavorites ? NEWS_STATUS_FAV : NEWS_STATUS_GEN;
   const loading = isFavorites ? NEWS_LOAD_FAV : NEWS_LOAD_GEN;
-  const fallback = isFavorites ? NEWS_STATUS_FALLBACK_FAV : NEWS_STATUS_FALLBACK_GEN;
+  const fallback = isFavorites
+    ? NEWS_STATUS_FALLBACK_FAV
+    : NEWS_STATUS_FALLBACK_GEN;
 
   NewsUI.updateNewsStatus(status);
   NewsUI.showNewsLoading(loading);
   NewsUI.setNewsFilterMode(mode);
 
-  const { ok, articles, usedFallback, code, errorMessage, status: httpStatus } =
-    isFavorites
+  const {
+    ok,
+    articles,
+    usedFallback,
+    code,
+    errorMessage,
+    status: httpStatus,
+  } = isFavorites
     ? await NewsService.getNewsForFavorites(StorageHelper.getFavorites())
     : await NewsService.getGeneralNews();
 

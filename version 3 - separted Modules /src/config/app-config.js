@@ -1,7 +1,7 @@
 // Flat configuration container (grouped by comment, no nested objects)
 export const APP_CONFIG = {
   // ===== API ENDPOINTS =====
-  COINGECKO_URL: "https://api.coingecko.com/api/v3",
+  COINGECKO_BASE: "https://api.coingecko.com/api/v3",
   NEWS_URL: "https://newsdata.io/api/1/crypto",
   NEWS_KEY: "pub_f179a246e66740f4943967a02e0bd77e",
   CHART_HISTORY_DAYS: 7,
@@ -16,11 +16,13 @@ export const APP_CONFIG = {
   REPORTS_CHART_TTL: 5 * 60 * 1000,
   KEY_FAVORITES: "favorites",
   KEY_REPORTS: "reportsSelection",
+  COINS_CACHE_KEY: "marketData",
+  COINS_TIMESTAMP_KEY: "marketDataTimestamp",
 
   // ===== SEARCH =====
-  SEARCH_MIN: 2,
-  SEARCH_MAX: 40,
-  SEARCH_PATTERN: /^[a-z0-9\s.-]+$/i,
+  MIN_LENGTH: 2,
+  MAX_LENGTH: 20,
+  ALLOWED_PATTERN: /^[a-z0-9\s.-]+$/i,
 
   // ===== GENERAL UI TEXT =====
   UI_LOAD_COINS: "Loading coins...",
@@ -32,7 +34,8 @@ export const APP_CONFIG = {
 
   // ===== NEWS UI =====
   NEWS_STATUS_GEN: "Showing general crypto news from the last 5 hours.",
-  NEWS_STATUS_FAV: "Showing news for your favorite coins from the last 5 hours.",
+  NEWS_STATUS_FAV:
+    "Showing news for your favorite coins from the last 5 hours.",
   NEWS_STATUS_FALLBACK_GEN:
     "No articles from the last 5 hours. Showing latest available news.",
   NEWS_STATUS_FALLBACK_FAV:
@@ -47,6 +50,24 @@ export const APP_CONFIG = {
   NEWS_CACHE_GEN: "news_cache_general",
   NEWS_CACHE_FAV: "news_cache_favorites",
 
+  // ===== COIN DETAILS =====
+  COIN_DESC_MAX: 200,
+
+  // ===== REPORTS =====
+  REPORTS_MAX: 5,
+  REPORTS_COMPARE_MAX: 2,
+  REPORTS_DAYS: 30,
+  REPORTS_CREDIT_LABEL: "Reports charts powered by",
+  REPORTS_CREDIT_NAME: "TradingView Lightweight Charts",
+  REPORTS_CREDIT_LINK: "https://www.tradingview.com",
+
+  // ===== ABOUT =====
+  ABOUT_NAME: "Matan Yehuda Malka",
+  ABOUT_IMAGE: "images/2.jpeg",
+  ABOUT_LINKEDIN: "https://www.linkedin.com/in/matanyehudamalka",
+};
+
+export const CONFIG_CHART = {
   // ===== CHART SETTINGS =====
   CHART_POINTS: 70,
   CHART_BADGE: "Live",
@@ -61,48 +82,4 @@ export const APP_CONFIG = {
   CHART_BG: "#ffffff",
   CHART_TEXT: "#333333",
   CHART_BORDER: "#D1D4DC",
-
-  // ===== COIN DETAILS =====
-  COIN_DESC_MAX: 200,
-
-  // ===== REPORTS =====
-  REPORTS_MAX: 5,
-  REPORTS_COMPARE_MAX: 2,
-  REPORTS_DAYS: 30,
-  REPORTS_CREDIT_LABEL: "Reports charts powered by",
-  REPORTS_CREDIT_NAME: "TradingView Lightweight Charts",
-  REPORTS_CREDIT_LINK: "https://www.tradingview.com",
-
-  // ===== CURRENCIES =====
-  USD_SYMBOL: "$",
-  USD_LABEL: "USD",
-  EUR_SYMBOL: "€",
-  EUR_LABEL: "EUR",
-  ILS_SYMBOL: "₪",
-  ILS_LABEL: "ILS",
-
-  // ===== ABOUT =====
-  ABOUT_NAME: "Matan Yehuda Malka",
-  ABOUT_IMAGE: "images/2.jpeg",
-  ABOUT_LINKEDIN: "https://www.linkedin.com/in/matanyehudamalka",
-
-  // ===== STATSBAR =====
-  STATS_ICON: `<i class="fas fa-chart-bar"></i>`,
-  STATS_MARKET_CAP: "Market Cap",
-  STATS_VOLUME_24H: "24h Volume",
-  STATS_BTC_DOM: "BTC Dominance",
-  STATS_MARKET_CHANGE: "Market Change",
-
-  // ===== DARKMODE WIDGET =====
-  DM_BOTTOM: "20px",
-  DM_RIGHT: "5px",
-  DM_LEFT: "unset",
-  DM_TIME: "0.3s",
-  DM_MIX: "#fff",
-  DM_BG: "#f5f5f5",
-  DM_BTN_DARK: "#ffffff",
-  DM_BTN_LIGHT: "#000000",
-  DM_SAVE_COOKIES: true,
-  DM_LABEL: "☀️",
-  DM_AUTO_OS: true,
 };

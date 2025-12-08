@@ -3,19 +3,19 @@ import { CacheManager, StorageHelper } from "./storage-manager.js";
 import { APP_CONFIG } from "../config/app-config.js";
 
 const { fetchWithCache, getCache, setCache } = CacheManager;
-const { readJSON, writeJSON, getSelectedReports, setSelectedReports } = StorageHelper;
+const { readJSON, writeJSON, getSelectedReports, setSelectedReports } =
+  StorageHelper;
 
 const {
-  SEARCH_MIN: MIN_LENGTH = 1,
-  SEARCH_MAX: MAX_LENGTH = 50,
-  SEARCH_PATTERN: ALLOWED_PATTERN,
-  COINGECKO_URL: COINGECKO_BASE,
+  MIN_LENGTH,
+  MAX_LENGTH,
+  ALLOWED_PATTERN,
+  COINGECKO_BASE,
   CHART_HISTORY_DAYS,
   COINS_PER_PAGE,
+  COINS_CACHE_KEY,
+  COINS_TIMESTAMP_KEY,
 } = APP_CONFIG;
-
-const COINS_CACHE_KEY = "marketData";
-const COINS_TIMESTAMP_KEY = "marketDataTimestamp";
 
 const sortFunctions = {
   price_desc: (a, b) => b.current_price - a.current_price,
