@@ -176,7 +176,7 @@ const showCompareModal = (coins, options = {}) => {
   if (missingSymbols.length) {
     ErrorUI.showInfo(
       "#compareModalMessage",
-      ERRORS.REPORTS.MISSING_DATA(missingSymbols.join(", ")),
+      ERRORS.MISSING_DATA(missingSymbols.join(", ")),
       "warning"
     );
   }

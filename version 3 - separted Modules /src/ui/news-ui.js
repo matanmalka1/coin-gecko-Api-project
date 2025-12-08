@@ -4,7 +4,7 @@ import { PageComponents } from "./Components/page-components.js";
 import { ErrorUI } from "./error-ui.js";
 
 // Renders the list of article cards or an empty-state message.
-const showNews = (articles = [], { emptyMessage = ERRORS.NEWS.EMPTY } = {}) =>
+const showNews = (articles = [], { emptyMessage = ERRORS.EMPTY } = {}) =>
   $("#newsList").html(
     articles.length
       ? articles.map(PageComponents.newsArticleCard).join("")

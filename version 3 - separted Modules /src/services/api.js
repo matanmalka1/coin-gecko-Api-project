@@ -1,7 +1,5 @@
 import { ERRORS } from "../config/error.js";
 
-const { API: API_ERRORS } = ERRORS;
-
 // ========== Core Fetch Layer ==========
 export const fetchWithRetry = async (url, options = {}, retries = 1) => {
   try {
@@ -19,7 +17,7 @@ export const fetchWithRetry = async (url, options = {}, retries = 1) => {
         return {
           ok: false,
           code: "RATE_LIMIT",
-          error: API_ERRORS.RATE_LIMIT,
+          error: ERRORS.RATE_LIMIT,
           status,
         };
       }
@@ -27,7 +25,7 @@ export const fetchWithRetry = async (url, options = {}, retries = 1) => {
       return {
         ok: false,
         code: "HTTP_ERROR",
-        error: API_ERRORS.HTTP_STATUS(status),
+        error: ERRORS.HTTP_STATUS(status),
         status,
       };
     }
@@ -35,6 +33,6 @@ export const fetchWithRetry = async (url, options = {}, retries = 1) => {
     const data = await response.json();
     return { ok: true, data, status };
   } catch {
-    return { ok: false, code: "NETWORK_ERROR", error: ERRORS.API.DEFAULT };
+    return { ok: false, code: "NETWORK_ERROR", error: ERRORS.DEFAULT };
   }
 };

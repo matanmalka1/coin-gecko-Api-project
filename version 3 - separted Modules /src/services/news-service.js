@@ -78,9 +78,7 @@ const fetchNews = async (cacheKey, params = {}) => {
       code: "NEWS_HTTP_ERROR",
       status,
       errorMessage:
-        (status && ERRORS.API.HTTP_STATUS
-          ? ERRORS.API.HTTP_STATUS(status)
-          : error) || ERRORS.API.DEFAULT,
+        (status ? ERRORS.HTTP_STATUS(status) : error) || ERRORS.DEFAULT,
     };
   }
 
@@ -97,7 +95,7 @@ const getNewsForFavorites = (favoriteSymbols = []) => {
     return {
       ok: false,
       code: "NO_FAVORITES",
-      errorMessage: "No favorite coins selected",
+      errorMessage: ERRORS.NO_FAVORITES,
     };
   }
   const unique = [

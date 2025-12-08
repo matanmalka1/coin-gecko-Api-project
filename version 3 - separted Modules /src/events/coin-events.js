@@ -14,7 +14,6 @@ import {
 
 const { CURRENCIES } = UI_CONFIG;
 const { FAVORITES_EMPTY } = UI_CONFIG.UI;
-const { SEARCH: SEARCH_ERRORS } = ERRORS;
 
 let isRegistered = false;
 let isShowingFavoritesOnly = false;
@@ -30,7 +29,7 @@ const handleSearch = () => {
   if (!ok) {
     ErrorUI.showError("#coinsContainer", code, {
       term,
-      defaultMessage: SEARCH_ERRORS.NO_MATCH(term || ""),
+      defaultMessage: ERRORS.NO_MATCH(term || ""),
     });
     return;
   }

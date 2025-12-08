@@ -36,20 +36,19 @@ export const renderCoins = (coins, extras = {}) => {
 
 const getNewsConfig = (isFavorites) => {
   const { NEWS_UI } = UI_CONFIG;
-  const { NEWS: NEWS_ERRORS } = ERRORS;
 
   return isFavorites
     ? {
         status: NEWS_UI.STATUS_FAVORITES,
         loading: NEWS_UI.LOADING_FAVORITES,
         fallback: NEWS_UI.STATUS_FALLBACK_FAVORITES,
-        error: NEWS_ERRORS.FAVORITES_ERROR,
+        error: ERRORS.FAVORITES_ERROR,
       }
     : {
         status: NEWS_UI.STATUS_GENERAL,
         loading: NEWS_UI.LOADING_GENERAL,
         fallback: NEWS_UI.STATUS_FALLBACK_GENERAL,
-        error: NEWS_ERRORS.GENERAL_ERROR,
+        error: ERRORS.GENERAL_ERROR,
       };
 };
 
@@ -162,7 +161,7 @@ const loadNews = async (mode = "general") => {
 
   if (!ok) {
     ErrorUI.showError("#newsList", code || "NEWS_ERROR", {
-      defaultMessage: errorMessage || error || ERRORS.NEWS.GENERAL_ERROR,
+      defaultMessage: errorMessage || error || ERRORS.GENERAL_ERROR,
       status: httpStatus,
     });
     return;

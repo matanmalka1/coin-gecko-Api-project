@@ -6,7 +6,6 @@ import { ErrorUI } from "../ui/error-ui.js";
 import { CoinUI } from "../ui/coin-ui.js";
 
 const { MAX_COMPARE } = UI_CONFIG.REPORTS;
-const { REPORTS: REPORTS_ERRORS, API: API_ERRORS } = ERRORS;
 
 let eventsRegistered = false;
 let compareModalOpen = false;
@@ -45,7 +44,7 @@ const handleFilterReports = () => {
 
   if (!ok) {
     ErrorUI.showError("#coinsContainer", code, {
-      defaultMessage: REPORTS_ERRORS.NONE_SELECTED,
+      defaultMessage: ERRORS.NONE_SELECTED,
     });
     return;
   }
@@ -95,7 +94,7 @@ const handleCompareClick = async function () {
 
   if (!coinExists) {
     ErrorUI.showError("#content", "NO_MATCH", {
-      defaultMessage: REPORTS_ERRORS.NOT_FOUND,
+      defaultMessage: ERRORS.NOT_FOUND,
     });
     return;
   }
@@ -138,7 +137,7 @@ const handleCompareClick = async function () {
 
   if (!ok) {
     ErrorUI.showError("#content", code, {
-      defaultMessage: API_ERRORS.DEFAULT,
+      defaultMessage: ERRORS.DEFAULT,
     });
     resetCompareSelection();
     updateCompareIndicator();
