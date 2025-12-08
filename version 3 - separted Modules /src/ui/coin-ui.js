@@ -87,11 +87,7 @@ const updateFavoriteIcon = (symbol, isFavorite) => {
     .attr("title", isFavorite ? "Remove from favorites" : "Add to favorites");
 };
 
-const showCoinDetails = (
-  containerId,
-  data,
-  { currencies = CURRENCIES } = {}
-) => {
+const showCoinDetails = (containerId,data,{ currencies = CURRENCIES } = {}) => {
   $(`#${containerId}`).html(
     CoinComponents.coinDetails(data, currencies) +
       CoinComponents.coinMiniChart(data.id)

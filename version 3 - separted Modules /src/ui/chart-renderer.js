@@ -1,4 +1,4 @@
-import { APP_CONFIG } from "../config/app-config.js";
+import { CONFIG_CHART } from "../config/app-config.js";
 import { CoinsService } from "../services/coins-service.js";
 import { ErrorUI } from "./error-ui.js";
 
@@ -16,7 +16,7 @@ const {
   CHART_BORDER_DOWN,
   CHART_WICK_UP,
   CHART_WICK_DOWN,
-} = APP_CONFIG;
+} = CONFIG_CHART;
 // ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 
 const charts = new Map();

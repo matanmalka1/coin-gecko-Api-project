@@ -1,7 +1,7 @@
 import { CoinsService } from "../services/coins-service.js";
 import { ReportsService } from "../services/reports-service.js";
-import { ERRORS } from "../config/error.js";
 import { APP_CONFIG } from "../config/app-config.js";
+import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { CoinUI } from "../ui/coin-ui.js";
 

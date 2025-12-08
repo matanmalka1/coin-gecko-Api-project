@@ -3,31 +3,35 @@ import { shortenText } from "../../utils/general-utils.js";
 import { BaseComponents } from "./base-components.js";
 
 const { cardContainer } = BaseComponents;
-const CREDIT_LABEL = APP_CONFIG.REPORTS_CREDIT_LABEL;
-const CREDIT_LINK = APP_CONFIG.REPORTS_CREDIT_LINK;
-const CREDIT_NAME = APP_CONFIG.REPORTS_CREDIT_NAME;
+const {
+  REPORTS_CREDIT_LABEL,
+  REPORTS_CREDIT_LINK,
+  REPORTS_CREDIT_NAME,
+  NEWS_STATUS_GEN,
+  NEWS_DESC_MAX,
+} = APP_CONFIG;
 
 // Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `
   <div id="searchArea" class="my-4 text-center">
     <input type="text" id="searchInput" class="form-control-md w-25 rounded-pill py-2 px-4"
         placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
-<button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
-<button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites</button>
-<button type="button" id="clearSearchBtn" class="btn btn-light mx-2">Clear</button>
-<button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2">
-  <i class="bi bi-arrow-clockwise"></i> 
-</button>
-  </div>
-  <div id="sortArea" class="my-3">
-    <select id="sortSelect" class="form-select w-auto d-inline-block">
-      <option value="marketcap_desc">Top Coins (Default)</option>
-       <option value="marketcap_asc">Market Cap ↑</option>
-      <option value="price_desc">Price ↓</option>
-      <option value="price_asc">Price ↑</option>
-      <option value="volume_high">Volume High</option>
-      <option value="volume_low">Volume Low</option>
-    </select>
+      <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
+      <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites</button>
+      <button type="button" id="clearSearchBtn" class="btn btn-light mx-2">Clear</button>
+      <button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2">
+        <i class="bi bi-arrow-clockwise"></i> 
+      </button>
+        </div>
+    <div id="sortArea" class="my-3">
+      <select id="sortSelect" class="form-select w-auto d-inline-block">
+        <option value="marketcap_desc">Top Coins (Default)</option>
+        <option value="marketcap_asc">Market Cap ↑</option>
+        <option value="price_desc">Price ↓</option>
+        <option value="price_asc">Price ↑</option>
+        <option value="volume_high">Volume High</option>
+        <option value="volume_low">Volume Low</option>
+      </select>
   </div>
   <div id="compareStatus" class="d-none mb-3"></div>
   <div id="coinsContainer" class="row g-3"></div>
@@ -39,8 +43,8 @@ const reportsPage = () => `
   <div id="chartsGrid" class="row g-3"></div>
   <div class="mt-2">
     <small class="text-muted">
-      ${CREDIT_LABEL}
-      <a href="${CREDIT_LINK}" target="_blank" rel="noreferrer">${CREDIT_NAME}</a>
+      ${REPORTS_CREDIT_LABEL}
+      <a href="${REPORTS_CREDIT_LINK}" target="_blank" rel="noreferrer">${REPORTS_CREDIT_NAME}</a>
     </small>
   </div>
 `;
@@ -116,7 +120,7 @@ const newsPage = () => `
                   <i class="bi bi-info-circle me-1"></i>Live monitor
               </span>
             </div>
-                <p id="newsStatus" class="mb-0 text-white-75">${APP_CONFIG.NEWS_STATUS_GEN}</p>
+                <p id="newsStatus" class="mb-0 text-white-75">${NEWS_STATUS_GEN}</p>
           </div>
         </div>
       </div>
@@ -132,48 +136,49 @@ const newsPage = () => `
 const newsArticleCard = (article) => {
   const { title, description, published_at, source, original_url, url, image } =
     article || {};
-
-  const displayTitle = title || "Untitled";
-  const displayDesc = shortenText(description, APP_CONFIG.NEWS_DESC_MAX);
-  const link = original_url || url || "#";
   const publishedDate = published_at
     ? new Date(published_at).toLocaleString()
     : "Unknown time";
-  const displaySource = source?.title || source?.domain || "Unknown source";
 
   return `
     ${cardContainer(
       `
         <div class="ratio ratio-16x9 bg-light rounded-top">
-          ${
-            image
-              ? `<img
-            src="${image}"
-            class="card-img-top h-100 w-100 object-fit-cover rounded-top"
-          />`
+          ${image
+              ? `<img src="${image}" class="card-img-top h-100 w-100 object-fit-cover rounded-top"/>`
               : `<div class="bg-secondary-subtle h-100 w-100 rounded-top d-flex align-items-center justify-content-center text-muted">
                   <i class="bi bi-image"></i>
-                </div>`
-          }
+                </div>`}
         </div>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title mb-3">
-            <a href="${link}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${displayTitle}</a>
+            <a href="${
+              original_url || url || "#"
+            }" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${
+        title || "Untitled"
+      }</a>
           </h5>
           <div class="d-flex justify-content-between align-items-center mb-3 text-muted">
             <span class="badge text-bg-light">
-              <i class="bi bi-newspaper"></i> ${displaySource}
+              <i class="bi bi-newspaper"></i> ${
+                source?.title || source?.domain || "Unknown source"
+              }
             </span>
             <small class="text-muted">
               <i class="bi bi-clock"></i> ${publishedDate}
             </small>
           </div>
           ${
-            displayDesc
-              ? `<p class="card-text flex-grow-1 mb-0">${displayDesc}</p>`
+            shortenText(description, NEWS_DESC_MAX)
+              ? `<p class="card-text flex-grow-1 mb-0">${shortenText(
+                  description,
+                  NEWS_DESC_MAX
+                )}</p>`
               : `<p class="card-text flex-grow-1 mb-0 fst-italic">No description available.</p>`
           }
-          <a href="${link}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>
+          <a href="${
+            original_url || url || "#"
+          }" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>
         </div>
       `,
       "col-12 col-md-6 col-lg-4 d-flex",

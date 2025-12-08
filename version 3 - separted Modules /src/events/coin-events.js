@@ -2,8 +2,8 @@ import { CoinsService } from "../services/coins-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { BaseUI } from "../ui/base-ui.js";
-import { ERRORS } from "../config/error.js";
 import { APP_CONFIG } from "../config/app-config.js";
+import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
 

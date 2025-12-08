@@ -2,7 +2,6 @@ import { APP_CONFIG } from "../../config/app-config.js";
 import {
   shortenText,
   formatPrice,
-  resolveImage,
   formatLargeNumber,
 } from "../../utils/general-utils.js";
 
@@ -105,10 +104,6 @@ const coinDetails = (data = {}, currencies = {}) => {
     ? shortenText(description.en, APP_CONFIG.COIN_DESC_MAX)
     : "No description available.";
   const prices = market_data?.current_price || {};
-  const priceUsd = prices.usd;
-  const priceEur = prices.eur;
-  const priceIls = prices.ils;
-  const athUsd = market_data?.ath?.usd;
   const imageSrc =
     image?.large ||
     image?.small ||
@@ -150,11 +145,11 @@ const coinDetails = (data = {}, currencies = {}) => {
         </div>
       </div>
       <div class="mb-2"><strong>Current Prices:</strong></div>
-      ${priceItem("USD", priceUsd, currencies.USD)}
-      ${priceItem("EUR", priceEur, currencies.EUR)}
-      ${priceItem("ILS", priceIls, currencies.ILS)}
+      ${priceItem("USD", prices.usd, currencies.USD)}
+      ${priceItem("EUR", prices.eur, currencies.EUR)}
+      ${priceItem("ILS", prices.ils, currencies.ILS)}
       <div class="mb-2 mt-3"><strong>All-Time High (USD):</strong></div>
-      ${priceItem("ATH", athUsd, currencies.USD)}
+      ${priceItem("ATH", market_data?.ath?.usd, currencies.USD)}
       <div class="mt-2">
         <small class="text-muted">
           <strong>CA:</strong> ${contractAddress || "N/A"}

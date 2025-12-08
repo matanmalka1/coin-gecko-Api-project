@@ -47,25 +47,3 @@ export const formatPercent = (percentValue, options = {}) => {
   return `${signPrefix}${percentValue.toFixed(decimals)}%`;
 };
 
-export const resolveImage = (image) =>
-  (typeof image === "string"
-    ? image
-    : image?.thumb || image?.small || image?.large) || PLACEHOLDER_THUMB;
-
-export const formatDate = (dateString) => {
-  if (!dateString) return "Unknown time";
-  try {
-    return new Date(dateString).toLocaleString();
-  } catch {
-    return "Invalid date";
-  }
-};
-
-export const isValidUrl = (string) => {
-  try {
-    new URL(string);
-    return true;
-  } catch {
-    return false;
-  }
-};

@@ -1,12 +1,14 @@
 import { fetchWithRetry } from "./api.js";
 import { CoinsService } from "./coins-service.js";
 import { StorageHelper, CacheManager } from "./storage-manager.js";
-import { APP_CONFIG } from "../config/app-config.js";
+import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
 
 const { fetchWithCache } = CacheManager;
 const { getAllCoins } = CoinsService;
 const { getSelectedReports } = StorageHelper;
-const {COINGECKO_BASE, CHART_HISTORY_DAYS, CHART_POINTS, REPORTS_DAYS, REPORTS_CHART_TTL } = APP_CONFIG;
+const { COINGECKO_BASE, CHART_HISTORY_DAYS, REPORTS_DAYS, REPORTS_CHART_TTL } =
+  APP_CONFIG;
+const { CHART_POINTS } = CONFIG_CHART;
 
 // ===== OHLC DATA =====
 const getCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
