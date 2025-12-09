@@ -69,7 +69,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   getAllCoins().length ? renderCoins(getAllCoins()) : showLoading();
 
   const isCacheExpired =
-    !getCoinsLastUpdated || Date.now() - getCoinsLastUpdated >= CACHE_COINS_REFRESH_MS;
+    !getCoinsLastUpdated() || Date.now() - getCoinsLastUpdated() >= CACHE_COINS_REFRESH_MS;
 
   if (getAllCoins().length && !forceRefresh && !isCacheExpired) {
     isLoadingCoins = false;

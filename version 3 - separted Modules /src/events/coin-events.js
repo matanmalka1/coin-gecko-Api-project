@@ -1,5 +1,5 @@
 import { StorageHelper } from "../services/storage-manager.js";
-import { showCoinDetails } from "../ui/coin-ui.js";
+import { showCoinDetails, updateFavoriteIcon } from "../ui/coin-ui.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";

@@ -9,8 +9,6 @@ import {
   initStatsBar,
 } from "./src/controllers/pages-controller.js";
 
-import { APP_CONFIG } from "./src/config/app-config.js";
-
 let darkmodeInstance = null;
 
 const initDarkmodeWidget = () => {

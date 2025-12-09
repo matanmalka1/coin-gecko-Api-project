@@ -1,11 +1,16 @@
-import { filterSelectedCoins } from "../services/coins-service.js";
-import { toggleCoinSelection, replaceReport, getCompareData } from "../services/reports-service.js";
+import { filterSelectedCoins, getAllCoins } from "../services/coins-service.js";
+import {
+  toggleCoinSelection,
+  replaceReport,
+  getCompareData,
+} from "../services/reports-service.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { CoinUI } from "../ui/coin-ui.js";
-import { getAllCoins } from "../services/coins-service.js";
+
 const { REPORTS_COMPARE_MAX } = APP_CONFIG;
+
 const {
   setCompareHighlight,
   clearCompareHighlights,
@@ -104,7 +109,9 @@ const handleCompareClick = async function () {
   } else {
     if (currentSelection.length >= REPORTS_COMPARE_MAX) {
       updateCompareIndicator(currentSelection);
-      ErrorUI.showError("#content", "COMPARE_FULL", { limit: MAX_COMPARE });
+      ErrorUI.showError("#content", "COMPARE_FULL", {
+        limit: REPORTS_COMPARE_MAX,
+      });
       return;
     }
     currentSelection = [...currentSelection, coinId];
@@ -115,9 +122,7 @@ const handleCompareClick = async function () {
 
   if (currentSelection.length < REPORTS_COMPARE_MAX) return;
 
-  const { ok, code, coins, missing } = await getCompareData(
-    currentSelection
-  );
+  const { ok, code, coins, missing } = await getCompareData(currentSelection);
   if (!ok) {
     ErrorUI.showError("#content", code, { defaultMessage: ERRORS.DEFAULT });
     resetCompareSelection();
