@@ -38,7 +38,7 @@ const setCache = (key, data, ttl = EXPIRY_TIME) => {
   }
 };
 
-const fetchWithCache = async (cacheKey, fetcher, ttl = EXPIRY_TIME) => {
+ export const fetchWithCache = async (cacheKey, fetcher, ttl = EXPIRY_TIME) => {
   const cached = getCache(cacheKey);
   if (cached) return { ok: true, data: cached, fromCache: true };
 
@@ -93,7 +93,7 @@ const removeFavorite = (symbol) => {
 
 const isFavorite = (symbol) => getFavorites().includes(symbol);
 
-const getSelectedReports = () => {
+export const getSelectedReports = () => {
   const stored = readJSON(KEY_REPORTS, []);
   return Array.isArray(stored) ? stored : [];
 };

@@ -2,8 +2,12 @@
 export const APP_CONFIG = {
   // ===== API ENDPOINTS =====
   COINGECKO_BASE: "https://api.coingecko.com/api/v3",
+  CRYPTOCOMPARE_BASE: "https://min-api.cryptocompare.com/data",
   NEWS_URL: "https://newsdata.io/api/1/crypto",
+
+  CRYPTOCOMPARE_KEY: "4ef2fdc02875bc61baebda22cab1520bc687d182b4a7f09af1b5d3c087812578",
   NEWS_KEY: "pub_f179a246e66740f4943967a02e0bd77e",
+
   CHART_HISTORY_DAYS: 7,
   COINS_PER_PAGE: 50,
 
@@ -57,6 +61,7 @@ export const APP_CONFIG = {
   REPORTS_MAX: 5,
   REPORTS_COMPARE_MAX: 2,
   REPORTS_DAYS: 30,
+  REPORTS_UPDATE_MS: 2000,
   REPORTS_CREDIT_LABEL: "Reports charts powered by",
   REPORTS_CREDIT_NAME: "TradingView Lightweight Charts",
   REPORTS_CREDIT_LINK: "https://www.tradingview.com",
@@ -80,6 +85,7 @@ export const CONFIG_CHART = {
   CHART_WICK_UP: "#26a69a",
   CHART_WICK_DOWN: "#ef5350",
   CHART_BG: "#ffffff",
-  CHART_TEXT: "#333333",
-  CHART_BORDER: "#D1D4DC",
+  CHART_TEXT: "#000000ff",
+  CHART_BORDER: "#000000ff",
+  
 };

@@ -1,116 +1,135 @@
 import { fetchWithRetry } from "./api.js";
-import { getAllCoins } from "./coins-service.js";
-import { StorageHelper, CacheManager } from "./storage-manager.js";
+import { getSelectedReports } from "./storage-manager.js";
 import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
 
-const { fetchWithCache } = CacheManager;
-const { getSelectedReports } = StorageHelper;
-const { COINGECKO_BASE, CHART_HISTORY_DAYS, REPORTS_DAYS, REPORTS_CHART_TTL } =
-  APP_CONFIG;
+const { CRYPTOCOMPARE_BASE, CRYPTOCOMPARE_KEY, REPORTS_UPDATE_MS } = APP_CONFIG;
 const { CHART_POINTS } = CONFIG_CHART;
 
-// ===== OHLC DATA =====
-const getCoinOhlc = (coinId, days = CHART_HISTORY_DAYS) =>
-  fetchWithCache(
-    `ohlc:${coinId}:${days}`,
-    () =>
-      fetchWithRetry(
-        `${COINGECKO_BASE}/coins/${coinId}/ohlc` +
-          `?vs_currency=usd&days=${days}`
-      ),
-    REPORTS_CHART_TTL
+let liveIntervalId = null;
+let liveCandlesBySymbol = {};
+
+const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
+  const now = Math.floor(Date.now() / 1000);
+
+  symbols.forEach((symbol) => {
+    const price = pricesBySymbol[String(symbol).trim().toUpperCase()].USD;
+
+    const candle = {
+      time: now,
+      open: price,
+      high: price,
+      low: price,
+      close: price,
+    };
+
+   const series =
+      liveCandlesBySymbol[String(symbol).trim().toUpperCase()] || [];
+
+    const updated = [...series, candle].slice(-CHART_POINTS);
+
+    liveCandlesBySymbol[String(symbol).trim().toUpperCase()] = [
+      ...series,
+      candle,
+    ].slice(-CHART_POINTS);
+  });
+
+
+  return liveCandlesBySymbol;
+};
+const fetchLivePrices = async (symbols) => {
+  if (!symbols.length) {
+    return { ok: false, code: "NONE_SELECTED" };
+  }
+  if (!Object.keys(liveCandlesBySymbol).length) {
+    const historyResults = await Promise.all(
+      symbols.map(async (symbol) => {
+        const upper = String(symbol).trim().toUpperCase();
+
+        const { ok, data, error, status } = await fetchWithRetry(
+          `${CRYPTOCOMPARE_BASE}/histohour?fsym=${upper}&tsym=USD&limit=${
+            24 * 7
+          }`
+        );
+
+        if (!ok || !data?.Data) {
+          return { symbol: upper, candles: [], ok: false, error, status };
+        }
+
+        const candles = data.Data.map((point) => ({
+          time: point.time, // CryptoCompare מחזיר time בשניות כבר
+          open: point.open,
+          high: point.high,
+          low: point.low,
+          close: point.close,
+        }));
+
+        return { symbol: upper, candles, ok: true };
+      })
+    );
+
+    historyResults.forEach(({ symbol, candles }) => {
+      if (!candles.length) return;
+      liveCandlesBySymbol[symbol] = candles.slice(-CHART_POINTS);
+    });
+  }
+
+  const fsyms = symbols.map((s) => String(s).trim().toUpperCase()).join(",");
+
+  const { ok, data, error, status } = await fetchWithRetry(
+    `${CRYPTOCOMPARE_BASE}/pricemulti?fsyms=${fsyms}&tsyms=USD&api_key=${CRYPTOCOMPARE_KEY}`
   );
 
-const mapOhlcToCandles = (ohlcArray = []) =>
-  Array.isArray(ohlcArray)
-    ? ohlcArray.map(([time, open, high, low, close]) => ({
-        time: Math.floor(time / 1000),
-        open,
-        high,
-        low,
-        close,
-      }))
-    : [];
+  if (!ok || !data) {
+    return { ok: false, code: "API_ERROR", error, status };
+  }
 
-// ===== LOAD CANDLES =====
-const loadCandlesForSymbols = async (symbols) => {
-  const allCoins = getAllCoins();
-
-  const coinsIndex = allCoins.reduce((acc, coin) => {
-    const { symbol, id } = coin || {};
-    if (symbol && id) {
-      acc.set(symbol, id);
-    }
-    return acc;
-  }, new Map());
-
-  const pairs = await Promise.all(
-    symbols.map(async (symbol) => {
-      const coinId = coinsIndex.get(symbol);
-      if (!coinId) {
-        return { symbol, candles: [], code: "NO_COIN_ID" };
-      }
-
-      const { ok, data, code, error } = await getCoinOhlc(coinId, REPORTS_DAYS);
-
-      if (!ok || !data) {
-        return {
-          symbol,
-          candles: [],
-          code: code || "API_ERROR",
-          error,
-        };
-      }
-      return { symbol, candles: mapOhlcToCandles(data) };
-    })
-  );
-
-  const candlesBySymbol = pairs.reduce((acc, { symbol, candles }) => {
-    if (candles?.length) {
-      acc[symbol] = candles;
-    }
-    return acc;
-  }, {});
-
-  const errors = pairs.filter(({ candles }) => !candles?.length);
-
-  return { candlesBySymbol, errors };
+  const candlesBySymbol = updateSeriesFromPrices(symbols, data);
+  return { ok: true, candlesBySymbol };
 };
 
 // ===== CHART LIFECYCLE =====
-export const cleanup = () => {};
+export const cleanup = () => {
+  if (liveIntervalId) {
+    clearInterval(liveIntervalId);
+    liveIntervalId = null;
+  }
+  liveCandlesBySymbol = {};
+};
 
 export const startLiveChart = async (chartCallbacks = {}) => {
   cleanup();
 
-  const symbols = getSelectedReports();
-
-  if (!symbols.length) {
+  const selected = getSelectedReports();
+  if (!selected.length) {
+    chartCallbacks.onError?.({ code: "NONE_SELECTED" });
     return { ok: false, code: "NONE_SELECTED" };
   }
 
   chartCallbacks.onChartReady?.({
-    symbols,
+    symbols: selected,
     historyPoints: CHART_POINTS,
   });
 
-  const { candlesBySymbol, errors } = await loadCandlesForSymbols(symbols);
-
-  if (errors.length > 0) {
-    errors.forEach(({ symbol, code, error }) => {
+  const handleResult = (result) => {
+    if (!result.ok) {
       chartCallbacks.onError?.({
-        symbol,
-        code,
-        error,
+        code: result.code || "API_ERROR",
+        status: result.status,
+        error: result.error,
       });
+      return;
+    }
+
+    chartCallbacks.onData?.({
+      candlesBySymbol: result.candlesBySymbol,
     });
-  }
+  };
 
-  if (Object.keys(candlesBySymbol).length > 0) {
-    chartCallbacks.onData?.({ candlesBySymbol });
-    return { ok: true, symbols: Object.keys(candlesBySymbol) };
-  }
+  handleResult(await fetchLivePrices(selected));
 
-  chartCallbacks.onError?.({ code: "NO_DATA" });
-  return { ok: false, code: "NO_DATA" };
+  liveIntervalId = setInterval(() => {
+    fetchLivePrices(selected).then(handleResult);
+  }, REPORTS_UPDATE_MS || 2000);
+
+  return { ok: true };
 };
