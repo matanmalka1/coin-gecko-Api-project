@@ -30,37 +30,24 @@ const setFavoritesButtonLabel = (showingFavorites) => {
   $("#showFavoritesBtn").text(label);
 };
 
-const setStatsBar = ({
-  totalMarketCap,
-  totalVolume,
-  btcDominance,
-  marketChange,
-} = {}) => {
-  const btcDominanceText = formatPercent(btcDominance, { decimals: 1 });
-  const marketChangeText = formatPercent(marketChange, {
-    decimals: 2,
-    showSign: true,
-  });
-
-  return [
-    {
-      label: "Market Cap",
-      value: formatLargeNumber(totalMarketCap),
-    },
-    {
-      label: "24h Volume",
-      value: formatLargeNumber(totalVolume),
-    },
-    {
-      label: "BTC Dominance",
-      value: btcDominanceText,
-    },
-    {
-      label: "Market Change",
-      value: marketChangeText,
-    },
-  ];
-};
+const setStatsBar = ({ totalMarketCap, totalVolume, btcDominance, marketChange } = {}) => [
+  {
+    label: "Market Cap",
+    value: formatLargeNumber(totalMarketCap),
+  },
+  {
+    label: "24h Volume",
+    value: formatLargeNumber(totalVolume),
+  },
+  {
+    label: "BTC Dominance",
+    value: formatPercent(btcDominance, { decimals: 1 }),
+  },
+  {
+    label: "Market Change",
+    value: formatPercent(marketChange, { decimals: 2, showSign: true }),
+  },
+];
 
 const renderStatsBar = (targetSelector, props = {}) => {
   $(targetSelector).html(`

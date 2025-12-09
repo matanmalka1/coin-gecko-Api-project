@@ -8,60 +8,29 @@ const { getSelectedReports, removeReport, addReport } = StorageHelper;
 const { REPORTS_MAX, COINGECKO_BASE } = APP_CONFIG;
 
 export const toggleCoinSelection = (symbol) => {
-  if (
-    !getSelectedReports().includes(String(symbol).trim().toUpperCase()) &&
-    getSelectedReports().length >= REPORTS_MAX
-  ) {
-    return {
-      ok: false,
-      code: "FULL",
-      newSymbol: String(symbol).trim().toUpperCase(),
-      existing: getSelectedReports(),
-      limit: REPORTS_MAX,
-      selected: getSelectedReports(),
-    };
+  const sym = String(symbol).trim().toUpperCase();
+  const selected = getSelectedReports();
+  
+  if (!selected.includes(sym) && selected.length >= REPORTS_MAX) {
+    return { ok: false, code: "FULL", newSymbol: sym, existing: selected, limit: REPORTS_MAX, selected };
   }
 
-  if (getSelectedReports().includes(String(symbol).trim().toUpperCase())) {
-    removeReport(String(symbol).trim().toUpperCase());
-  } else {
-    addReport(String(symbol).trim().toUpperCase());
-  }
-
+  selected.includes(sym) ? removeReport(sym) : addReport(sym);
   return { ok: true, code: null, selected: getSelectedReports() };
 };
 
 export const replaceReport = (oldSymbol, newSymbol) => {
-  if (
-    String(oldSymbol).trim().toUpperCase() ===
-    String(newSymbol).trim().toUpperCase()
-  ) {
-    return { ok: true, code: null, selected: getSelectedReports() };
-  }
+  const oldSym = String(oldSymbol).trim().toUpperCase();
+  const newSym = String(newSymbol).trim().toUpperCase();
+  const selected = getSelectedReports();
 
-  if (!getSelectedReports().includes(String(oldSymbol).trim().toUpperCase())) {
-    return { ok: false, code: "NOT_FOUND", selected: getSelectedReports() };
-  }
+  if (oldSym === newSym) return { ok: true, code: null, selected };
+  if (!selected.includes(oldSym)) return { ok: false, code: "NOT_FOUND", selected };
+  if (selected.includes(newSym)) return { ok: false, code: "DUPLICATE", selected };
+  if (!getAllCoins().some(coin => coin.symbol === newSym)) return { ok: false, code: "INVALID_SYMBOL", selected };
 
-  if (getSelectedReports().includes(String(newSymbol).trim().toUpperCase())) {
-    return { ok: false, code: "DUPLICATE", selected: getSelectedReports() };
-  }
-
-  const coinExists = getAllCoins().some(
-    (coin) => coin.symbol === String(newSymbol).trim().toUpperCase()
-  );
-
-  if (!coinExists) {
-    return {
-      ok: false,
-      code: "INVALID_SYMBOL",
-      selected: getSelectedReports(),
-    };
-  }
-
-  StorageHelper.removeReport(String(oldSymbol).trim().toUpperCase());
-  StorageHelper.addReport(String(newSymbol).trim().toUpperCase());
-
+  StorageHelper.removeReport(oldSym);
+  StorageHelper.addReport(newSym);
   return { ok: true, code: null, selected: getSelectedReports() };
 };
 

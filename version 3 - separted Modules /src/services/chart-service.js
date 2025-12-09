@@ -12,30 +12,16 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
   const now = Math.floor(Date.now() / 1000);
 
   symbols.forEach((symbol) => {
-    const price = pricesBySymbol[String(symbol).trim().toUpperCase()].USD;
-
-    const candle = {
-      time: now,
-      open: price,
-      high: price,
-      low: price,
-      close: price,
-    };
-
-   const series =
-      liveCandlesBySymbol[String(symbol).trim().toUpperCase()] || [];
-
-    const updated = [...series, candle].slice(-CHART_POINTS);
-
-    liveCandlesBySymbol[String(symbol).trim().toUpperCase()] = [
-      ...series,
-      candle,
-    ].slice(-CHART_POINTS);
+    const sym = String(symbol).trim().toUpperCase();
+    const price = pricesBySymbol[sym].USD;
+    const candle = { time: now, open: price, high: price, low: price, close: price };
+    const series = liveCandlesBySymbol[sym] || [];
+    liveCandlesBySymbol[sym] = [...series, candle].slice(-CHART_POINTS);
   });
-
 
   return liveCandlesBySymbol;
 };
+
 const fetchLivePrices = async (symbols) => {
   if (!symbols.length) {
     return { ok: false, code: "NONE_SELECTED" };

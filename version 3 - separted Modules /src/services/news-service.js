@@ -17,21 +17,21 @@ const CACHE_KEYS = {
 const BASE_URL = APP_CONFIG.NEWS_URL;
 const API_KEY = APP_CONFIG.NEWS_KEY;
 
-// ===== CACHE HELPERS =====
-const getCachedNews = (cacheKey) => {
-  const cached = getCache(cacheKey);
-  if (!cached) return null;
-
-  const cachedArticles = Array.isArray(cached) ? cached : [];
-  const freshArticles = filterLastHours(cachedArticles, FRESH_WINDOW_MS);
-  const usedFallback = !freshArticles.length && cachedArticles.length > 0;
+// ===== RESPONSE BUILDER =====
+const buildNewsResponse = (articles) => {
+  const fresh = filterLastHours(articles, FRESH_WINDOW_MS);
   return {
     ok: true,
-    articles: freshArticles.length ? freshArticles : cachedArticles,
-    usedFallback,
+    articles: fresh.length ? fresh : articles,
+    usedFallback: !fresh.length && articles.length > 0,
   };
 };
 
+// ===== CACHE HELPERS =====
+const getCachedNews = (cacheKey) => {
+  const cached = getCache(cacheKey);
+  return cached ? buildNewsResponse(Array.isArray(cached) ? cached : []) : null;
+};
 // ===== NORMALIZATION =====
 const normalizeArticle = ({
   title,
@@ -52,18 +52,6 @@ const normalizeArticle = ({
   url: link,
   image: image_url,
 });
-
-// ===== RESPONSE BUILDER =====
-const buildNewsResponse = (normalized) => {
-  const freshArticles = filterLastHours(normalized, FRESH_WINDOW_MS);
-  const usedFallback = !freshArticles.length && normalized.length > 0;
-
-  return {
-    ok: true,
-    articles: freshArticles.length ? freshArticles : normalized,
-    usedFallback,
-  };
-};
 
 // ===== FETCH LAYER =====
 const fetchNews = async (cacheKey, params = {}) => {

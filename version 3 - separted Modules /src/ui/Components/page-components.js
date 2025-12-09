@@ -13,40 +13,25 @@ const {
 // Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `
   <div id="searchArea" class="my-4 text-center">
-    <input type="text" id="searchInput" class="form-control-md w-25 rounded-pill py-2 px-4"
-        placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
-      <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
-      <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites</button>
-      <button type="button" id="clearSearchBtn" class="btn btn-light mx-2">Clear</button>
-      <button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2">
-        <i class="bi bi-arrow-clockwise"></i> 
-      </button>
-        </div>
-    <div id="sortArea" class="my-3">
-      <select id="sortSelect" class="form-select w-auto d-inline-block">
-        <option value="marketcap_desc">Top Coins (Default)</option>
-        <option value="marketcap_asc">Market Cap ↑</option>
-        <option value="price_desc">Price ↓</option>
-        <option value="price_asc">Price ↑</option>
-        <option value="volume_high">Volume High</option>
-        <option value="volume_low">Volume Low</option>
-      </select>
+    <input type="text" id="searchInput" class="form-control-md w-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
+    <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
+    <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites</button>
+    <button type="button" id="clearSearchBtn" class="btn btn-light mx-2">Clear</button>
+    <button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2"><i class="bi bi-arrow-clockwise"></i></button>
   </div>
-  <div id="compareStatus" class="d-none mb-3"></div>
-  <div id="coinsContainer" class="row g-3"></div>
-`;
+  <div id="sortArea" class="my-3">
+    <select id="sortSelect" class="form-select w-auto d-inline-block">
+      <option value="marketcap_desc">Top Coins (Default)</option><option value="marketcap_asc">Market Cap ↑</option>
+      <option value="price_desc">Price ↓</option><option value="price_asc">Price ↑</option>
+      <option value="volume_high">Volume High</option><option value="volume_low">Volume Low</option></select></div>
+  <div id="compareStatus" class="d-none mb-3"></div><div id="coinsContainer" class="row g-3"></div>`;
 
 // Builds the container for the live reports (charts) page.
 const reportsPage = () => `
   <h3 class="mb-4">Live Reports</h3>
   <div id="chartsGrid" class="row g-3"></div>
-  <div class="mt-2">
-    <small class="text-muted">
-      ${REPORTS_CREDIT_LABEL}
-      <a href="${REPORTS_CREDIT_LINK}" target="_blank" rel="noreferrer">${REPORTS_CREDIT_NAME}</a>
-    </small>
-  </div>
-`;
+  <div class="mt-2"><small class="text-muted">${REPORTS_CREDIT_LABEL} 
+    <a href="${REPORTS_CREDIT_LINK}" target="_blank" rel="noreferrer">${REPORTS_CREDIT_NAME}</a></small></div>`;
 
 // Static about page with author details pulled from APP_CONFIG.
 const aboutPage = (userData = {}) => {
@@ -143,11 +128,13 @@ export const newsArticleCard = (article) => {
     ${cardContainer(
       `
         <div class="ratio ratio-16x9 bg-light rounded-top">
-          ${image
+          ${
+            image
               ? `<img src="${image}" class="card-img-top h-100 w-100 object-fit-cover rounded-top"/>`
               : `<div class="bg-secondary-subtle h-100 w-100 rounded-top d-flex align-items-center justify-content-center text-muted">
                   <i class="bi bi-image"></i>
-                </div>`}
+                </div>`
+          }
         </div>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title mb-3">

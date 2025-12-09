@@ -61,23 +61,16 @@ export const loadAllCoins = async () => {
   return { ok: true, data: filteredCoins };
 };
 
-export const getCoinDetails = (coinId) =>
-  fetchWithCache(coinId, () =>
-    fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}`)
-  );
+export const getCoinDetails = (coinId) => 
+  fetchWithCache(coinId, () => fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}`));
 
 export const getCoinMarketChart = (coinId) =>
   fetchWithCache(`chart:${coinId}`, () =>
-    fetchWithRetry(
-      `${COINGECKO_BASE}/coins/${coinId}/market_chart` +
-        `?vs_currency=usd&days=${CHART_HISTORY_DAYS}`
-    )
-  );
+    fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${CHART_HISTORY_DAYS}`));
 
 export const getGlobalStats = () =>
-  fetchWithCache("globalStats", () =>
-    fetchWithRetry(`${COINGECKO_BASE}/global`)
-  );
+  fetchWithCache("globalStats", () => fetchWithRetry(`${COINGECKO_BASE}/global`));
+
 export const sortCoins = (sortType) => {
   const coins = getAllCoins();
   const sorter = sortFunctions[sortType];
