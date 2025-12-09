@@ -1,8 +1,7 @@
 import { APP_CONFIG } from "../../config/app-config.js";
 import { shortenText } from "../../utils/general-utils.js";
-import { BaseComponents } from "./base-components.js";
+import { cardContainer } from "./base-components.js";
 
-const { cardContainer } = BaseComponents;
 const {
   REPORTS_CREDIT_LABEL,
   REPORTS_CREDIT_LINK,
@@ -133,7 +132,7 @@ const newsPage = () => `
 `;
 
 // Generates a single article card including metadata and CTA link.
-const newsArticleCard = (article) => {
+export const newsArticleCard = (article) => {
   const { title, description, published_at, source, original_url, url, image } =
     article || {};
   const publishedDate = published_at
@@ -192,5 +191,4 @@ export const PageComponents = {
   reportsPage,
   aboutPage,
   newsPage,
-  newsArticleCard,
 };

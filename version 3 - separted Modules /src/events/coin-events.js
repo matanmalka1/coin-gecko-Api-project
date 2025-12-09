@@ -1,11 +1,11 @@
-import { CoinsService } from "../services/coins-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
-import { CoinUI } from "../ui/coin-ui.js";
+import { showCoinDetails } from "../ui/coin-ui.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
+import { getCoinDetails ,searchCoin, getAllCoins, sortCoins} from "../services/coins-service.js";
 
 const FAVORITES_EMPTY = APP_CONFIG.UI_FAV_EMPTY;
 
@@ -16,7 +16,7 @@ let isShowingFavoritesOnly = false;
 const handleSearch = () => {
   const searchTerm = $("#searchInput").val();
   const { ok, code, term, data, favorites } =
-    CoinsService.searchCoin(searchTerm);
+   searchCoin(searchTerm);
 
   $("#clearSearchBtn").removeClass("d-none");
 
@@ -33,7 +33,7 @@ const handleSearch = () => {
 
 const handleClearSearch = () => {
   $("#searchInput").val("");
-  renderCoins(CoinsService.getAllCoins(), {
+  renderCoins(getAllCoins(), {
     favorites: StorageHelper.getFavorites(),
   });
 };
@@ -48,7 +48,7 @@ const handleFavoriteToggle = (e) => {
     StorageHelper.addFavorite(coinSymbol);
   }
 
-  CoinUI.updateFavoriteIcon(coinSymbol, !alreadyFavorite);
+updateFavoriteIcon(coinSymbol, !alreadyFavorite);
 
   if (isShowingFavoritesOnly) {
     renderFavoritesList();
@@ -57,7 +57,7 @@ const handleFavoriteToggle = (e) => {
 
 const renderFavoritesList = () => {
   const favoriteSymbols = StorageHelper.getFavorites();
-  const filtered = CoinsService.getAllCoins().filter((coin) =>
+  const filtered = getAllCoins().filter((coin) =>
     favoriteSymbols.includes(coin.symbol)
   );
 
@@ -81,7 +81,7 @@ const handleMoreInfo = async (e) => {
   BaseUI.toggleCollapse(collapseId, true);
 
   try {
-    const { ok, data, status, error } = await CoinsService.getCoinDetails(
+    const { ok, data, status, error } = await getCoinDetails(
       coinId
     );
 
@@ -92,7 +92,7 @@ const handleMoreInfo = async (e) => {
       return;
     }
 
-    CoinUI.showCoinDetails(collapseId, data);
+    showCoinDetails(collapseId, data);
   } catch (error) {
     ErrorUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
       status: null,
@@ -102,7 +102,7 @@ const handleMoreInfo = async (e) => {
 
 const handleShowFavorites = () => {
   if (isShowingFavoritesOnly) {
-    renderCoins(CoinsService.getAllCoins());
+    renderCoins(getAllCoins());
     BaseUI.setFavoritesButtonLabel(false);
     isShowingFavoritesOnly = false;
   } else {
@@ -113,7 +113,7 @@ const handleShowFavorites = () => {
 };
 
 const handleSortChange = () => {
-  const { data } = CoinsService.sortCoins($("#sortSelect").val());
+  const { data } = sortCoins($("#sortSelect").val());
   const { favorites } = StorageHelper.getUIState();
   renderCoins(data, { favorites });
 };

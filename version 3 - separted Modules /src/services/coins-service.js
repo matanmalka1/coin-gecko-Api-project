@@ -3,8 +3,7 @@ import { CacheManager, StorageHelper } from "./storage-manager.js";
 import { APP_CONFIG } from "../config/app-config.js";
 
 const { fetchWithCache, getCache, setCache } = CacheManager;
-const { readJSON, writeJSON, getSelectedReports, setSelectedReports } =
-  StorageHelper;
+const { readJSON, writeJSON, getSelectedReports, setSelectedReports } = StorageHelper;
 
 const {
   MIN_LENGTH,
@@ -27,9 +26,9 @@ const sortFunctions = {
 };
 
 // ===== COINS DATA =====
-const getAllCoins = () => getCache(COINS_CACHE_KEY) || [];
+export const getAllCoins = () => getCache(COINS_CACHE_KEY) || [];
 
-const getCoinsLastUpdated = () => {
+export const getCoinsLastUpdated = () => {
   return readJSON(COINS_TIMESTAMP_KEY, 0);
 };
 
@@ -37,7 +36,7 @@ const setCoinsLastUpdated = (timestamp) => {
   writeJSON(COINS_TIMESTAMP_KEY, timestamp);
 };
 
-const loadAllCoins = async () => {
+export const loadAllCoins = async () => {
   const { ok, data, status } = await fetchWithRetry(
     `${COINGECKO_BASE}/coins/markets` +
       `?vs_currency=usd&order=market_cap_desc` +
@@ -62,12 +61,12 @@ const loadAllCoins = async () => {
   return { ok: true, data: filteredCoins };
 };
 
-const getCoinDetails = (coinId) =>
+export const getCoinDetails = (coinId) =>
   fetchWithCache(coinId, () =>
     fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}`)
   );
 
-const getCoinMarketChart = (coinId) =>
+export const getCoinMarketChart = (coinId) =>
   fetchWithCache(`chart:${coinId}`, () =>
     fetchWithRetry(
       `${COINGECKO_BASE}/coins/${coinId}/market_chart` +
@@ -75,11 +74,11 @@ const getCoinMarketChart = (coinId) =>
     )
   );
 
-const getGlobalStats = () =>
+export const getGlobalStats = () =>
   fetchWithCache("globalStats", () =>
     fetchWithRetry(`${COINGECKO_BASE}/global`)
   );
-const sortCoins = (sortType) => {
+export const sortCoins = (sortType) => {
   const coins = getAllCoins();
   const sorter = sortFunctions[sortType];
   const sorted = sorter ? [...coins].sort(sorter) : coins;
@@ -93,7 +92,7 @@ const sortCoins = (sortType) => {
   };
 };
 
-const searchCoin = (term) => {
+export const searchCoin = (term) => {
   const trimmed = (term || "").trim();
 
   if (!trimmed) return { ok: false, code: "EMPTY_TERM" };
@@ -126,7 +125,7 @@ const searchCoin = (term) => {
   };
 };
 
-const filterSelectedCoins = () => {
+export const filterSelectedCoins = () => {
   const selectedReports = getSelectedReports();
   if (!selectedReports.length) {
     return { ok: false, code: "NONE_SELECTED" };
@@ -154,23 +153,4 @@ const filterSelectedCoins = () => {
     data: filtered,
     ...StorageHelper.getUIState(),
   };
-};
-
-const clearSearch = () => ({
-  ok: true,
-  data: getAllCoins(),
-  ...StorageHelper.getUIState(),
-});
-
-export const CoinsService = {
-  getAllCoins,
-  getCoinsLastUpdated,
-  loadAllCoins,
-  getCoinDetails,
-  searchCoin,
-  filterSelectedCoins,
-  clearSearch,
-  sortCoins,
-  getCoinMarketChart,
-  getGlobalStats,
 };

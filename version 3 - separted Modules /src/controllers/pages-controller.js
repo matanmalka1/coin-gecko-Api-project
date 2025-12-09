@@ -1,15 +1,15 @@
 import { CONFIG_CHART } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
-import { CoinUI } from "../ui/coin-ui.js";
+import { displayCoins,getCompareSelection,clearCompareHighlights,showLoading } from "../ui/coin-ui.js";
 import { NewsUI } from "../ui/news-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
 import { PageComponents } from "../ui/Components/page-components.js";
-import { CoinsService } from "../services/coins-service.js";
-import { ChartService } from "../services/chart-service.js";
-import { NewsService } from "../services/news-service.js";
+import { getAllCoins, getCoinsLastUpdated ,loadAllCoins, getGlobalStats} from "../services/coins-service.js";
+import { cleanup,startLiveChart } from "../services/chart-service.js";
+import { getGeneralNews,getNewsForFavorites } from "../services/news-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
 import { BaseUI } from "../ui/base-ui.js";
-import { BaseComponents } from "../ui/Components/base-components.js";
+import { skeleton } from "../ui/Components/base-components.js";
 import { ErrorUI } from "../ui/error-ui.js";
 
 const {
@@ -27,21 +27,22 @@ const {
   NEWS_LOAD_FAV,
 } = CONFIG_CHART;
 
+
 // ===== LOADING STATE =====
 let isLoadingCoins = false;
 
 // ===== HELPERS =====
 export const renderCoins = (coins, extras = {}) => {
-  CoinUI.displayCoins(coins, StorageHelper.getSelectedReports(), {
+  displayCoins(coins, StorageHelper.getSelectedReports(), {
     favorites: StorageHelper.getFavorites(),
-    compareSelection: CoinUI.getCompareSelection(),
+    compareSelection: getCompareSelection(),
     ...extras,
   });
 };
 
 // ===== STATS BAR =====
 export const initStatsBar = async () => {
-  const { ok, data } = await CoinsService.getGlobalStats();
+  const { ok, data } = await getGlobalStats();
   const stats = data?.data || data;
   if (!ok || !stats) return;
 
@@ -55,7 +56,7 @@ export const initStatsBar = async () => {
 
 // ===== CURRENCIES PAGE =====
 export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
-  ChartService.cleanup();
+  cleanup();
   if (isLoadingCoins) return;
   isLoadingCoins = true;
 
@@ -63,23 +64,20 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 
   const $compareStatus = $("#compareStatus");
   $compareStatus.addClass("d-none").empty();
-  CoinUI.clearCompareHighlights();
+  clearCompareHighlights();
 
-  const cachedCoins = CoinsService.getAllCoins();
-  const lastUpdated = CoinsService.getCoinsLastUpdated();
-
-  cachedCoins.length ? renderCoins(cachedCoins) : CoinUI.showLoading();
+  getAllCoins().length ? renderCoins(getAllCoins()) : showLoading();
 
   const isCacheExpired =
-    !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
+    !getCoinsLastUpdated || Date.now() - getCoinsLastUpdated >= CACHE_COINS_REFRESH_MS;
 
-  if (cachedCoins.length && !forceRefresh && !isCacheExpired) {
+  if (getAllCoins().length && !forceRefresh && !isCacheExpired) {
     isLoadingCoins = false;
     return;
   }
 
   try {
-    const { ok, data, code, error, status } = await CoinsService.loadAllCoins();
+    const { ok, data, code, error, status } = await loadAllCoins();
 
     if (!ok) {
       ErrorUI.showError("#coinsContainer", code || "COIN_LIST_ERROR", {
@@ -97,12 +95,12 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 
 // ===== REPORTS PAGE =====
 export const showReportsPage = async () => {
-  ChartService.cleanup();
+  cleanup();
 
   BaseUI.showPage(PageComponents.reportsPage());
-  $("#chartsGrid").html(BaseComponents.skeleton("charts", 6));
+  $("#chartsGrid").html(skeleton("charts", 6));
 
-  await ChartService.startLiveChart({
+  await startLiveChart({
     onChartReady: ({ symbols, historyPoints }) => {
       ChartRenderer.clear();
       ChartRenderer.setupCharts(symbols, { historyPoints });
@@ -149,8 +147,8 @@ const loadNews = async (mode = "general") => {
     errorMessage,
     status: httpStatus,
   } = isFavorites
-    ? await NewsService.getNewsForFavorites(StorageHelper.getFavorites())
-    : await NewsService.getGeneralNews();
+    ? await getNewsForFavorites(StorageHelper.getFavorites())
+    : await getGeneralNews();
 
   if (!ok) {
     ErrorUI.showError("#newsList", code || "NEWS_ERROR", {
@@ -179,7 +177,7 @@ export const showFavoritesNewsPage = async () => {
 
 // ===== ABOUT PAGE =====
 export const showAboutPage = () => {
-  ChartService.cleanup();
+ cleanup();
 
   BaseUI.showPage(
     PageComponents.aboutPage({

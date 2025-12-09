@@ -1,5 +1,5 @@
 import { APP_CONFIG } from "../config/app-config.js";
-import { BaseComponents } from "./Components/base-components.js";
+import { spinner } from "./Components/base-components.js";
 import { formatLargeNumber, formatPercent } from "../utils/general-utils.js";
 
 // Replaces the entire page container with provided HTML and resets cache.
@@ -10,7 +10,7 @@ const showPage = (html, containerSelector = "#content") => {
 // Shows a spinner placeholder with optional text.
 const showSpinner = (container, message) => {
   const el = $(container);
-  if (el.length) el.html(BaseComponents.spinner(message));
+  if (el.length) el.html(spinner(message));
 };
 
 // Opens/closes a collapse region with a smooth slide animation.

@@ -1,10 +1,9 @@
 import { fetchWithRetry } from "./api.js";
-import { CoinsService } from "./coins-service.js";
+import { getAllCoins } from "./coins-service.js";
 import { StorageHelper, CacheManager } from "./storage-manager.js";
 import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
 
 const { fetchWithCache } = CacheManager;
-const { getAllCoins } = CoinsService;
 const { getSelectedReports } = StorageHelper;
 const { COINGECKO_BASE, CHART_HISTORY_DAYS, REPORTS_DAYS, REPORTS_CHART_TTL } =
   APP_CONFIG;
@@ -79,9 +78,9 @@ const loadCandlesForSymbols = async (symbols) => {
 };
 
 // ===== CHART LIFECYCLE =====
-const cleanup = () => {};
+export const cleanup = () => {};
 
-const startLiveChart = async (chartCallbacks = {}) => {
+export const startLiveChart = async (chartCallbacks = {}) => {
   cleanup();
 
   const symbols = getSelectedReports();
@@ -114,9 +113,4 @@ const startLiveChart = async (chartCallbacks = {}) => {
 
   chartCallbacks.onError?.({ code: "NO_DATA" });
   return { ok: false, code: "NO_DATA" };
-};
-
-export const ChartService = {
-  cleanup,
-  startLiveChart,
 };

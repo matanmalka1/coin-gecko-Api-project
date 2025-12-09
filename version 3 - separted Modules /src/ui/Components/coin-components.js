@@ -70,7 +70,7 @@ const coinCardActions = (
   `;
 };
 
-const coinCard = (coin, isSelected = false, options = {}) => {
+export const coinCard = (coin, isSelected = false, options = {}) => {
   const { id, current_price, market_cap } = coin;
   const { isInCompare = false } = options;
 
@@ -98,7 +98,7 @@ const coinCard = (coin, isSelected = false, options = {}) => {
 
 // More info panel
 // Renders the expanded "more info" panel with fields from the API response.
-const coinDetails = (data = {}, currencies = {}) => {
+export const coinDetails = (data = {}, currencies = {}) => {
   const { image, name, symbol, description, platforms, market_data } = data;
   const desc = description?.en
     ? shortenText(description.en, APP_CONFIG.COIN_DESC_MAX)
@@ -163,13 +163,13 @@ const coinDetails = (data = {}, currencies = {}) => {
 };
 
 // Placeholder container for attaching a small inline chart per coin.
-const coinMiniChart = (id) => `
+export const coinMiniChart = (id) => `
   <div id="miniChart-${id}" class="mini-chart-container mt-3"></div>
 `;
 
 // Modals
 // Modal for replacing an existing report when the max selection limit is hit.
-const replaceModal = (newSymbol, existingCoins, options = {}) => {
+export const replaceModal = (newSymbol, existingCoins, options = {}) => {
   const { maxCoins } = options;
   const limit =
     typeof maxCoins === "number" ? maxCoins : existingCoins.length || 0;
@@ -212,7 +212,7 @@ const replaceModal = (newSymbol, existingCoins, options = {}) => {
 };
 
 // Compare modal wrapper
-const compareModal = (coinsHTML, options = {}) => {
+export const compareModal = (coinsHTML, options = {}) => {
   const { title = "Compare Coins" } = options;
   return `
     <div class="modal fade" id="compareModal">
@@ -230,12 +230,4 @@ const compareModal = (coinsHTML, options = {}) => {
       </div>
     </div>
   `;
-};
-
-export const CoinComponents = {
-  coinCard,
-  coinDetails,
-  coinMiniChart,
-  replaceModal,
-  compareModal,
 };

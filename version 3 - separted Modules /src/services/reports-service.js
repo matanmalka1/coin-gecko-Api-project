@@ -1,14 +1,13 @@
 import { StorageHelper } from "./storage-manager.js";
-import { CoinsService } from "./coins-service.js";
+import { getAllCoins } from "./coins-service.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { fetchWithRetry } from "./api.js";
 
 const { getSelectedReports, removeReport, addReport } = StorageHelper;
-const { getAllCoins } = CoinsService;
 
 const { REPORTS_MAX, COINGECKO_BASE } = APP_CONFIG;
 
-const toggleCoinSelection = (symbol) => {
+export const toggleCoinSelection = (symbol) => {
   if (
     !getSelectedReports().includes(String(symbol).trim().toUpperCase()) &&
     getSelectedReports().length >= REPORTS_MAX
@@ -32,7 +31,7 @@ const toggleCoinSelection = (symbol) => {
   return { ok: true, code: null, selected: getSelectedReports() };
 };
 
-const replaceReport = (oldSymbol, newSymbol) => {
+export const replaceReport = (oldSymbol, newSymbol) => {
   if (
     String(oldSymbol).trim().toUpperCase() ===
     String(newSymbol).trim().toUpperCase()
@@ -66,7 +65,7 @@ const replaceReport = (oldSymbol, newSymbol) => {
   return { ok: true, code: null, selected: getSelectedReports() };
 };
 
-const getCompareData = async (ids) => {
+export const getCompareData = async (ids) => {
   const uniqueIds = Array.from(new Set(ids)).slice(0, REPORTS_MAX);
 
   const results = await Promise.all(
@@ -92,8 +91,3 @@ const getCompareData = async (ids) => {
   return { ok: true, coins, missing, limit: REPORTS_MAX };
 };
 
-export const ReportsService = {
-  toggleCoinSelection,
-  replaceReport,
-  getCompareData,
-};

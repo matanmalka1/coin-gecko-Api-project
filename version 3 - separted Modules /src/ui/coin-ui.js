@@ -1,5 +1,11 @@
-import { BaseComponents } from "./Components/base-components.js";
-import { CoinComponents } from "./Components/coin-components.js";
+import { spinner, skeleton } from "./Components/base-components.js";
+import {
+  coinCard,
+  coinDetails,
+  coinMiniChart,
+  replaceModal,
+  compareModal,
+} from "./Components/coin-components.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "./error-ui.js";
@@ -22,7 +28,7 @@ const CURRENCIES = {
   ILS: { symbol: "₪", label: "ILS" },
 };
 
-const displayCoins = (
+export const displayCoins = (
   coins,
   selectedReports = [],
   { favorites = [], emptyMessage, compareSelection = [] } = {}
@@ -54,7 +60,7 @@ const displayCoins = (
   container.html(
     coins
       .map((coin) =>
-        CoinComponents.coinCard(coin, selectedSymbols.includes(coin.symbol), {
+        coinCard(coin, selectedSymbols.includes(coin.symbol), {
           isFavorite: favoriteSymbols.includes(coin.symbol),
           isInCompare: compareSet.has(String(coin.id)),
         })
@@ -64,19 +70,14 @@ const displayCoins = (
 };
 
 // ===== LOADING STATE =====
-const showLoading = () => {
+export const showLoading = () => {
   const container = $("#coinsContainer");
   if (!container.length) return;
-  container.html(
-    `${BaseComponents.spinner(UI_TEXT.loadingCoins)}${BaseComponents.skeleton(
-      "coins",
-      6
-    )}`
-  );
+  container.html(`${spinner(UI_TEXT.loadingCoins)}${skeleton("coins", 6)}`);
 };
 
 // ===== FAVORITE ICON =====
-const updateFavoriteIcon = (symbol, isFavorite) => {
+export const updateFavoriteIcon = (symbol, isFavorite) => {
   const favoriteIcon = $(`.favorite-btn[data-symbol="${symbol}"] i`);
   if (!favoriteIcon.length) return;
   favoriteIcon
@@ -87,10 +88,13 @@ const updateFavoriteIcon = (symbol, isFavorite) => {
     .attr("title", isFavorite ? "Remove from favorites" : "Add to favorites");
 };
 
-const showCoinDetails = (containerId,data,{ currencies = CURRENCIES } = {}) => {
+export const showCoinDetails = (
+  containerId,
+  data,
+  { currencies = CURRENCIES } = {}
+) => {
   $(`#${containerId}`).html(
-    CoinComponents.coinDetails(data, currencies) +
-      CoinComponents.coinMiniChart(data.id)
+    coinDetails(data, currencies) + coinMiniChart(data.id)
   );
   ChartRenderer.drawMiniChart(data.id);
 };
@@ -100,7 +104,7 @@ const showReplaceModal = (
   existingCoins,
   { maxCoins, onConfirm, onClose } = {}
 ) => {
-  const modalHTML = CoinComponents.replaceModal(newSymbol, existingCoins, {
+  const modalHTML = replaceModal(newSymbol, existingCoins, {
     maxCoins,
   });
   $("body").append(modalHTML);
@@ -152,7 +156,7 @@ const showCompareModal = (
   { missingSymbols = [], title, onClose } = {}
 ) => {
   const content = buildCompareTable(coins);
-  const modalHTML = CoinComponents.compareModal(content, {
+  const modalHTML = compareModal(content, {
     title: title || UI_TEXT.compareTitle,
   });
   $("body").append(modalHTML);
@@ -180,7 +184,7 @@ const updateToggleStates = (selectedReports) => {
   });
 };
 
-const getCompareSelection = () =>
+export const getCompareSelection = () =>
   $(".compare-row-active")
     .map((_, el) => String($(el).data("id")))
     .get();
@@ -189,19 +193,16 @@ const setCompareHighlight = (coinId, isActive) => {
   $rows.toggleClass("compare-row-active", !!isActive);
   $rows.closest(".card").toggleClass("compare-card-active", !!isActive);
 };
-const clearCompareHighlights = () => {
+export const clearCompareHighlights = () => {
   $(".compare-row").removeClass("compare-row-active");
   $(".card.compare-card-active").removeClass("compare-card-active");
 };
 
 export const CoinUI = {
   displayCoins,
-  showLoading,
-  showCoinDetails,
   showReplaceModal,
   showCompareModal,
   updateToggleStates,
-  updateFavoriteIcon,
   setCompareHighlight,
   clearCompareHighlights,
   getCompareSelection,

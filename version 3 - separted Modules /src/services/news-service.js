@@ -94,9 +94,9 @@ const fetchNews = async (cacheKey, params = {}) => {
   return buildNewsResponse(normalized);
 };
 
-const getGeneralNews = () => fetchNews(CACHE_KEYS.GENERAL);
+export const getGeneralNews = () => fetchNews(CACHE_KEYS.GENERAL);
 
-const getNewsForFavorites = (favoriteSymbols = []) => {
+export const getNewsForFavorites = (favoriteSymbols = []) => {
   if (!favoriteSymbols || favoriteSymbols.length === 0) {
     return {
       ok: false,
@@ -116,9 +116,4 @@ const getNewsForFavorites = (favoriteSymbols = []) => {
   const cacheKey = `${CACHE_KEYS.FAVORITES}:${unique.join(",")}`;
 
   return fetchNews(cacheKey, { q: query });
-};
-
-export const NewsService = {
-  getGeneralNews,
-  getNewsForFavorites,
 };

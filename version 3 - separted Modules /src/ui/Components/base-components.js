@@ -1,6 +1,5 @@
-
 // Returns a spinner block with an accessible status message.
-const spinner = (message = "Loading...") => `
+export const spinner = (message = "Loading...") => `
   <div class="text-center my-3">
     <div class="spinner-border text-primary">
       <span class="visually-hidden">${message}</span>
@@ -9,14 +8,14 @@ const spinner = (message = "Loading...") => `
   </div>
 `;
 
-const cardContainer = (
+export const cardContainer = (
   content,
   colClasses = "col-md-6 col-lg-4",
   cardClasses = "card h-100 shadow-sm border"
 ) =>
   `<div class="${colClasses}"><div class="${cardClasses}">${content}</div></div>`;
 
-const skeleton = (type = "coins", count = 6) => {
+export const skeleton = (type = "coins", count = 6) => {
   const templates = {
     news: `
       <div class="ratio ratio-16x9 bg-light rounded-top placeholder"></div>
@@ -64,10 +63,4 @@ const skeleton = (type = "coins", count = 6) => {
   ).join("");
 
   return `<div class="row g-4 align-items-stretch">${cards}</div>`;
-};
-
-export const BaseComponents = {
-  spinner,
-  cardContainer,
-  skeleton,
 };

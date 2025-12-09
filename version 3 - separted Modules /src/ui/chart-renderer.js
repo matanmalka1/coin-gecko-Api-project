@@ -1,5 +1,5 @@
 import { CONFIG_CHART } from "../config/app-config.js";
-import { CoinsService } from "../services/coins-service.js";
+import { getCoinMarketChart } from "../services/coins-service.js";
 import { ErrorUI } from "./error-ui.js";
 
 const {
@@ -103,7 +103,7 @@ const clear = () => {
 // ===== CANVASJS MINI CHARTS (Coin Details) =====
 
 const drawMiniChart = async (coinId) => {
-  const { ok, data } = await CoinsService.getCoinMarketChart(coinId);
+  const { ok, data } = await getCoinMarketChart(coinId);
 
   if (!ok || !data?.prices || data.prices.length === 0) {
     ErrorUI.showInfo(

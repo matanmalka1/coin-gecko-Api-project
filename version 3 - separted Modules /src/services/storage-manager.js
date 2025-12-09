@@ -127,7 +127,6 @@ const getUIState = () => ({
 export const CacheManager = {
   getCache,
   setCache,
-  clearCache: () => cacheStore.clear(),
   fetchWithCache,
 };
 
