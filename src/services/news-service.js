@@ -1,8 +1,9 @@
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
-import { filterLastHours } from "../utils/general-utils.js";
+import { filterLastHours,normalizeSymbol } from "../utils/general-utils.js";
 import { CacheManager } from "./storage-manager.js";
-import { fetchWithRetry } from "./api.js"; // במקום coinAPI
+import { fetchWithRetry } from "./api.js";
+
 
 const { getCache, setCache } = CacheManager;
 
@@ -33,21 +34,11 @@ const getCachedNews = (cacheKey) => {
   return cached ? buildNewsResponse(Array.isArray(cached) ? cached : []) : null;
 };
 // ===== NORMALIZATION =====
-const normalizeArticle = ({
-  title,
-  description,
-  pubDate,
-  source_id,
-  link,
-  image_url,
-} = {}) => ({
+const normalizeArticle = ({title,description,pubDate,source_id,link,image_url,} = {}) => ({
   title,
   description,
   published_at: pubDate,
-  source: {
-    title: source_id || "Unknown source",
-    domain: source_id || "unknown",
-  },
+  source: {title: source_id || "Unknown source",domain: source_id || "unknown",},
   original_url: link,
   url: link,
   image: image_url,
@@ -60,10 +51,7 @@ const fetchNews = async (cacheKey, params = {}) => {
 
   const query = params.q || DEFAULT_QUERY;
 
-  const { ok, data, status, error } = await fetchWithRetry(
-    `${BASE_URL}?apikey=${API_KEY}` +
-      (LANGUAGE ? `&language=${LANGUAGE}` : "") +
-      `&q=${query}`
+  const { ok, data, status, error } = await fetchWithRetry(`${BASE_URL}?apikey=${API_KEY}` +(LANGUAGE ? `&language=${LANGUAGE}` : "") +`&q=${query}`
   );
 
   if (!ok || !data) {
@@ -96,7 +84,7 @@ export const getNewsForFavorites = (favoriteSymbols = []) => {
     ...new Set(
       (favoriteSymbols || [])
         .filter(Boolean)
-        .map((symbol) => String(symbol).trim().toUpperCase())
+        .map(normalizeSymbol)
     ),
   ].sort();
 

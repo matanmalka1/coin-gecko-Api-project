@@ -8,7 +8,7 @@ export const fetchWithRetry = async (url, options = {}, retries = 1) => {
 
     if (!ok) {
       if (status === 429 && retries > 0) {
-        console.warn(`Rate limit hit, retrying (${retries} attempts left)...`);
+        console.error(`Rate limit hit, retrying (${retries} attempts left)...`);
         await new Promise((resolve) => setTimeout(resolve, 60000));
         return fetchWithRetry(url, options, retries - 1);
       }

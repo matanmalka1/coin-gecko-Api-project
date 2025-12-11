@@ -1,6 +1,7 @@
 import { fetchWithRetry } from "./api.js";
 import { getSelectedReports } from "./storage-manager.js";
 import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
+import { normalizeSymbol } from "../utils/general-utils.js";
 
 const { CRYPTOCOMPARE_BASE, CRYPTOCOMPARE_KEY, REPORTS_UPDATE_MS } = APP_CONFIG;
 const { CHART_POINTS } = CONFIG_CHART;
@@ -12,7 +13,7 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
   const now = Math.floor(Date.now() / 1000);
 
   symbols.forEach((symbol) => {
-    const sym = String(symbol).trim().toUpperCase();
+    const sym = normalizeSymbol(symbol);
     const price = pricesBySymbol[sym].USD;
     const candle = { time: now, open: price, high: price, low: price, close: price };
     const series = liveCandlesBySymbol[sym] || [];
@@ -23,18 +24,16 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
 };
 
 const fetchLivePrices = async (symbols) => {
-  if (!symbols.length) {
-    return { ok: false, code: "NONE_SELECTED" };
-  }
+  const normalizedSymbols = symbols.map(normalizeSymbol);
+
+  if (!normalizedSymbols.length) { return { ok: false, code: "NONE_SELECTED" };}
+
   if (!Object.keys(liveCandlesBySymbol).length) {
     const historyResults = await Promise.all(
-      symbols.map(async (symbol) => {
-        const upper = String(symbol).trim().toUpperCase();
+      normalizedSymbols.map(async (symbol) => {
+        const upper = normalizeSymbol(symbol);
 
-        const { ok, data, error, status } = await fetchWithRetry(
-          `${CRYPTOCOMPARE_BASE}/histohour?fsym=${upper}&tsym=USD&limit=${
-            24 * 7
-          }`
+        const { ok, data, error, status } = await fetchWithRetry(`${CRYPTOCOMPARE_BASE}/histohour?fsym=${upper}&tsym=USD&limit=${24 * 7}`
         );
 
         if (!ok || !data?.Data) {
@@ -42,7 +41,7 @@ const fetchLivePrices = async (symbols) => {
         }
 
         const candles = data.Data.map((point) => ({
-          time: point.time, // CryptoCompare מחזיר time בשניות כבר
+          time: point.time, 
           open: point.open,
           high: point.high,
           low: point.low,
@@ -58,8 +57,7 @@ const fetchLivePrices = async (symbols) => {
       liveCandlesBySymbol[symbol] = candles.slice(-CHART_POINTS);
     });
   }
-
-  const fsyms = symbols.map((s) => String(s).trim().toUpperCase()).join(",");
+  const fsyms = normalizedSymbols.join(",");
 
   const { ok, data, error, status } = await fetchWithRetry(
     `${CRYPTOCOMPARE_BASE}/pricemulti?fsyms=${fsyms}&tsyms=USD&api_key=${CRYPTOCOMPARE_KEY}`

@@ -2,13 +2,14 @@ import { StorageHelper } from "./storage-manager.js";
 import { getAllCoins } from "./coins-service.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { fetchWithRetry } from "./api.js";
+import { normalizeSymbol } from "../utils/general-utils.js";
 
 const { getSelectedReports, removeReport, addReport } = StorageHelper;
 
 const { REPORTS_MAX, COINGECKO_BASE } = APP_CONFIG;
 
 export const toggleCoinSelection = (symbol) => {
-  const sym = String(symbol).trim().toUpperCase();
+   const sym = normalizeSymbol(symbol);
   const selected = getSelectedReports();
   
   if (!selected.includes(sym) && selected.length >= REPORTS_MAX) {
@@ -20,8 +21,8 @@ export const toggleCoinSelection = (symbol) => {
 };
 
 export const replaceReport = (oldSymbol, newSymbol) => {
-  const oldSym = String(oldSymbol).trim().toUpperCase();
-  const newSym = String(newSymbol).trim().toUpperCase();
+  const oldSym = normalizeSymbol(oldSymbol);
+  const newSym = normalizeSymbol(newSymbol);
   const selected = getSelectedReports();
 
   if (oldSym === newSym) return { ok: true, code: null, selected };

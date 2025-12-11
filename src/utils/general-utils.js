@@ -2,6 +2,9 @@
 export const shortenText = (text = "", max = 200) =>
   !text ? "" : text.length > max ? `${text.slice(0, max)}...` : text;
 
+
+export const normalizeSymbol = (symbol) => String(symbol || "").trim().toUpperCase();
+
 export const formatPrice = (value, currency = {}, options = {}) => {
   if (!value || Number.isNaN(value)) return "N/A";
   const minDigits = options.minimumFractionDigits ?? 2;

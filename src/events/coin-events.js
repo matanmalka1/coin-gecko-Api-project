@@ -6,6 +6,7 @@ import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
 import { getCoinDetails ,searchCoin, getAllCoins, sortCoins} from "../services/coins-service.js";
+import { normalizeSymbol } from "../utils/general-utils.js";
 
 const FAVORITES_EMPTY = APP_CONFIG.UI_FAV_EMPTY;
 
@@ -55,7 +56,7 @@ const handleFavoriteToggle = (e) => {
 const renderFavoritesList = () => {
   const favoriteSymbols = StorageHelper.getFavorites();
   const filtered = getAllCoins().filter((coin) =>
-    favoriteSymbols.includes(coin.symbol)
+    favoriteSymbols.includes(normalizeSymbol(coin.symbol))
   );
 
   renderCoins(filtered, {

@@ -157,11 +157,13 @@ const showCompareModal = (
   return modal;
 };
 
-const updateToggleStates = (selectedReports) => {
-  const selectedSymbols = Array.isArray(selectedReports) ? selectedReports : [];
-  $(".coin-toggle").each(function () {
-    const symbol = $(this).data("symbol");
-    $(this).prop("checked", selectedSymbols.includes(symbol));
+export const updateToggleStates = (selectedReports) => {
+  const selectedSymbolsSet = new Set(Array.isArray(selectedReports) ? selectedReports : []);
+
+  $("#coinsContainer .coin-toggle").each(function () {
+    const $this = $(this);
+    const symbol = $this.data("symbol");
+    $this.prop("checked", selectedSymbolsSet.has(symbol));
   });
 };
 

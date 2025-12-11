@@ -1,19 +1,13 @@
 import { CoinEvents } from "./src/events/coin-events.js";
 import { ReportsEvents } from "./src/events/reports-events.js";
-import {
-  showCurrenciesPage,
-  showReportsPage,
-  showNewsPage,
-  showFavoritesNewsPage,
-  showAboutPage,
-  initStatsBar,
-} from "./src/controllers/pages-controller.js";
+import {showCurrenciesPage,showReportsPage,showNewsPage,showFavoritesNewsPage,showAboutPage,initStatsBar,} from "./src/controllers/pages-controller.js";
 
+  // ===== DARKMODE WIDGET =====
 let darkmodeInstance = null;
+
 
 const initDarkmodeWidget = () => {
   if (darkmodeInstance) return darkmodeInstance;
-  // ===== DARKMODE WIDGET =====
   darkmodeInstance = new Darkmode({
     bottom: "20px",
     right: "5px",
