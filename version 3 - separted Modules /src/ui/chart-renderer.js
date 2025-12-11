@@ -8,8 +8,7 @@ const {
   CHART_H_MOBILE,
   CHART_BADGE,
   CHART_BG,
-  CHART_TEXT,
-  CHART_BORDER,
+  CHART_TEXT_BORDER,
   CHART_UP,
   CHART_DOWN,
   CHART_BORDER_UP,
@@ -67,8 +66,8 @@ const setupCharts = (symbols, options = {}) => {
         },
         textColor: CHART_TEXT,
       },
-      rightPriceScale: { borderColor: CHART_BORDER },
-      timeScale: { borderColor: CHART_BORDER },
+      rightPriceScale: { borderColor: CHART_TEXT_BORDER },
+      timeScale: { borderColor: CHART_TEXT_BORDER },
     });
 
     const series = chart.addSeries(LightweightCharts.CandlestickSeries, {

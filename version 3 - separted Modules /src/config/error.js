@@ -1,7 +1,6 @@
 // Centralized error messages + resolver for the entire app.
 export const ERRORS = {
   DEFAULT: "Failed to load data. Please try again.",
-  API_ERROR: "Failed to load data. Please try again.",
   COIN_LIST_ERROR: "Failed to load coins data. Please try again.",
   COIN_DETAILS_ERROR: "Failed to load coin details. Please try again.",
   LIVE_CHART_ERROR: "Failed to load live price data. Please try again.",
@@ -24,7 +23,6 @@ export const ERRORS = {
 
   // ===== REPORTS / COMPARE ERRORS =====
   NONE_SELECTED: "No coins selected.",
-  FULL: (max = 5) => `You can select up to ${max} coins for reports.`,
   LIMIT: (max = 5) => `You can select up to ${max} coins for reports.`,
   COMPARE_FULL: (limit = 2) =>
     `Maximum ${limit} coins for comparison. Deselect one first.`,
@@ -36,8 +34,6 @@ export const ERRORS = {
   REPLACE_SELECTION_REQUIRED: "Please choose a coin to replace.",
 
   // ===== NEWS ERRORS =====
-  GENERAL_ERROR: "Failed to load general news. Please try again later.",
-  FAVORITES_ERROR: "Failed to load favorites news. Please try again later.",
   NEWS_ERROR: "Failed to load news. Please try again later.",
   NO_FAVORITES: "No favorite coins selected.",
   EMPTY: "No news found for the last 5 hours.",
@@ -57,8 +53,6 @@ const HANDLERS = {
   INVALID_TERM: () => ERRORS.INVALID_TERM,
 
   // API-level errors
-  API_ERROR: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.API_ERROR || ERRORS.DEFAULT,
   COIN_LIST_ERROR: ({ defaultMessage, status }) =>
     defaultMessage ||
     (status ? ERRORS.REQUEST_FAILED(status) : null) ||
@@ -85,8 +79,8 @@ const HANDLERS = {
   // Reports / compare
   NONE_SELECTED: ({ defaultMessage }) =>
     defaultMessage || ERRORS.NONE_SELECTED,
-  FULL: ({ limit, defaultMessage }) =>
-    defaultMessage || ERRORS.FULL(limit),
+  LIMIT: ({ limit, defaultMessage }) =>
+    defaultMessage || ERRORS.LIMIT(limit),
   COMPARE_FULL: ({ limit, defaultMessage }) =>
     defaultMessage || ERRORS.COMPARE_FULL(limit),
   INVALID_SYMBOL: ({ defaultMessage }) =>
@@ -102,7 +96,7 @@ const HANDLERS = {
 
   // News
   NEWS_ERROR: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.NEWS_ERROR || ERRORS.GENERAL_ERROR,
+    defaultMessage || ERRORS.NEWS_ERROR || ERRORS.DEFAULT,
   NEWS_HTTP_ERROR: ({ status, defaultMessage }) =>
     defaultMessage ||
     (status ? ERRORS.REQUEST_FAILED(status) : ERRORS.NEWS_ERROR),

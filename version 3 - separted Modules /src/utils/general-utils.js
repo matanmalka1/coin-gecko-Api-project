@@ -10,7 +10,6 @@ export const formatPrice = (value, currency = {}, options = {}) => {
   return `${currency?.symbol ?? "$"}${formatted}`;
 };
 
-
 export const formatPercent = (percentValue, options = {}) => {
   if (typeof percentValue !== "number" || Number.isNaN(percentValue))
     return "N/A";

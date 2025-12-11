@@ -83,7 +83,7 @@ const handleCoinToggle = function () {
   const { ok, code, selected, ...rest } = toggleCoinSelection(coinSymbol);
   if (ok) {
     updateToggleStates(selected);
-  } else if (code === "FULL") {
+  } else if (code === "LIMIT") {
     openReplaceFlow({ code, selected, ...rest });
   }
 };

@@ -12,7 +12,7 @@ export const toggleCoinSelection = (symbol) => {
   const selected = getSelectedReports();
   
   if (!selected.includes(sym) && selected.length >= REPORTS_MAX) {
-    return { ok: false, code: "FULL", newSymbol: sym, existing: selected, limit: REPORTS_MAX, selected };
+    return { ok: false, code: "LIMIT", newSymbol: sym, existing: selected, limit: REPORTS_MAX, selected };
   }
 
   selected.includes(sym) ? removeReport(sym) : addReport(sym);
@@ -59,4 +59,3 @@ export const getCompareData = async (ids) => {
 
   return { ok: true, coins, missing, limit: REPORTS_MAX };
 };
-

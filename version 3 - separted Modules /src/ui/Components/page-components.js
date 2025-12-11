@@ -128,8 +128,7 @@ export const newsArticleCard = (article) => {
     ${cardContainer(
       `
         <div class="ratio ratio-16x9 bg-light rounded-top">
-          ${
-            image
+          ${image
               ? `<img src="${image}" class="card-img-top h-100 w-100 object-fit-cover rounded-top"/>`
               : `<div class="bg-secondary-subtle h-100 w-100 rounded-top d-flex align-items-center justify-content-center text-muted">
                   <i class="bi bi-image"></i>
@@ -138,17 +137,11 @@ export const newsArticleCard = (article) => {
         </div>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title mb-3">
-            <a href="${
-              original_url || url || "#"
-            }" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${
-        title || "Untitled"
-      }</a>
+            <a href="${original_url || url || "#"}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${title || "Untitled"}</a>
           </h5>
           <div class="d-flex justify-content-between align-items-center mb-3 text-muted">
             <span class="badge text-bg-light">
-              <i class="bi bi-newspaper"></i> ${
-                source?.title || source?.domain || "Unknown source"
-              }
+              <i class="bi bi-newspaper"></i> ${source?.title || source?.domain || "Unknown source"}
             </span>
             <small class="text-muted">
               <i class="bi bi-clock"></i> ${publishedDate}
@@ -156,15 +149,10 @@ export const newsArticleCard = (article) => {
           </div>
           ${
             shortenText(description, NEWS_DESC_MAX)
-              ? `<p class="card-text flex-grow-1 mb-0">${shortenText(
-                  description,
-                  NEWS_DESC_MAX
-                )}</p>`
+              ? `<p class="card-text flex-grow-1 mb-0">${shortenText(description,NEWS_DESC_MAX)}</p>`
               : `<p class="card-text flex-grow-1 mb-0 fst-italic">No description available.</p>`
           }
-          <a href="${
-            original_url || url || "#"
-          }" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>
+          <a href="${original_url || url || "#"}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>
         </div>
       `,
       "col-12 col-md-6 col-lg-4 d-flex",

@@ -31,22 +31,10 @@ const setFavoritesButtonLabel = (showingFavorites) => {
 };
 
 const setStatsBar = ({ totalMarketCap, totalVolume, btcDominance, marketChange } = {}) => [
-  {
-    label: "Market Cap",
-    value: formatLargeNumber(totalMarketCap),
-  },
-  {
-    label: "24h Volume",
-    value: formatLargeNumber(totalVolume),
-  },
-  {
-    label: "BTC Dominance",
-    value: formatPercent(btcDominance, { decimals: 1 }),
-  },
-  {
-    label: "Market Change",
-    value: formatPercent(marketChange, { decimals: 2, showSign: true }),
-  },
+  {label: "Market Cap",value: formatLargeNumber(totalMarketCap),},
+  {label: "24h Volume",value: formatLargeNumber(totalVolume),},
+  {label: "BTC Dominance",value: formatPercent(btcDominance, { decimals: 1 }),},
+  {label: "Market Change",value: formatPercent(marketChange, { decimals: 2, showSign: true }),},
 ];
 
 const renderStatsBar = (targetSelector, props = {}) => {
@@ -54,26 +42,18 @@ const renderStatsBar = (targetSelector, props = {}) => {
     <div class="container">
       <div class="row g-3 text-center">
         ${setStatsBar(props)
-          .map(
-            (stat) => `
+          .map((stat) => `
               <div class="col-6 col-md-3">
                 <div class="card shadow-sm h-100">
                   <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
-                    <div class="mb-2">
-                      ${`<i class="fas fa-chart-bar"></i>`}
-                    </div>
-                    <div class="text-muted small mb-1">
-                      ${stat.label}
-                    </div>
-                    <div class="fw-bold h5 mb-0">
-                      ${stat.value}
-                    </div>
+                    <div class="mb-2">${`<i class="fas fa-chart-bar"></i>`}</div>
+                    <div class="text-muted small mb-1">${stat.label}</div>
+                    <div class="fw-bold h5 mb-0">${stat.value}</div>
                   </div>
                 </div>
               </div>
             `
-          )
-          .join("")}
+          ).join("")}
       </div>
     </div>
   `);

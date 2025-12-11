@@ -66,7 +66,7 @@ const fetchLivePrices = async (symbols) => {
   );
 
   if (!ok || !data) {
-    return { ok: false, code: "API_ERROR", error, status };
+    return { ok: false, code: "DEFAULT", error, status };
   }
 
   const candlesBySymbol = updateSeriesFromPrices(symbols, data);
@@ -99,7 +99,7 @@ export const startLiveChart = async (chartCallbacks = {}) => {
   const handleResult = (result) => {
     if (!result.ok) {
       chartCallbacks.onError?.({
-        code: result.code || "API_ERROR",
+        code: result.code || "DEFAULT",
         status: result.status,
         error: result.error,
       });

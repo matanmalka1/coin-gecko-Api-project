@@ -42,9 +42,9 @@ const setCache = (key, data, ttl = EXPIRY_TIME) => {
   const cached = getCache(cacheKey);
   if (cached) return { ok: true, data: cached, fromCache: true };
 
-  const { ok, data, code, error, status } = await fetcher();
+ const { ok, data, code, error, status } = await fetcher();
   if (!ok) {
-    return { ok: false, code: code || "API_ERROR", error, status };
+    return { ok: false, code: code || "DEFAULT", error, status };
   }
 
   setCache(cacheKey, data, ttl);

@@ -89,7 +89,7 @@ export const coinDetails = (data = {}, currencies = {}) => {
     image?.small ||
     image?.thumb ||
     (typeof image === "string" ? image : PLACEHOLDER_THUMB);
-  const sym = symbol ? symbol.toUpperCase() : "";
+  const sym = symbol.toUpperCase();
   const priceItem = (label, value, curr) =>
     `<div class="price-badge mb-2 p-2 border-left rounded ${
       typeof value !== "number" ? "text-muted" : ""
@@ -109,19 +109,12 @@ export const coinDetails = (data = {}, currencies = {}) => {
         <img src="${imageSrc}" alt="${name}" class="coin-info-image rounded-circle shadow">
         <div><h6 class="mb-0">${name}</h6><small class="text-muted">${sym}</small><div class="text-muted small">Rank: ${rank}</div></div></div>
       <div class="mb-2"><strong>Current Prices:</strong></div>
-      ${priceItem("USD", prices.usd, currencies.USD)}${priceItem(
-    "EUR",
-    prices.eur,
-    currencies.EUR
-  )}${priceItem("ILS", prices.ils, currencies.ILS)}
-      <div class="mb-2 mt-3"><strong>All-Time High (USD):</strong></div>${priceItem(
-        "ATH",
-        market_data?.ath?.usd,
-        currencies.USD
-      )}
-      <div class="mt-2"><small class="text-muted"><strong>CA:</strong> ${
-        contractAddress || "N/A"
-      }</small></div>
+      ${priceItem("USD", prices.usd, currencies.USD)}
+      ${priceItem("EUR", prices.eur, currencies.EUR)}
+      ${priceItem("ILS", prices.ils, currencies.ILS)}
+      <div class="mb-2 mt-3"><strong>All-Time High (USD):</strong></div>
+      ${priceItem("ATH",market_data?.ath?.usd,currencies.USD)}
+      <div class="mt-2"><small class="text-muted"><strong>CA:</strong> ${contractAddress || "N/A"}</small></div>
       <div class="mt-3"><small class="text-muted">${desc}</small></div></div>`;
 };
 
@@ -138,8 +131,7 @@ export const replaceModal = (newSymbol, existingCoins, options = {}) => {
       ? options.maxCoins
       : existingCoins.length || 0;
   const listItems = existingCoins
-    .map(
-      (coin) =>
+    .map((coin) =>
         `<li class="list-group-item d-flex justify-content-between align-items-center">${coin}
       <div class="form-check"><input class="form-check-input replace-toggle" type="radio" name="coinToReplace" data-symbol="${coin}"></div></li>`
     )
