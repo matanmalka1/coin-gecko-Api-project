@@ -110,7 +110,7 @@ const handleShowFavorites = () => {
 };
 
 const handleSortChange = () => {
-  const { data } = sortCoins($(".sortSelect").val());
+  const { data } = sortCoins($("#sortSelect").val());
   const { favorites } = StorageHelper.getUIState();
   renderCoins(data, { favorites });
 };
@@ -133,7 +133,7 @@ const setupEventListeners = () => {
     .on("click", "#refreshCoinsBtn", handleRefreshCoins)
     .on("click", ".favorite-btn", handleFavoriteToggle)
     .on("click", ".more-info", handleMoreInfo)
-    .on("change", ".sortSelect", handleSortChange);
+    .on("change", "#sortSelect", handleSortChange);
 
   isRegistered = true;
 };

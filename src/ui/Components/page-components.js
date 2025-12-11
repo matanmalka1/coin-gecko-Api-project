@@ -25,7 +25,7 @@ const currenciesPage = () => `
   </div>
 
     <div id="sortArea" class="my-3">
-      <select class="form-select w-auto d-inline-block">
+      <select id="sortSelect" class="form-select w-auto d-inline-block">
         <option value="marketcap_desc">Top Coins (Default)</option><option value="marketcap_asc">Market Cap ↑</option>
         <option value="price_desc">Price ↓</option><option value="price_asc">Price ↑</option>
         <option value="volume_high">Volume High</option><option value="volume_low">Volume Low</option>
