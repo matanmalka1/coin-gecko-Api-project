@@ -152,7 +152,7 @@ const loadNews = async (mode = "general") => {
 
   if (!ok) {
     ErrorUI.showError("#newsList", code || "NEWS_ERROR", {
-      defaultMessage: errorMessage || error || ERRORS.GENERAL_ERROR,
+      defaultMessage: errorMessage || ERRORS.NEWS_ERROR,
       status: httpStatus,
     });
     return;
@@ -166,6 +166,7 @@ const loadNews = async (mode = "general") => {
 };
 
 export const showNewsPage = async () => {
+  cleanup();
   BaseUI.showPage(PageComponents.newsPage());
   await loadNews("general");
 };

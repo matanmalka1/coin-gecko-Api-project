@@ -64,7 +64,7 @@ const setupCharts = (symbols, options = {}) => {
           type: "solid",
           color: CHART_BG,
         },
-        textColor: CHART_TEXT,
+        textColor: CHART_TEXT_BORDER,
       },
       rightPriceScale: { borderColor: CHART_TEXT_BORDER },
       timeScale: { borderColor: CHART_TEXT_BORDER },
