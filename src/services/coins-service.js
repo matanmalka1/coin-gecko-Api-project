@@ -1,6 +1,7 @@
 import { fetchWithRetry } from "./api.js";
 import { CacheManager, StorageHelper } from "./storage-manager.js";
 import { APP_CONFIG } from "../config/app-config.js";
+import { normalizeSymbol } from "../utils/general-utils.js";
 
 const { fetchWithCache, getCache, setCache } = CacheManager;
 const { readJSON, writeJSON, getSelectedReports, setSelectedReports } = StorageHelper;
@@ -52,7 +53,7 @@ export const loadAllCoins = async () => {
     .filter(({ id, symbol }) => id && symbol)
     .map((coin) => ({
       ...coin,
-      symbol: String(coin.symbol).trim().toUpperCase(),
+     symbol: normalizeSymbol(coin.symbol)
     }));
 
   setCache(COINS_CACHE_KEY, filteredCoins);
@@ -89,8 +90,9 @@ const cleanTerm = String(term || "").trim().toLowerCase();
 }
   if (cleanTerm.length > MAX_LENGTH) {return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
 }
-  if (ALLOWED_PATTERN && !ALLOWED_PATTERN.test(cleanTerm)) {return { ok: false, code: "INVALID_TERM" };
+ if (!ALLOWED_PATTERN.test(cleanTerm)) {return { ok: false, code: "INVALID_TERM" };
 }
+
 
   const allCoins = getAllCoins();
   if (!allCoins.length) return { ok: false, code: "LOAD_WAIT" };

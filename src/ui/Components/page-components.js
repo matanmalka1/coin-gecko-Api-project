@@ -6,7 +6,6 @@ const {
   REPORTS_CREDIT_LABEL,
   REPORTS_CREDIT_LINK,
   REPORTS_CREDIT_NAME,
-  NEWS_STATUS_GEN,
   NEWS_DESC_MAX,
 } = APP_CONFIG;
 
@@ -104,22 +103,18 @@ export const newsArticleCard = (article) => {
     : "Unknown time";
 
   return `
-    ${cardContainer(
-      `
+        ${cardContainer(
+        `
         <div class="ratio ratio-16x9 bg-light rounded-top">
-          ${image
-              ? `<img src="${image}" class="card-img-top h-100 w-100 object-fit-cover rounded-top"/>`
-              : `<div class="bg-secondary-subtle h-100 w-100 rounded-top d-flex align-items-center justify-content-center text-muted">
-                  <i class="bi bi-image"></i>
-                </div>`}
+          <img src="${image || "images/2.jpeg"}" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"} loading ="lazy />
         </div>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title mb-3">
+            <h5 class="card-title mb-3">
             <a href="${original_url || url || "#"}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${title || "Untitled"}</a>
-          </h5>
-          <div class="d-flex justify-content-between align-items-center mb-3 text-muted">
+            </h5>
+        <div class="d-flex justify-content-between align-items-center mb-3 text-muted">
           <span class="badge text-bg-light">
-                <i class="bi bi-newspaper"></i> ${source?.title || source?.domain || "Unknown source"}
+              <i class="bi bi-newspaper"></i> ${source?.title || source?.domain || "Unknown source"}
           </span>
           <small class="text-muted"><i class="bi bi-clock"></i> ${publishedDate}</small>
         </div>

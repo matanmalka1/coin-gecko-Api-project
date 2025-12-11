@@ -2,6 +2,7 @@ import { fetchWithRetry } from "./api.js";
 import { getSelectedReports } from "./storage-manager.js";
 import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
+import { ERRORS } from "../config/error.js";
 
 const { CRYPTOCOMPARE_BASE, CRYPTOCOMPARE_KEY, REPORTS_UPDATE_MS } = APP_CONFIG;
 const { CHART_POINTS } = CONFIG_CHART;
@@ -26,7 +27,7 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
 const fetchLivePrices = async (symbols) => {
   const normalizedSymbols = symbols.map(normalizeSymbol);
 
-  if (!normalizedSymbols.length) { return { ok: false, code: "NONE_SELECTED" };}
+ if (!normalizedSymbols.length) { return { ok: false, code: "NONE_SELECTED" };}
 
   if (!Object.keys(liveCandlesBySymbol).length) {
     const historyResults = await Promise.all(
@@ -64,7 +65,7 @@ const fetchLivePrices = async (symbols) => {
   );
 
   if (!ok || !data) {
-    return { ok: false, code: "DEFAULT", error, status };
+    return { ok: false, code: "LIVE_CHART_ERROR", error, status };
   }
 
   const candlesBySymbol = updateSeriesFromPrices(symbols, data);
@@ -97,7 +98,7 @@ export const startLiveChart = async (chartCallbacks = {}) => {
   const handleResult = (result) => {
     if (!result.ok) {
       chartCallbacks.onError?.({
-        code: result.code || "DEFAULT",
+        code: result.code || "LIVE_CHART_ERROR",
         status: result.status,
         error: result.error,
       });

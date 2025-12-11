@@ -8,7 +8,8 @@ import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller
 import { getCoinDetails ,searchCoin, getAllCoins, sortCoins} from "../services/coins-service.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 
-const FAVORITES_EMPTY = APP_CONFIG.UI_FAV_EMPTY;
+
+const { UI_FAV_EMPTY } = APP_CONFIG
 
 let isRegistered = false;
 let isShowingFavoritesOnly = false;
@@ -18,7 +19,7 @@ const handleSearch = () => {
   const searchTerm = $("#searchInput").val();
   const { ok, code, term, data, } = searchCoin(searchTerm);
 
-  $("#clearSearchBtn").removeClass("d-none");
+  BaseUI.toggleClearButton(true); 
 
   if (!ok) {
     ErrorUI.showError("#coinsContainer", code, {
@@ -61,7 +62,7 @@ const renderFavoritesList = () => {
 
   renderCoins(filtered, {
     favorites: favoriteSymbols,
-    emptyMessage: FAVORITES_EMPTY,
+    emptyMessage: UI_FAV_EMPTY,
   });
 };
 

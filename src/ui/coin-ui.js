@@ -1,23 +1,12 @@
 import { spinner, skeleton } from "./Components/base-components.js";
-import {
-  coinCard,
-  coinDetails,
-  coinMiniChart,
-  replaceModal,
-  compareModal,
-} from "./Components/coin-components.js";
+import {coinCard,coinDetails,coinMiniChart,replaceModal,compareModal,} from "./Components/coin-components.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "./error-ui.js";
 import {formatPrice,formatLargeNumber,formatPercent,} from "../utils/general-utils.js";
 import { ChartRenderer } from "./chart-renderer.js";
 
-
-const UI_TEXT = {
-  noCoins: APP_CONFIG.UI_NO_COINS,
-  loadingCoins: APP_CONFIG.UI_LOAD_COINS,
-  compareTitle: APP_CONFIG.UI_COMPARE_TITLE,
-};
+const {UI_NO_COINS,UI_LOAD_COINS} = APP_CONFIG
 
 const CURRENCIES = {
   USD: { symbol: "$", label: "USD" },
@@ -36,7 +25,6 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
     : [];
 
   const favoriteSet = new Set(favoriteSymbols);
-  
   const compareSet = new Set(Array.isArray(compareSelection) ? compareSelection : []);
 
   const html = coins
@@ -54,7 +42,7 @@ container.html(html);
 export const showLoading = () => {
   const container = $("#coinsContainer");
   if (!container.length) return;
-  container.html(`${spinner(UI_TEXT.loadingCoins)}${skeleton("coins", 6)}`);
+  container.html(`${spinner(UI_LOAD_COINS)}${skeleton("coins", 6)}`);
 };
 
 // ===== FAVORITE ICON =====
@@ -80,14 +68,8 @@ export const showCoinDetails = (
   ChartRenderer.drawMiniChart(data.id);
 };
 
-const showReplaceModal = (
-  newSymbol,
-  existingCoins,
-  { maxCoins, onConfirm, onClose } = {}
-) => {
-  const modalHTML = replaceModal(newSymbol, existingCoins, {
-    maxCoins,
-  });
+const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, onClose } = {}) => {
+  const modalHTML = replaceModal(newSymbol, existingCoins, { maxCoins,});
   $("body").append(modalHTML);
   const modal = new bootstrap.Modal(document.getElementById("replaceModal"));
   modal.show();
@@ -96,7 +78,7 @@ const showReplaceModal = (
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
       if (!selectedToRemove)
-        return ErrorUI.showInfo("#replaceModalError", UI_TEXT.noCoins);
+        return ErrorUI.showInfo("#replaceModalError", UI_NO_COINS);
       typeof onConfirm === "function"
         ? onConfirm({ remove: selectedToRemove, add: newSymbol, modal })
         : modal.hide();
@@ -132,27 +114,23 @@ const buildCompareTable = (coins) =>
     <tbody>${coins.map(buildCompareRow).join("")}</tbody>
   </table>`;
 
-const showCompareModal = (
-  coins,
-  { missingSymbols = [], title, onClose } = {}
-) => {
+const showCompareModal = (coins,{ missingSymbols = [], title, onClose } = {}) => {
   const content = buildCompareTable(coins);
   const modalHTML = compareModal(content, {
-    title: title || UI_TEXT.compareTitle,
+    title: title || UI_NO_COINS
   });
+
   $("body").append(modalHTML);
   const modal = new bootstrap.Modal(document.getElementById("compareModal"));
 
   if (missingSymbols.length)
-    ErrorUI.showInfo(
-      "#compareModalMessage",
-      ERRORS.MISSING_DATA(missingSymbols.join(", ")),
-      "warning"
-    );
-  $("#compareModal").on("hidden.bs.modal", () => {
-    $("#compareModal").remove();
-    onClose?.();
+    ErrorUI.showInfo("#compareModalMessage",ERRORS.MISSING_DATA(missingSymbols.join(", ")),
+  "warning");
+
+  $("#compareModal").on("hidden.bs.modal", () => {$("#compareModal").remove();
+   onClose?.();
   });
+
   modal.show();
   return modal;
 };
@@ -169,7 +147,7 @@ export const updateToggleStates = (selectedReports) => {
 
 export const getCompareSelection = () =>
   $(".compare-row-active")
-    .map((_, el) => String($(el).data("id")))
+    .map((_,  el) => String($(el).data("id")))
     .get();
 const setCompareHighlight = (coinId, isActive) => {
   const $rows = $(`.compare-row[data-id="${String(coinId)}"]`);

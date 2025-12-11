@@ -1,4 +1,4 @@
-import { CONFIG_CHART } from "../config/app-config.js";
+import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { displayCoins,getCompareSelection,clearCompareHighlights,showLoading } from "../ui/coin-ui.js";
 import { NewsUI } from "../ui/news-ui.js";
@@ -15,7 +15,6 @@ import { ErrorUI } from "../ui/error-ui.js";
 const {
   CACHE_COINS_REFRESH_MS,
   REPORTS_COMPARE_MAX,
-  CHART_POINTS,
   ABOUT_NAME,
   ABOUT_IMAGE,
   ABOUT_LINKEDIN,
@@ -25,7 +24,8 @@ const {
   NEWS_STATUS_FALLBACK_FAV,
   NEWS_LOAD_GEN,
   NEWS_LOAD_FAV,
-} = CONFIG_CHART;
+} = APP_CONFIG;
+const { CHART_POINTS } = CONFIG_CHART;
 
 
 // ===== LOADING STATE =====
@@ -144,7 +144,7 @@ const loadNews = async (mode = "general") => {
 
   const {
     ok,
-    articles,
+    data,
     usedFallback,
     code,
     errorMessage,
@@ -165,7 +165,7 @@ const loadNews = async (mode = "general") => {
     NewsUI.updateNewsStatus(fallback);
   }
 
-  NewsUI.showNews(articles);
+  NewsUI.showNews(data);
 };
 
 export const showNewsPage = async () => {

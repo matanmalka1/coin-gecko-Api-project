@@ -13,6 +13,10 @@ const showSpinner = (container, message) => {
   if (el.length) el.html(spinner(message));
 };
 
+const toggleClearButton = (visible) => {
+  $("#clearSearchBtn").toggleClass("d-none", !visible);
+};
+
 // Opens/closes a collapse region with a smooth slide animation.
 const toggleCollapse = (collapseId, show) => {
   const element = $(`#${collapseId}`);
@@ -65,4 +69,5 @@ export const BaseUI = {
   toggleCollapse,
   setFavoritesButtonLabel,
   renderStatsBar,
+  toggleClearButton,
 };

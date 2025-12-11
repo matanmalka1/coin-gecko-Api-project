@@ -5,6 +5,7 @@ import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { CoinUI } from "../ui/coin-ui.js";
 import { renderCoins } from "../controllers/pages-controller.js";
+import { BaseUI } from "../ui/base-ui.js";
 const { REPORTS_COMPARE_MAX } = APP_CONFIG;
 
 const {
@@ -17,7 +18,6 @@ const {
 } = CoinUI;
 
 let eventsRegistered = false;
-let compareModalOpen = false;
 
 const setCompareSelection = (ids) => {
   clearCompareHighlights();
@@ -47,7 +47,7 @@ export const updateCompareIndicator = (selected = getCompareSelection()) => {
 
 const handleFilterReports = () => {
   const { ok, code, data } = filterSelectedCoins();
-  $("#clearSearchBtn").removeClass("d-none");
+  BaseUI.toggleClearButton(true);
 
   if (!ok) {
     ErrorUI.showError("#coinsContainer", code, {
@@ -85,8 +85,7 @@ const handleCoinToggle = function () {
 };
 
 const handleCompareClick = async function () {
-  if (compareModalOpen) return;
-
+  if ($("#compareModal").length) return;
   const coinId = String($(this).data("id"));
   const coinExists = getAllCoins().some((coin) => String(coin.id) === coinId);
   if (!coinExists) {
@@ -126,13 +125,11 @@ const handleCompareClick = async function () {
     return;
   }
 
-  compareModalOpen = true;
   showCompareModal(coins, {
     missingSymbols: missing,
     onClose: () => {
       const previousSelection = getCompareSelection();
       resetCompareSelection();
-      compareModalOpen = false;
       updateCompareIndicator();
     },
   });
