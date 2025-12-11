@@ -15,7 +15,7 @@ let isShowingFavoritesOnly = false;
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
   const searchTerm = $("#searchInput").val();
-  const { ok, code, term, data, favorites } = searchCoin(searchTerm);
+  const { ok, code, term, data, } = searchCoin(searchTerm);
 
   $("#clearSearchBtn").removeClass("d-none");
 
@@ -27,14 +27,12 @@ const handleSearch = () => {
     return;
   }
 
-  renderCoins(data, { favorites });
+  renderCoins(data);
 };
 
 const handleClearSearch = () => {
   $("#searchInput").val("");
-  renderCoins(getAllCoins(), {
-    favorites: StorageHelper.getFavorites(),
-  });
+  renderCoins(getAllCoins());
 };
 
 const handleFavoriteToggle = (e) => {
@@ -111,8 +109,7 @@ const handleShowFavorites = () => {
 
 const handleSortChange = () => {
   const { data } = sortCoins($("#sortSelect").val());
-  const { favorites } = StorageHelper.getUIState();
-  renderCoins(data, { favorites });
+  renderCoins(data);
 };
 
 const handleRefreshCoins = (e) => {

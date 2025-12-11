@@ -9,12 +9,9 @@ import {
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "./error-ui.js";
-import {
-  formatPrice,
-  formatLargeNumber,
-  formatPercent,
-} from "../utils/general-utils.js";
+import {formatPrice,formatLargeNumber,formatPercent,} from "../utils/general-utils.js";
 import { ChartRenderer } from "./chart-renderer.js";
+
 
 const UI_TEXT = {
   noCoins: APP_CONFIG.UI_NO_COINS,
@@ -28,19 +25,9 @@ const CURRENCIES = {
   ILS: { symbol: "₪", label: "ILS" },
 };
 
-export const displayCoins = (
-  coins,
-  selectedReports = [],
-  { favorites = [], emptyMessage, compareSelection = [] } = {}
-) => {
+export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, compareSelection } = {}) => {
   const container = $("#coinsContainer");
   if (!container.length) return;
-
-  const selectedSymbols = Array.isArray(selectedReports)
-    ? selectedReports
-    : Array.isArray(selectedReports?.selected)
-    ? selectedReports.selected
-    : [];
 
   const favoriteSymbols = Array.isArray(favorites)
     ? favorites
@@ -48,27 +35,21 @@ export const displayCoins = (
     ? favorites.favorites
     : [];
 
-  if (!coins.length)
-    return ErrorUI.showInfo(container, emptyMessage || UI_TEXT.noCoins);
+  const favoriteSet = new Set(favoriteSymbols);
+  
+  const compareSet = new Set(Array.isArray(compareSelection) ? compareSelection : []);
 
-  const compareSet = new Set(
-    Array.isArray(compareSelection)
-      ? compareSelection.map((id) => String(id))
-      : []
-  );
+  const html = coins
+    .map((coin) =>
+      coinCard(coin, selectedReports.includes(coin.symbol), {
+        isFavorite: favoriteSet.has(coin.symbol),
+        isInCompare: compareSet.has(String(coin.id)), 
+      })
+    )
+    .join("");
 
-  container.html(
-    coins
-      .map((coin) =>
-        coinCard(coin, selectedSymbols.includes(coin.symbol), {
-          isFavorite: favoriteSymbols.includes(coin.symbol),
-          isInCompare: compareSet.has(String(coin.id)),
-        })
-      )
-      .join("")
-  );
+container.html(html);
 };
-
 // ===== LOADING STATE =====
 export const showLoading = () => {
   const container = $("#coinsContainer");

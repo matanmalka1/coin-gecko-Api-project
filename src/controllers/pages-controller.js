@@ -66,12 +66,15 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   $compareStatus.addClass("d-none").empty();
   clearCompareHighlights();
 
-  getAllCoins().length ? renderCoins(getAllCoins()) : showLoading();
+  const coins = getAllCoins();
 
+  coins.length > 0 ? renderCoins(coins) : showLoading();
+  
+  const lastUpdated = getCoinsLastUpdated()
   const isCacheExpired =
-    !getCoinsLastUpdated() || Date.now() - getCoinsLastUpdated() >= CACHE_COINS_REFRESH_MS;
+    !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
 
-  if (getAllCoins().length && !forceRefresh && !isCacheExpired) {
+  if (coins.length > 0 && !forceRefresh && !isCacheExpired) {
     isLoadingCoins = false;
     return;
   }

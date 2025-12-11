@@ -1,21 +1,16 @@
 import { filterSelectedCoins, getAllCoins } from "../services/coins-service.js";
-import {
-  toggleCoinSelection,
-  replaceReport,
-  getCompareData,
-} from "../services/reports-service.js";
+import {toggleCoinSelection,replaceReport,getCompareData,} from "../services/reports-service.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { CoinUI } from "../ui/coin-ui.js";
-
+import { renderCoins } from "../controllers/pages-controller.js";
 const { REPORTS_COMPARE_MAX } = APP_CONFIG;
 
 const {
   setCompareHighlight,
   clearCompareHighlights,
   getCompareSelection,
-  displayCoins,
   showReplaceModal,
   updateToggleStates,
   showCompareModal,
@@ -51,15 +46,16 @@ export const updateCompareIndicator = (selected = getCompareSelection()) => {
 };
 
 const handleFilterReports = () => {
-  const { ok, code, data, selected, favorites } = filterSelectedCoins();
+  const { ok, code, data } = filterSelectedCoins();
   $("#clearSearchBtn").removeClass("d-none");
+
   if (!ok) {
     ErrorUI.showError("#coinsContainer", code, {
       defaultMessage: ERRORS.NONE_SELECTED,
     });
     return;
   }
-  displayCoins(data, selected, { favorites });
+  renderCoins(data);
 };
 
 const openReplaceFlow = ({ newSymbol, existing, limit }) => {

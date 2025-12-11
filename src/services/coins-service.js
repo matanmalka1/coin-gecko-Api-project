@@ -78,43 +78,35 @@ export const sortCoins = (sortType) => {
 
   setCache(COINS_CACHE_KEY, sorted);
 
-  return {
-    ok: true,
-    data: sorted,
-    ...StorageHelper.getUIState(),
-  };
+return { ok: true, data: sorted }
 };
 
 export const searchCoin = (term) => {
-  const trimmed = (term || "").trim();
+const cleanTerm = String(term || "").trim().toLowerCase();
 
-  if (!trimmed) return { ok: false, code: "EMPTY_TERM" };
-  if (trimmed.length < MIN_LENGTH)
-    return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
-  if (trimmed.length > MAX_LENGTH)
-    return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
-  if (ALLOWED_PATTERN && !ALLOWED_PATTERN.test(trimmed))
-    return { ok: false, code: "INVALID_TERM" };
+  if (!cleanTerm) {return { ok: false, code: "EMPTY_TERM" };}
+  if (cleanTerm.length < MIN_LENGTH) {return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
+}
+  if (cleanTerm.length > MAX_LENGTH) {return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
+}
+  if (ALLOWED_PATTERN && !ALLOWED_PATTERN.test(cleanTerm)) {return { ok: false, code: "INVALID_TERM" };
+}
 
   const allCoins = getAllCoins();
   if (!allCoins.length) return { ok: false, code: "LOAD_WAIT" };
 
-  const searchTerm = trimmed.replace(/\s+/g, " ").toLowerCase();
   const filteredCoins = allCoins.filter((coin) => {
-    const symbolMatch =
-      coin.symbol?.toLowerCase().includes(searchTerm) ?? false;
-    const nameMatch = coin.name?.toLowerCase().includes(searchTerm) ?? false;
+  const symbolMatch = coin.symbol?.toLowerCase().includes(cleanTerm) ?? false;
+  const nameMatch = coin.name?.toLowerCase().includes(cleanTerm) ?? false;
     return symbolMatch || nameMatch;
   });
 
-  if (!filteredCoins.length) {
-    return { ok: false, code: "NO_MATCH", term: trimmed };
-  }
+  if (!filteredCoins.length) {return { ok: false, code: "NO_MATCH", term: cleanTerm };
+}
 
   return {
     ok: true,
     data: filteredCoins,
-    ...StorageHelper.getUIState(),
   };
 };
 
@@ -144,6 +136,5 @@ export const filterSelectedCoins = () => {
   return {
     ok: true,
     data: filtered,
-    ...StorageHelper.getUIState(),
   };
 };
