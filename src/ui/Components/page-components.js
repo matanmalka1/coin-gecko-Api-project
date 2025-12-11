@@ -12,19 +12,28 @@ const {
 
 // Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `
-  <div id="searchArea" class="my-4 text-center">
-    <input type="text" id="searchInput" class="form-control-md w-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
-    <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
-    <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites</button>
-    <button type="button" id="clearSearchBtn" class="btn btn-light mx-2">Clear</button>
-    <button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2"><i class="bi bi-arrow-clockwise"></i></button>
+  <div id="searchArea" class="my-4 d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-center gap-2">
+    <div class="flex-grow-1 d-flex justify-content-center justify-content-md-end">
+      <input type="text" id="searchInput" class="form-control-md w-100 w-md-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
+    </div>
+    <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
+      <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
+      <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites</button>
+      <button type="button" id="clearSearchBtn" class="btn btn-light mx-2">Clear</button>
+      <button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2"><i class="bi bi-arrow-clockwise"></i></button>
+    </div>
   </div>
-  <div id="sortArea" class="my-3">
-    <select id="sortSelect" class="form-select w-auto d-inline-block">
-      <option value="marketcap_desc">Top Coins (Default)</option><option value="marketcap_asc">Market Cap ↑</option>
-      <option value="price_desc">Price ↓</option><option value="price_asc">Price ↑</option>
-      <option value="volume_high">Volume High</option><option value="volume_low">Volume Low</option></select></div>
-  <div id="compareStatus" class="d-none mb-3"></div><div id="coinsContainer" class="row g-3"></div>`;
+
+    <div id="sortArea" class="my-3">
+      <select id="sortSelect" class="form-select w-auto d-inline-block">
+        <option value="marketcap_desc">Top Coins (Default)</option><option value="marketcap_asc">Market Cap ↑</option>
+        <option value="price_desc">Price ↓</option><option value="price_asc">Price ↑</option>
+        <option value="volume_high">Volume High</option><option value="volume_low">Volume Low</option>
+      </select>
+     </div>
+     
+  <div id="compareStatus" class="d-none mb-3"></div>
+  <div id="coinsContainer" class="row g-3"></div>`;
 
 // Builds the container for the live reports (charts) page.
 const reportsPage = () => `
@@ -76,23 +85,17 @@ const newsPage = () => `
         <div class="col-lg-7">
           <p class="text-uppercase small mb-2 text-white-50">Live feed</p>
           <h1 class="display-5 fw-bold text-white mb-3">Stay ahead with curated crypto headlines</h1>
-          
           <p class="text-white-75 mb-4">
             Filter between global coverage or insights tailored to your favorite coins. Updated continuously through the last 5 hours.
           </p>
-          
           <div class="d-flex flex-wrap gap-2">
             <button type="button" class="btn  px-3 py-2 rounded-2 active" id="newsGeneralBtn">              
               <i class="bi bi-globe2 me-2"></i>General
             </button>
-
             <button type="button" class="btn  px-3 py-2 rounded-2" id="newsFavoritesBtn">
               <i class="bi bi-star me-2"></i>Favorites
             </button>
-            
-            <div class="badge bg-white text-dark fw-semibold">
-              <i class="bi bi-clock-history me-1"></i> 5h freshness
-            </div>
+            <div class="badge bg-white text-dark fw-semibold"><i class="bi bi-clock-history me-1"></i> 5h freshness</div>
           </div>
         </div>
 
@@ -109,7 +112,7 @@ const newsPage = () => `
         </div>
       </div>
     </div>
-      </section>
+</section>
 
       <div class="container">
         <div id="newsList" class="row g-4"></div>
@@ -132,28 +135,23 @@ export const newsArticleCard = (article) => {
               ? `<img src="${image}" class="card-img-top h-100 w-100 object-fit-cover rounded-top"/>`
               : `<div class="bg-secondary-subtle h-100 w-100 rounded-top d-flex align-items-center justify-content-center text-muted">
                   <i class="bi bi-image"></i>
-                </div>`
-          }
+                </div>`}
         </div>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title mb-3">
             <a href="${original_url || url || "#"}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${title || "Untitled"}</a>
           </h5>
           <div class="d-flex justify-content-between align-items-center mb-3 text-muted">
-            <span class="badge text-bg-light">
-              <i class="bi bi-newspaper"></i> ${source?.title || source?.domain || "Unknown source"}
-            </span>
-            <small class="text-muted">
-              <i class="bi bi-clock"></i> ${publishedDate}
-            </small>
-          </div>
-          ${
-            shortenText(description, NEWS_DESC_MAX)
+          <span class="badge text-bg-light">
+                <i class="bi bi-newspaper"></i> ${source?.title || source?.domain || "Unknown source"}
+          </span>
+          <small class="text-muted"><i class="bi bi-clock"></i> ${publishedDate}</small>
+        </div>
+          ${shortenText(description, NEWS_DESC_MAX)
               ? `<p class="card-text flex-grow-1 mb-0">${shortenText(description,NEWS_DESC_MAX)}</p>`
               : `<p class="card-text flex-grow-1 mb-0 fst-italic">No description available.</p>`
           }
-          <a href="${original_url || url || "#"}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a>
-        </div>
+          <a href="${original_url || url || "#"}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a></div>
       `,
       "col-12 col-md-6 col-lg-4 d-flex",
       "card news-card h-100 shadow-sm border-0"
