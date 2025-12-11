@@ -14,7 +14,7 @@ const {
 const currenciesPage = () => `
   <div id="searchArea" class="my-4 d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-center gap-2">
     <div class="flex-grow-1 d-flex justify-content-center justify-content-md-end">
-      <input type="text" id="searchInput" class="form-control-md w-100 w-md-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
+      <input type="text" id="searchInput" class="w-100 w-md-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
     </div>
     <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
       <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
@@ -25,7 +25,7 @@ const currenciesPage = () => `
   </div>
 
     <div id="sortArea" class="my-3">
-      <select id="sortSelect" class="form-select w-auto d-inline-block">
+      <select class="form-select w-auto d-inline-block">
         <option value="marketcap_desc">Top Coins (Default)</option><option value="marketcap_asc">Market Cap ↑</option>
         <option value="price_desc">Price ↓</option><option value="price_asc">Price ↑</option>
         <option value="volume_high">Volume High</option><option value="volume_low">Volume Low</option>
@@ -79,44 +79,20 @@ const aboutPage = (userData = {}) => {
 
 // News landing page hero + list container (general/favorites modes).
 const newsPage = () => `
-<section class="news-hero mb-2 py-3 rounded-3">
-    <div class="container">
-      <div class="row gy-4 align-items-center">
-        <div class="col-lg-7">
-          <p class="text-uppercase small mb-2 text-white-50">Live feed</p>
-          <h1 class="display-5 fw-bold text-white mb-3">Stay ahead with curated crypto headlines</h1>
-          <p class="text-white-75 mb-4">
-            Filter between global coverage or insights tailored to your favorite coins. Updated continuously through the last 5 hours.
-          </p>
-          <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn  px-3 py-2 rounded-2 active" id="newsGeneralBtn">              
-              <i class="bi bi-globe2 me-2"></i>General
-            </button>
-            <button type="button" class="btn  px-3 py-2 rounded-2" id="newsFavoritesBtn">
-              <i class="bi bi-star me-2"></i>Favorites
-            </button>
-            <div class="badge bg-white text-dark fw-semibold"><i class="bi bi-clock-history me-1"></i> 5h freshness</div>
-          </div>
-        </div>
-
-          <div class="col-lg-5">
-            <div class="card news-card h-100 shadow-sm border-0 rounded-3">
-              <div class="d-flex align-items-center justify-content-between mb-3">
-                <span class="text-uppercase small text-muted">Status</span>
-                <span class="badge text-bg-light">
-                  <i class="bi bi-info-circle me-1"></i>Live monitor
-              </span>
+    <div class="news-hero mb-2 py-3 rounded-3">
+          <div class="row gy-4 ">
+            <div class="col-lg-7">
+              <h1 class="fw-bold">Stay ahead with curated crypto headlines</h1>
+              <p>Filter between global coverage or insights tailored to your favorite coins. Updated continuously through the last 5 hours.</p>
+              <div class="d-flex flex-wrap">
+                <button type="button" class="btn px-3 py-2 rounded-2 active" id="newsGeneralBtn"><i class="bi bi-globe2 me-2"></i>General</button>
+                <button type="button" class="btn  px-3 py-2 rounded-2" id="newsFavoritesBtn"><i class="bi bi-star me-2"></i>Favorites</button>
+              </div>
             </div>
-                <p id="newsStatus" class="mb-0 text-white-75">${NEWS_STATUS_GEN}</p>
+            <div class="col-lg-5"><i class="bi bi-info-circle me-1"></i>Live monitor 5H freshness</div>
           </div>
-        </div>
-      </div>
     </div>
-</section>
-
-      <div class="container">
-        <div id="newsList" class="row g-4"></div>
-      </div>
+    <div id="newsList" class="row g-4"></div>
 `;
 
 // Generates a single article card including metadata and CTA link.

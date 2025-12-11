@@ -48,14 +48,9 @@ a {
   text-decoration: none;
   transition: color 0.2s ease;
 }
-
 a:hover {
   color: var(--color-link-hover);
   text-decoration: underline;
-}
-
-a:visited {
-  color: var(--color-link);
 }
 
 /* ===== NAVBAR ===== */
@@ -78,8 +73,7 @@ header.parallax {
 /* ===== CONTENT AREAS ===== */
 #searchArea,
 #sortArea {
-  background-color: transparent;
-  padding: 1rem;
+  padding: 0.5rem;
 }
 
 .compare-row-active {
@@ -87,31 +81,9 @@ header.parallax {
   padding: 0.35rem 0.75rem;
   background-color: rgba(13, 110, 253, 0.05);
 }
-
 .card.compare-card-active {
   border-color: #0d6efd;
   box-shadow: 0 0 15px rgba(13, 110, 253, 0.2);
-}
-
-#aboutSection {
-  color: var(--color-text);
-}
-
-/* ===== FORMS ===== */
-#sortSelect,
-.form-control,
-.form-select {
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
-  border: 2px solid var(--color-border);
-}
-
-.form-control:focus,
-.form-select:focus {
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 /* ===== TOGGLE SWITCH ===== */
@@ -120,30 +92,14 @@ header.parallax {
   height: 1.6rem;
 }
 
-.form-switch .form-check-input:checked {
-  background-size: contain;
-}
-
 /* ===== CARDS ===== */
 .card {
-  background-color: var(--color-card-bg);
   color: var(--color-text);
-  border: 1px solid var(--color-border);
 }
 
 .card:hover,
 .news-card:hover {
   transform: translateY(-5px);
-}
-
-.news-hero {
-  background-color: var(--color-card-bg);
-  border-color: var(--color-border);
-}
-
-/* ===== NEWS HERO ===== */
-.news-hero {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #0a58ca 100%);
 }
 
 /* ===== COIN IMAGES ===== */
@@ -168,15 +124,7 @@ header.parallax {
   transform: scale(1.15);
 }
 
-.collapse {
-  background-color: transparent;
-}
-
-/* ===== MORE INFO & PRICE BADGE ===== */
-.more-info-content {
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-}
+/* ===== MORE INFO & PRICE BADGE & CHART===== */
 
 .price-badge {
   background-color: var(--color-input-bg);
@@ -190,7 +138,6 @@ header.parallax {
   transform: translateX(5px);
 }
 
-/* ===== CHART ===== */
 .mini-chart-container {
   height: 220px;
   background: var(--color-white);
@@ -271,4 +218,6 @@ header.parallax {
 #aboutSection img:hover {
   transform: scale(1.05);
 }
-
+#aboutSection {
+  color: var(--color-text);
+}

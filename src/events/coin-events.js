@@ -15,8 +15,7 @@ let isShowingFavoritesOnly = false;
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
   const searchTerm = $("#searchInput").val();
-  const { ok, code, term, data, favorites } =
-   searchCoin(searchTerm);
+  const { ok, code, term, data, favorites } = searchCoin(searchTerm);
 
   $("#clearSearchBtn").removeClass("d-none");
 
@@ -48,7 +47,7 @@ const handleFavoriteToggle = (e) => {
     StorageHelper.addFavorite(coinSymbol);
   }
 
-updateFavoriteIcon(coinSymbol, !alreadyFavorite);
+  updateFavoriteIcon(coinSymbol, !alreadyFavorite);
 
   if (isShowingFavoritesOnly) {
     renderFavoritesList();
@@ -81,9 +80,7 @@ const handleMoreInfo = async (e) => {
   BaseUI.toggleCollapse(collapseId, true);
 
   try {
-    const { ok, data, status, error } = await getCoinDetails(
-      coinId
-    );
+    const { ok, data, status, error } = await getCoinDetails(coinId);
 
     if (!ok || !data) {
       ErrorUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
@@ -113,7 +110,7 @@ const handleShowFavorites = () => {
 };
 
 const handleSortChange = () => {
-  const { data } = sortCoins($("#sortSelect").val());
+  const { data } = sortCoins($(".sortSelect").val());
   const { favorites } = StorageHelper.getUIState();
   renderCoins(data, { favorites });
 };
@@ -136,7 +133,7 @@ const setupEventListeners = () => {
     .on("click", "#refreshCoinsBtn", handleRefreshCoins)
     .on("click", ".favorite-btn", handleFavoriteToggle)
     .on("click", ".more-info", handleMoreInfo)
-    .on("change", "#sortSelect", handleSortChange);
+    .on("change", ".sortSelect", handleSortChange);
 
   isRegistered = true;
 };
