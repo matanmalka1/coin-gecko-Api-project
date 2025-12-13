@@ -13,19 +13,10 @@ export const fetchWithRetry = async (url, options = {}, retries = 1) => {
         return fetchWithRetry(url, options, retries - 1);
       }
 
-      if (status === 429) {
-        return {
-          ok: false,
-          code: "RATE_LIMIT",
-          error: ERRORS.RATE_LIMIT,
-          status,
-        };
-      }
-
       return {
         ok: false,
-        code: "HTTP_ERROR",
-        error: ERRORS.HTTP_STATUS(status),
+        code: status === 429 ? "RATE_LIMIT" : "HTTP_STATUS",
+        error: status === 429 ? ERRORS.RATE_LIMIT : ERRORS.HTTP_STATUS(status),
         status,
       };
     }

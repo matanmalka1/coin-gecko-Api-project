@@ -33,20 +33,13 @@ const getNotyf = () => {
   return notyf;
 };
 
-const showError = (target, code, context = {}) => {
+const showError = (target, code, context = {}) => {  
   const message = ErrorResolver.resolve(code, context);
   const $target = typeof target === "string" ? $(target) : $(target);
   $target.html(buildAlert("danger", message));
 
   if (context.silentToast) return;
-
-  const toastMessage =
-    context.toastMessage ||
-    (typeof message === "string"
-      ? message
-      : message?.message || "An unexpected error occurred");
-
-  getNotyf().error(toastMessage);
+  getNotyf().error(message);
 };
 
 const showInfo = (target, message, type = "info") => {

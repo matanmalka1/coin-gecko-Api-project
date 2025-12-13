@@ -42,73 +42,23 @@ export const ERRORS = {
   GENERIC: "An error occurred. Please try again.",
 };
 
-// ===== RESOLVER (לשעבר error-resolver.js) =====
-const HANDLERS = {
-  // Search / input
-  EMPTY_TERM: () => ERRORS.EMPTY_TERM,
-  LOAD_WAIT: () => ERRORS.LOAD_WAIT,
-  NO_MATCH: ({ term }) => ERRORS.NO_MATCH(term),
-  TERM_TOO_SHORT: ({ min }) => ERRORS.TERM_TOO_SHORT(min),
-  TERM_TOO_LONG: ({ limit }) => ERRORS.TERM_TOO_LONG(limit),
-  INVALID_TERM: () => ERRORS.INVALID_TERM,
-
-  // API-level errors
-  COIN_LIST_ERROR: ({ defaultMessage, status }) =>
-    defaultMessage ||
-    (status ? ERRORS.REQUEST_FAILED(status) : null) ||
-    ERRORS.COIN_LIST_ERROR,
-  COIN_DETAILS_ERROR: ({ defaultMessage, status }) =>
-    defaultMessage ||
-    (status ? ERRORS.REQUEST_FAILED(status) : null) ||
-    ERRORS.COIN_DETAILS_ERROR,
-  LIVE_CHART_ERROR: ({ defaultMessage, status }) =>
-    defaultMessage ||
-    (status ? ERRORS.REQUEST_FAILED(status) : null) ||
-    ERRORS.LIVE_CHART_ERROR,
-  HTTP_ERROR: ({ status, defaultMessage }) =>
-    status
-      ? ERRORS.REQUEST_FAILED(status)
-      : defaultMessage || ERRORS.DEFAULT,
-  RATE_LIMIT: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.RATE_LIMIT || ERRORS.DEFAULT,
-  NETWORK_ERROR: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.NETWORK_ERROR || ERRORS.DEFAULT,
-  NO_SYMBOLS: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.NO_SYMBOLS || ERRORS.DEFAULT,
-
-  // Reports / compare
-  NONE_SELECTED: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.NONE_SELECTED,
-  LIMIT: ({ limit, defaultMessage }) =>
-    defaultMessage || ERRORS.LIMIT(limit),
-  COMPARE_FULL: ({ limit, defaultMessage }) =>
-    defaultMessage || ERRORS.COMPARE_FULL(limit),
-  INVALID_SYMBOL: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.INVALID_SYMBOL,
-  DUPLICATE: ({ defaultMessage }) => defaultMessage || ERRORS.DUPLICATE,
-  NOT_FOUND: ({ defaultMessage }) => defaultMessage || ERRORS.NOT_FOUND,
-  NO_DATA: ({ defaultMessage }) => defaultMessage || ERRORS.NO_DATA,
-  NO_COIN_ID: ({ defaultMessage }) => defaultMessage || ERRORS.NO_DATA,
-  MISSING_DATA: ({ symbols, defaultMessage }) =>
-    defaultMessage || ERRORS.MISSING_DATA(symbols || ""),
-  REPLACE_SELECTION_REQUIRED: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.REPLACE_SELECTION_REQUIRED,
-
-  // News
-  NEWS_ERROR: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.NEWS_ERROR || ERRORS.DEFAULT,
-  NEWS_HTTP_ERROR: ({ status, defaultMessage }) =>
-    defaultMessage ||
-    (status ? ERRORS.REQUEST_FAILED(status) : ERRORS.NEWS_ERROR),
-  NO_FAVORITES: ({ defaultMessage }) =>
-    defaultMessage || ERRORS.NO_FAVORITES,
-};
-
+// ===== RESOLVER =====
 export const ErrorResolver = {
-  resolve(code, options = {}) {
-    const handler = HANDLERS[code];
-    return handler
-      ? handler(options)
-      : options.defaultMessage || ERRORS.DEFAULT;
+  resolve(code, context = {}) {    
+    const error = ERRORS[code];
+    if (context.defaultMessage) {return context.defaultMessage;}
+
+    if (!error) {
+      console.warn(`Unknown error code: ${code}`);
+      return context.defaultMessage || ERRORS.DEFAULT;
+    }
+
+    if (typeof error === "function") {
+      const param = context.term || context.limit || context.max || 
+                    context.min || context.symbols || context.status;
+      const result = error(param);
+      return result;
+    }
+    return error;
   },
 };

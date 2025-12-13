@@ -65,7 +65,7 @@ const fetchLivePrices = async (symbols) => {
   );
 
   if (!ok || !data) {
-    return { ok: false, code: "LIVE_CHART_ERROR", error, status };
+    return {ok: false,code: "LIVE_CHART_ERROR",error: error || ERRORS.LIVE_CHART_ERROR,status,};
   }
 
   const candlesBySymbol = updateSeriesFromPrices(symbols, data);

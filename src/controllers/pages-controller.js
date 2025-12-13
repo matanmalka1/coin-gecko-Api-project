@@ -83,10 +83,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     const { ok, data, code, error, status } = await loadAllCoins();
 
     if (!ok) {
-      ErrorUI.showError("#coinsContainer", code || "COIN_LIST_ERROR", {
-        status,
-        defaultMessage: error,
-      });
+      ErrorUI.showError("#coinsContainer", code || "COIN_LIST_ERROR", {status, defaultMessage: error,});
       return;
     }
 
@@ -147,17 +144,14 @@ const loadNews = async (mode = "general") => {
     data,
     usedFallback,
     code,
-    errorMessage,
+    error,
     status: httpStatus,
   } = isFavorites
     ? await getNewsForFavorites(StorageHelper.getFavorites())
     : await getGeneralNews();
 
   if (!ok) {
-    ErrorUI.showError("#newsList", code || "NEWS_ERROR", {
-      defaultMessage: errorMessage || ERRORS.NEWS_ERROR,
-      status: httpStatus,
-    });
+    ErrorUI.showError("#newsList", code || "NEWS_ERROR", {defaultMessage: error,status: httpStatus,});
     return;
   }
 

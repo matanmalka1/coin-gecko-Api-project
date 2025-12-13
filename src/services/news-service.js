@@ -42,15 +42,15 @@ const fetchNews = async (cacheKey, params = {}) => {
         `${NEWS_URL}?apikey=${NEWS_KEY}`+ (NEWS_LANG ? `&language=${NEWS_LANG}` : "") + `&q=${query}`
       );
 
-      if (!ok || !data) {return {ok: false,code: "NEWS_HTTP_ERROR",status,error,};}
+      if (!ok || !data) {return {ok: false,code: "NEWS_ERROR",status,error: error || ERRORS.NEWS_ERROR,};}
 
-  const normalized = (data.results || []).map(normalizeArticle);
-  return { ok: true, data: normalized, status };
+      const normalized = (data.results || []).map(normalizeArticle);
+      return { ok: true, data: normalized, status };
     },
     NEWS_TTL
   );
 
-  if (!ok) {return {ok: false,code: "NEWS_HTTP_ERROR",status,errorMessage: (status ? ERRORS.HTTP_STATUS(status) : error) || ERRORS.DEFAULT,};
+  if (!ok) {return {ok: false,code: "NEWS_ERROR",status,error: error || ERRORS.NEWS_ERROR,};
   }
 
   return buildNewsResponse(Array.isArray(data) ? data : []);
@@ -61,7 +61,7 @@ export const getGeneralNews = () => fetchNews(NEWS_CACHE_GEN);
 
 export const getNewsForFavorites = (favoriteSymbols = []) => {
   if (!favoriteSymbols || favoriteSymbols.length === 0) {
-    return {ok: false, code: "NO_FAVORITES", errorMessage: ERRORS.NO_FAVORITES,};
+    return {ok: false,code: "NO_FAVORITES",error: ERRORS.NO_FAVORITES,};
   }
 
   const unique = [

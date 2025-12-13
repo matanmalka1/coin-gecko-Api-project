@@ -83,7 +83,7 @@ return { ok: true, data: sorted }
 };
 
 export const searchCoin = (term) => {
-const cleanTerm = String(term || "").trim().toLowerCase();
+  const cleanTerm = String(term || "").trim().toLowerCase();
 
   if (!cleanTerm) {return { ok: false, code: "EMPTY_TERM" };}
   if (cleanTerm.length < MIN_LENGTH) {return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };

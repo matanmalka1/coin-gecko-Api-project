@@ -17,15 +17,11 @@ let isShowingFavoritesOnly = false;
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
   const searchTerm = $("#searchInput").val();
-  const { ok, code, term, data, } = searchCoin(searchTerm);
 
-  BaseUI.toggleClearButton(true); 
+  const { ok, code, term, data } = searchCoin(searchTerm);
+  BaseUI.toggleClearButton(true);
 
-  if (!ok) {
-    ErrorUI.showError("#coinsContainer", code, {
-      term,
-      defaultMessage: ERRORS.NO_MATCH(term || ""),
-    });
+  if (!ok) {ErrorUI.showError("#coinsContainer", code, { term });
     return;
   }
 
