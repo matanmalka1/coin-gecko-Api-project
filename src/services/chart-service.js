@@ -16,7 +16,7 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
   symbols.forEach((symbol) => {
     const sym = normalizeSymbol(symbol);
     const price = pricesBySymbol[sym].USD;
-    const candle = { time: now, open: price, high: price, low: price, close: price };
+    const candle = {time: now,open: price,high: price,low: price,close: price,};
     const series = liveCandlesBySymbol[sym] || [];
     liveCandlesBySymbol[sym] = [...series, candle].slice(-CHART_POINTS);
   });
@@ -27,7 +27,7 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
 const fetchLivePrices = async (symbols) => {
   const normalizedSymbols = symbols.map(normalizeSymbol);
 
- if (!normalizedSymbols.length) { return { ok: false, code: "NONE_SELECTED" };}
+  if (!normalizedSymbols.length) {return { ok: false, code: "NONE_SELECTED" };}
 
   if (!Object.keys(liveCandlesBySymbol).length) {
     const historyResults = await Promise.all(
@@ -37,12 +37,19 @@ const fetchLivePrices = async (symbols) => {
         const { ok, data, error, status } = await fetchWithRetry(`${CRYPTOCOMPARE_BASE}/histohour?fsym=${upper}&tsym=USD&limit=${24 * 7}`
         );
 
-        if (!ok || !data?.Data) {
+        if (!ok || !data?.Data || !Array.isArray(data.Data)) {
           return { symbol: upper, candles: [], ok: false, error, status };
         }
 
-        const candles = data.Data.map((point) => ({
-          time: point.time, 
+        const candles = data.Data.filter(
+          (point) =>
+            point &&
+            point.open !== null &&
+            point.high !== null &&
+            point.low !== null &&
+            point.close !== null
+        ).map((point) => ({
+          time: point.time,
           open: point.open,
           high: point.high,
           low: point.low,
@@ -98,9 +105,7 @@ export const startLiveChart = async (chartCallbacks = {}) => {
   const handleResult = (result) => {
     if (!result.ok) {
       chartCallbacks.onError?.({
-        code: result.code || "LIVE_CHART_ERROR",
-        status: result.status,
-        error: result.error,
+        code: result.code || "LIVE_CHART_ERROR",status: result.status,error: result.error,
       });
       return;
     }
