@@ -80,6 +80,7 @@ const addFavorite = (symbol) => {
   const favorites = getFavorites();
   if (!favorites.includes(symbol)) {
     writeJSON(KEY_FAVORITES, [...favorites, symbol]);}
+   
 };
 
 const removeFavorite = (symbol) => {

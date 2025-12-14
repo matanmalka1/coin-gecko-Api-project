@@ -131,7 +131,7 @@ const loadNews = async (mode = "general") => {
     : await getGeneralNews();
 
   if (!ok) {
-    ErrorUI.showError("#newsList", code || "NEWS_ERROR", {defaultMessage: error,status});
+    ErrorUI.showError("#newsList", code || "NEWS_ERROR", {defaultMessage: error, status});
     return;
   }
   NewsUI.showNews(data);

@@ -34,20 +34,30 @@ const getNotyf = () => {
 
 const showError = (target, code, context = {}) => {  
   const message = ErrorResolver.resolve(code, context);
-  const $target = typeof target === "string" ? $(target) : $(target);
-  $target.html(buildAlert("danger", message));
+  const target =  $(target);
+  target.html(buildAlert("danger", message));
 
   if (context.silentToast) return;
   getNotyf().error(message);
 };
 
 const showInfo = (target, message, type = "info") => {
-  const $target = typeof target === "string" ? $(target) : $(target);
-  $target.html(buildAlert(type, message));
+  const $target =  $(target);
+  target.html(buildAlert(type, message));
+};
+
+const showSuccess = (target, message, type = "success") => {
+  getNotyf().success(message);
+  
+  if (options.showAlert && options.target) {
+    const target =  $(options.target);
+    target.html(buildAlert("success", message));
+  }
 };
 
 export const ErrorUI = {
   showError,
   showInfo,
   buildAlert,
+  showSuccess
 };

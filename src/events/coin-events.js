@@ -43,6 +43,7 @@ const handleFavoriteToggle = (e) => {
     : StorageHelper.addFavorite(coinSymbol);
 
   updateFavoriteIcon(coinSymbol, !isFavorite);
+  
   if (isShowingFavoritesOnly) {
     renderFavoritesList();
   }
