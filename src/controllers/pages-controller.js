@@ -27,8 +27,6 @@ const {
 } = APP_CONFIG;
 const { CHART_POINTS } = CONFIG_CHART;
 
-
-// ===== LOADING STATE =====
 let isLoadingCoins = false;
 
 // ===== HELPERS =====
