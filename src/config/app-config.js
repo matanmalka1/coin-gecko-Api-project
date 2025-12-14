@@ -36,13 +36,6 @@ export const APP_CONFIG = {
   UI_FAV_HIDE: "All Coins",
 
   // ===== NEWS UI =====
-  NEWS_STATUS_GEN: "Showing general crypto news from the last 5 hours.",
-  NEWS_STATUS_FAV:
-    "Showing news for your favorite coins from the last 5 hours.",
-  NEWS_STATUS_FALLBACK_GEN:
-    "No articles from the last 5 hours. Showing latest available news.",
-  NEWS_STATUS_FALLBACK_FAV:
-    "No articles from the last 5 hours. Showing latest available favorites news.",
   NEWS_LOAD_GEN: "Loading news...",
   NEWS_LOAD_FAV: "Loading favorites news...",
   NEWS_DESC_MAX: 200,

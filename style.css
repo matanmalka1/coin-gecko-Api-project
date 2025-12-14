@@ -86,7 +86,6 @@ header.parallax {
   box-shadow: 0 0 15px rgba(13, 110, 253, 0.2);
 }
 
-
 /* ===== TOGGLE SWITCH ===== */
 .form-switch .form-check-input {
   width: 3.2rem;
@@ -112,16 +111,13 @@ header.parallax {
   transition: transform 0.2s ease;
 }
 
-.coin-image:hover {
-  transform: scale(1.1);
-}
-
 .coin-info-image {
   width: var(--size-coin-info);
   height: var(--size-coin-info);
 }
 
-.coin-info-image:hover {
+.coin-info-image:hover,
+.coin-image:hover {
   transform: scale(1.15);
 }
 
@@ -147,7 +143,6 @@ header.parallax {
   padding: 10px;
   border: 1px solid var(--color-border);
 }
-
 /* ===== SPINNERS & SKELETONS ===== */
 .spinner-border {
   border-width: 20px;
@@ -222,3 +217,4 @@ header.parallax {
 #aboutSection {
   color: var(--color-text);
 }
+

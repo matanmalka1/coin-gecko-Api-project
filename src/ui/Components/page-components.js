@@ -96,7 +96,7 @@ const newsPage = () => `
 
 // Generates a single article card including metadata and CTA link.
 export const newsArticleCard = (article) => {
-  const { title, description, published_at, source, original_url, url, image } =
+  const { title, description, published_at, source = {}, original_url, url, image } =
     article || {};
   const publishedDate = published_at
     ? new Date(published_at).toLocaleString()
@@ -106,7 +106,7 @@ export const newsArticleCard = (article) => {
         ${cardContainer(
         `
         <div class="ratio ratio-16x9 bg-light rounded-top">
-          <img src="${image || "images/2.jpeg"}" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"} loading ="lazy" />
+          <img src="${image || "images/2.jpeg"}" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"}" loading = "lazy" />
         </div>
         <div class="card-body d-flex flex-column">
             <h5 class="card-title mb-3">

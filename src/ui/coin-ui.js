@@ -18,6 +18,10 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
   const container = $("#coinsContainer");
   if (!container.length) return;
 
+   if (!coins || coins.length === 0) {
+    ErrorUI.showError(container, emptyMessage || UI_NO_COINS, "info");
+    return;
+  }
   const favoriteSymbols = Array.isArray(favorites)
     ? favorites
     : Array.isArray(favorites?.favorites)
@@ -27,8 +31,7 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
   const favoriteSet = new Set(favoriteSymbols);
   const compareSet = new Set(Array.isArray(compareSelection) ? compareSelection : []);
 
-  const html = coins
-    .map((coin) =>
+  const html = coins.map((coin) =>
       coinCard(coin, selectedReports.includes(coin.symbol), {
         isFavorite: favoriteSet.has(coin.symbol),
         isInCompare: compareSet.has(String(coin.id)), 

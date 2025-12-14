@@ -36,16 +36,13 @@ const handleClearSearch = () => {
 
 const handleFavoriteToggle = (e) => {
   const coinSymbol = $(e.currentTarget).data("symbol");
-  const alreadyFavorite = StorageHelper.isFavorite(coinSymbol);
+  const isFavorite = StorageHelper.isFavorite(coinSymbol);
 
-  if (alreadyFavorite) {
-    StorageHelper.removeFavorite(coinSymbol);
-  } else {
-    StorageHelper.addFavorite(coinSymbol);
-  }
+  isFavorite 
+    ? StorageHelper.removeFavorite(coinSymbol)
+    : StorageHelper.addFavorite(coinSymbol);
 
-  updateFavoriteIcon(coinSymbol, !alreadyFavorite);
-
+  updateFavoriteIcon(coinSymbol, !isFavorite);
   if (isShowingFavoritesOnly) {
     renderFavoritesList();
   }
