@@ -5,7 +5,7 @@ import { ChartRenderer } from "../ui/chart-renderer.js";
 import { PageComponents } from "../ui/Components/page-components.js";
 import { getAllCoins, loadAllCoins, getGlobalStats} from "../services/coins-service.js";
 import { cleanup,startLiveChart } from "../services/chart-service.js";
-import { getNewsForFavorites } from "../services/news-service.js";
+import { getNewsForFavorites ,fetchNews } from "../services/news-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
 import { BaseUI } from "../ui/base-ui.js";
 import { skeleton } from "../ui/Components/base-components.js";
@@ -19,6 +19,8 @@ const {
   ABOUT_LINKEDIN,
   NEWS_LOAD_GEN,
   NEWS_LOAD_FAV,
+  NEWS_CACHE_GEN,  
+  NEWS_QUERY,  
 } = APP_CONFIG;
 const { CHART_POINTS } = CONFIG_CHART;
 
@@ -128,7 +130,7 @@ const loadNews = async (mode = "general") => {
 
   const {ok,data,code,error,status,} = isFavorites
     ? await getNewsForFavorites(StorageHelper.getFavorites())
-    : await fetchNews(NEWS_CACHE_GEN);
+    : await fetchNews(NEWS_CACHE_GEN, { q: NEWS_QUERY });
 
   if (!ok) {
     ErrorUI.showError("#newsList", code || "NEWS_ERROR", {defaultMessage: error, status});
