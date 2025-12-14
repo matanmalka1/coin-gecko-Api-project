@@ -1,5 +1,4 @@
 import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
-import { ERRORS } from "../config/error.js";
 import { displayCoins,getCompareSelection,clearCompareHighlights,showLoading } from "../ui/coin-ui.js";
 import { NewsUI } from "../ui/news-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
@@ -14,14 +13,9 @@ import { ErrorUI } from "../ui/error-ui.js";
 
 const {
   CACHE_COINS_REFRESH_MS,
-  REPORTS_COMPARE_MAX,
   ABOUT_NAME,
   ABOUT_IMAGE,
   ABOUT_LINKEDIN,
-  NEWS_STATUS_GEN,
-  NEWS_STATUS_FAV,
-  NEWS_STATUS_FALLBACK_GEN,
-  NEWS_STATUS_FALLBACK_FAV,
   NEWS_LOAD_GEN,
   NEWS_LOAD_FAV,
 } = APP_CONFIG;
@@ -68,7 +62,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 
   coins.length > 0 ? renderCoins(coins) : showLoading();
   
-  const lastUpdated = getCoinsLastUpdated()
+  const lastUpdated = getCoinsLastUpdated();
   const isCacheExpired =
     !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
 
@@ -127,36 +121,19 @@ export const showReportsPage = async () => {
 // ===== NEWS PAGE =====
 const loadNews = async (mode = "general") => {
   const isFavorites = mode === "favorites";
-  const status = isFavorites ? NEWS_STATUS_FAV : NEWS_STATUS_GEN;
   const loading = isFavorites ? NEWS_LOAD_FAV : NEWS_LOAD_GEN;
-  const fallback = isFavorites
-    ? NEWS_STATUS_FALLBACK_FAV
-    : NEWS_STATUS_FALLBACK_GEN;
 
-  NewsUI.updateNewsStatus(status);
   NewsUI.showNewsLoading(loading);
   NewsUI.setNewsFilterMode(mode);
 
-  const {
-    ok,
-    data,
-    usedFallback,
-    code,
-    error,
-    status: httpStatus,
-  } = isFavorites
+  const {ok,data,code,error,status,} = isFavorites
     ? await getNewsForFavorites(StorageHelper.getFavorites())
     : await getGeneralNews();
 
   if (!ok) {
-    ErrorUI.showError("#newsList", code || "NEWS_ERROR", {defaultMessage: error,status: httpStatus,});
+    ErrorUI.showError("#newsList", code || "NEWS_ERROR", {defaultMessage: error,status});
     return;
   }
-
-  if (usedFallback) {
-    NewsUI.updateNewsStatus(fallback);
-  }
-
   NewsUI.showNews(data);
 };
 
@@ -167,6 +144,7 @@ export const showNewsPage = async () => {
 };
 
 export const showFavoritesNewsPage = async () => {
+  cleanup();
   BaseUI.showPage(PageComponents.newsPage());
   await loadNews("favorites");
 };

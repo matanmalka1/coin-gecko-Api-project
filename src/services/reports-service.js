@@ -6,7 +6,7 @@ import { normalizeSymbol } from "../utils/general-utils.js";
 
 const { getSelectedReports, removeReport, addReport } = StorageHelper;
 
-const { REPORTS_MAX, COINGECKO_BASE } = APP_CONFIG;
+const { REPORTS_COMPARE_MAX,REPORTS_MAX, COINGECKO_BASE } = APP_CONFIG;
 
 export const toggleCoinSelection = (symbol) => {
    const sym = normalizeSymbol(symbol);
@@ -36,7 +36,7 @@ export const replaceReport = (oldSymbol, newSymbol) => {
 };
 
 export const getCompareData = async (ids) => {
-  const uniqueIds = Array.from(new Set(ids)).slice(0, REPORTS_MAX);
+  const uniqueIds = Array.from(new Set(ids)).slice(0, REPORTS_COMPARE_MAX);
 
   const results = await Promise.all(
     uniqueIds.map((id) => fetchWithRetry(`${COINGECKO_BASE}/coins/${id}`))

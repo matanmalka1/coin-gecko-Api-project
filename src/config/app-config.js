@@ -15,7 +15,7 @@ export const APP_CONFIG = {
   CACHE_TTL: 5 * 60 * 1000,
   CACHE_MAX: 100,
   CACHE_COINS_REFRESH_MS: 5 * 60 * 1000,
-  NEWS_TTL: 15 * 60 * 1000,
+  NEWS_TTL: 30 * 60 * 1000,
   NEWS_FRESH_MS: 5 * 60 * 60 * 1000,
   KEY_FAVORITES: "favorites",
   KEY_REPORTS: "reportsSelection",

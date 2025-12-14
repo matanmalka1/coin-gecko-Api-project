@@ -14,11 +14,13 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
   const now = Math.floor(Date.now() / 1000);
 
   symbols.forEach((symbol) => {
-    const sym = normalizeSymbol(symbol);
-    const price = pricesBySymbol[sym].USD;
-    const candle = {time: now,open: price,high: price,low: price,close: price,};
-    const series = liveCandlesBySymbol[sym] || [];
-    liveCandlesBySymbol[sym] = [...series, candle].slice(-CHART_POINTS);
+   const sym = normalizeSymbol(symbol);
+   const price = Number(pricesBySymbol?.[sym]?.USD);
+   if (!Number.isFinite(price)) return;
+
+    const series = (liveCandlesBySymbol[sym] ||= []);
+    series.push({ time: now, open: price, high: price, low: price, close: price });
+    if (series.length > CHART_POINTS) series.splice(0, series.length - CHART_POINTS);
   });
 
   return liveCandlesBySymbol;

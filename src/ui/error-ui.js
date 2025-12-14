@@ -1,4 +1,3 @@
-// src/ui/error-ui.js
 import { ErrorResolver } from "../config/error.js";
 
 const ICONS = {

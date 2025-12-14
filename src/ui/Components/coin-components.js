@@ -89,7 +89,7 @@ export const coinDetails = (data = {}, currencies = {}) => {
     image?.small ||
     image?.thumb ||
     (typeof image === "string" ? image : PLACEHOLDER_THUMB);
-  const sym = symbol.toUpperCase();
+  const sym = (symbol || "").toUpperCase();
   const priceItem = (label, value, curr) =>
     `<div class="price-badge mb-2 p-2 border-left rounded ${
       typeof value !== "number" ? "text-muted" : ""

@@ -18,7 +18,7 @@ const currenciesPage = () => `
     <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
       <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
       <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites</button>
-      <button type="button" id="clearSearchBtn" class="btn btn-light mx-2">Clear</button>
+      <button type="button" id="clearSearchBtn" class="btn btn-light mx-2 d-none" >Clear</button>
       <button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2"><i class="bi bi-arrow-clockwise"></i></button>
     </div>
   </div>
@@ -106,7 +106,7 @@ export const newsArticleCard = (article) => {
         ${cardContainer(
         `
         <div class="ratio ratio-16x9 bg-light rounded-top">
-          <img src="${image || "images/2.jpeg"}" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"} loading ="lazy />
+          <img src="${image || "images/2.jpeg"}" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"} loading ="lazy" />
         </div>
         <div class="card-body d-flex flex-column">
             <h5 class="card-title mb-3">

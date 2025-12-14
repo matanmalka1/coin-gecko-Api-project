@@ -31,6 +31,7 @@ const handleSearch = () => {
 const handleClearSearch = () => {
   $("#searchInput").val("");
   renderCoins(getAllCoins());
+  $("#clearSearchBtn").addClass("d-none");
 };
 
 const handleFavoriteToggle = (e) => {
