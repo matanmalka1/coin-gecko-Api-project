@@ -1,10 +1,9 @@
-import {filterSelectedCoins, getAllCoins } from "../services/coins-service.js";
+import {getAllCoins } from "../services/coins-service.js";
 import {toggleCoinSelection,replaceReport,getCompareData,} from "../services/reports-service.js";
 import {setCompareHighlight,clearCompareHighlights,getCompareSelection,showReplaceModal,updateToggleStates,showCompareModal,} from "../ui/coin-ui.js";
 import {APP_CONFIG } from "../config/app-config.js";
 import {ERRORS } from "../config/error.js";
 import {ErrorUI } from "../ui/error-ui.js";
-import { renderCoins } from "../controllers/pages-controller.js";
 const { REPORTS_COMPARE_MAX } = APP_CONFIG;
 
 export const updateCompareIndicator = (selected = getCompareSelection()) => {
@@ -20,18 +19,6 @@ export const updateCompareIndicator = (selected = getCompareSelection()) => {
   ErrorUI.showInfo("#compareStatus", `${selectedCount} / ${REPORTS_COMPARE_MAX} coins selected`);
   $status.removeClass("d-none");
 }
-
-const handleFilterReports = () => {
-  const { ok, code, data } = filterSelectedCoins();
-
-  if (!ok) {
-    ErrorUI.showError("#coinsContainer", code, {
-      defaultMessage: ERRORS.NONE_SELECTED,
-    });
-    return;
-  }
-  renderCoins(data);
-};
 
 const openReplaceFlow = ({ newSymbol, existing, limit }) => {
   showReplaceModal(newSymbol, existing, {
@@ -106,7 +93,6 @@ const handleCompareClick = async function () {
 
 export const setupEventListeners = () => {
   $(document)
-    .on("click", "#filterReportsBtn", handleFilterReports)
     .on("change", ".coin-toggle", handleCoinToggle)
     .on("click", ".compare-btn", handleCompareClick);
 };
