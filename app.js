@@ -5,7 +5,6 @@ import {showCurrenciesPage,showReportsPage,showNewsPage,showFavoritesNewsPage,sh
   // ===== DARKMODE WIDGET =====
 let darkmodeInstance = null;
 
-
 const initDarkmodeWidget = () => {
   if (darkmodeInstance) return darkmodeInstance;
   darkmodeInstance = new Darkmode({
@@ -27,28 +26,18 @@ const initDarkmodeWidget = () => {
 };
 
 $(() => {
-  // ===== EVENT HANDLERS REGISTRATION =====
   CoinEvents.register();
   ReportsEvents.register();
 
-  // ===== NAVIGATION - Navbar =====
   $("#currenciesBtn, #brandHome").on("click", () => showCurrenciesPage());
   $("#reportsBtn").on("click", () => showReportsPage());
   $("#newsBtn").on("click", () => showNewsPage());
   $("#aboutBtn").on("click", () => showAboutPage());
 
-  // ===== NEWS FILTERS (event delegation News) =====
   $(document)
-    .on("click", "#newsGeneralBtn", (e) => {
-      e.preventDefault();
-      showNewsPage();
-    })
-    .on("click", "#newsFavoritesBtn", (e) => {
-      e.preventDefault();
-      showFavoritesNewsPage();
-    });
+    .on("click", "#newsGeneralBtn", () => {showNewsPage()})
+    .on("click", "#newsFavoritesBtn", () => {showFavoritesNewsPage()});
 
-  // ===== INITIALIZATION =====
   showCurrenciesPage();
   initDarkmodeWidget();
   initStatsBar();

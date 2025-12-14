@@ -96,8 +96,7 @@ const newsPage = () => `
 
 // Generates a single article card including metadata and CTA link.
 export const newsArticleCard = (article) => {
-  const { title, description, published_at, source = {}, original_url, url, image } =
-    article || {};
+  const { title, description, published_at, source = {}, original_url, url, image } = article || {};
   const publishedDate = published_at
     ? new Date(published_at).toLocaleString()
     : "Unknown time";

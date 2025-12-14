@@ -60,11 +60,7 @@ export const updateFavoriteIcon = (symbol, isFavorite) => {
     .attr("title", isFavorite ? "Remove from favorites" : "Add to favorites");
 };
 
-export const showCoinDetails = (
-  containerId,
-  data,
-  { currencies = CURRENCIES } = {}
-) => {
+export const showCoinDetails = (containerId,data,{ currencies = CURRENCIES } = {}) => {
   $(`#${containerId}`).html(
     coinDetails(data, currencies) + coinMiniChart(data.id)
   );
@@ -106,22 +102,20 @@ const buildCompareRow = (coin) => {
 const buildCompareTable = (coins) =>
   `<table class="table table-striped text-center align-middle">
     <thead>
-    <tr>
-    <th>Coin</th>
-    <th>Price</th>
-    <th>Market Cap</th>
-    <th>24h %</th>
-    <th>Volume</th>
-    </tr>
+      <tr>
+        <th>Coin</th>
+        <th>Price</th>
+        <th>Market Cap</th>
+        <th>24h %</th>
+        <th>Volume</th>
+      </tr>
     </thead>
     <tbody>${coins.map(buildCompareRow).join("")}</tbody>
   </table>`;
 
 export const showCompareModal = (coins,{ missingSymbols = [], title, onClose } = {}) => {
   const content = buildCompareTable(coins);
-  const modalHTML = compareModal(content, {
-    title: title || UI_COMPARE_TITLE,
-  });
+  const modalHTML = compareModal(content, {title: title || UI_COMPARE_TITLE,});
 
   $("body").append(modalHTML);
   const modal = new bootstrap.Modal(document.getElementById("compareModal"));
