@@ -1,53 +1,28 @@
-import { filterSelectedCoins, getAllCoins } from "../services/coins-service.js";
+import {filterSelectedCoins, getAllCoins } from "../services/coins-service.js";
 import {toggleCoinSelection,replaceReport,getCompareData,} from "../services/reports-service.js";
-import { APP_CONFIG } from "../config/app-config.js";
-import { ERRORS } from "../config/error.js";
-import { ErrorUI } from "../ui/error-ui.js";
-import { CoinUI } from "../ui/coin-ui.js";
+import {setCompareHighlight,clearCompareHighlights,getCompareSelection,showReplaceModal,updateToggleStates,showCompareModal,} from "../ui/coin-ui.js";
+import {APP_CONFIG } from "../config/app-config.js";
+import {ERRORS } from "../config/error.js";
+import {ErrorUI } from "../ui/error-ui.js";
 import { renderCoins } from "../controllers/pages-controller.js";
-import { BaseUI } from "../ui/base-ui.js";
 const { REPORTS_COMPARE_MAX } = APP_CONFIG;
 
-const {
-  setCompareHighlight,
-  clearCompareHighlights,
-  getCompareSelection,
-  showReplaceModal,
-  updateToggleStates,
-  showCompareModal,
-} = CoinUI;
-
-let eventsRegistered = false;
-
-const setCompareSelection = (ids) => {
-  clearCompareHighlights();
-  ids.forEach((id) => setCompareHighlight(id, true));
-};
-
-const resetCompareSelection = () => {
-  clearCompareHighlights();
-};
-
 export const updateCompareIndicator = (selected = getCompareSelection()) => {
-  const selectionArray = Array.isArray(selected) ? selected : [];
-  const selectedCount = selectionArray.length;
-  const $status = $("#compareStatus");
+  const selectedCount = Array.isArray(selected) ? selected.length : 0;
+  const $status = $("#compareStatus"); 
 
   if (!selectedCount) {
     $status.addClass("d-none").empty();
     clearCompareHighlights();
     return;
   }
-  ErrorUI.showInfo(
-    "#compareStatus",
-    `${selectedCount} / ${REPORTS_COMPARE_MAX} coins selected`
-  );
+  
+  ErrorUI.showInfo("#compareStatus", `${selectedCount} / ${REPORTS_COMPARE_MAX} coins selected`);
   $status.removeClass("d-none");
-};
+}
 
 const handleFilterReports = () => {
   const { ok, code, data } = filterSelectedCoins();
-  BaseUI.toggleClearButton(true);
 
   if (!ok) {
     ErrorUI.showError("#coinsContainer", code, {
@@ -66,7 +41,6 @@ const openReplaceFlow = ({ newSymbol, existing, limit }) => {
       updateToggleStates(selected);
       if (!ok) {
         ErrorUI.showError("#content", code);
-        modal.hide();
         return;
       }
       modal.hide();
@@ -96,14 +70,12 @@ const handleCompareClick = async function () {
   }
 
   let currentSelection = getCompareSelection();
-  const alreadySelected = currentSelection.includes(coinId);
 
-  if (alreadySelected) {
+  if (currentSelection.includes(coinId)) {
     currentSelection = currentSelection.filter((id) => id !== coinId);
     setCompareHighlight(coinId, false);
   } else {
     if (currentSelection.length >= REPORTS_COMPARE_MAX) {
-      updateCompareIndicator(currentSelection);
       ErrorUI.showError("#content", "COMPARE_FULL", {
         limit: REPORTS_COMPARE_MAX,
       });
@@ -112,7 +84,7 @@ const handleCompareClick = async function () {
     currentSelection = [...currentSelection, coinId];
   }
 
-  setCompareSelection(currentSelection);
+  currentSelection.forEach((id) => setCompareHighlight(id, true));
   updateCompareIndicator(currentSelection);
 
   if (currentSelection.length < REPORTS_COMPARE_MAX) return;
@@ -120,28 +92,23 @@ const handleCompareClick = async function () {
   const { ok, code, coins, missing } = await getCompareData(currentSelection);
   if (!ok) {
     ErrorUI.showError("#content", code, { defaultMessage: ERRORS.DEFAULT });
-    resetCompareSelection();
-    updateCompareIndicator();
     return;
   }
 
   showCompareModal(coins, {
     missingSymbols: missing,
     onClose: () => {
-      const previousSelection = getCompareSelection();
-      resetCompareSelection();
+      clearCompareHighlights();
       updateCompareIndicator();
     },
   });
 };
 
 export const setupEventListeners = () => {
-  if (eventsRegistered) return;
   $(document)
     .on("click", "#filterReportsBtn", handleFilterReports)
     .on("change", ".coin-toggle", handleCoinToggle)
     .on("click", ".compare-btn", handleCompareClick);
-  eventsRegistered = true;
 };
 
 export const ReportsEvents = {

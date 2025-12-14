@@ -6,7 +6,7 @@ import { ErrorUI } from "./error-ui.js";
 import {formatPrice,formatLargeNumber,formatPercent,} from "../utils/general-utils.js";
 import { ChartRenderer } from "./chart-renderer.js";
 
-const {UI_NO_COINS,UI_LOAD_COINS} = APP_CONFIG
+const { UI_NO_COINS, UI_LOAD_COINS, UI_COMPARE_TITLE } = APP_CONFIG;
 
 const CURRENCIES = {
   USD: { symbol: "$", label: "USD" },
@@ -19,7 +19,7 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
   if (!container.length) return;
 
    if (!coins || coins.length === 0) {
-    ErrorUI.showError(container, emptyMessage || UI_NO_COINS, "info");
+    ErrorUI.showInfo(container, emptyMessage || UI_NO_COINS, "info");
     return;
   }
   const favoriteSymbols = Array.isArray(favorites)
@@ -71,7 +71,7 @@ export const showCoinDetails = (
   ChartRenderer.drawMiniChart(data.id);
 };
 
-const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, onClose } = {}) => {
+export const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, onClose } = {}) => {
   const modalHTML = replaceModal(newSymbol, existingCoins, { maxCoins,});
   $("body").append(modalHTML);
   const modal = new bootstrap.Modal(document.getElementById("replaceModal"));
@@ -117,10 +117,10 @@ const buildCompareTable = (coins) =>
     <tbody>${coins.map(buildCompareRow).join("")}</tbody>
   </table>`;
 
-const showCompareModal = (coins,{ missingSymbols = [], title, onClose } = {}) => {
+export const showCompareModal = (coins,{ missingSymbols = [], title, onClose } = {}) => {
   const content = buildCompareTable(coins);
   const modalHTML = compareModal(content, {
-    title: title || UI_NO_COINS
+    title: title || UI_COMPARE_TITLE,
   });
 
   $("body").append(modalHTML);
@@ -152,7 +152,8 @@ export const getCompareSelection = () =>
   $(".compare-row-active")
     .map((_,  el) => String($(el).data("id")))
     .get();
-const setCompareHighlight = (coinId, isActive) => {
+
+export const setCompareHighlight = (coinId, isActive) => {
   const $rows = $(`.compare-row[data-id="${String(coinId)}"]`);
   $rows.toggleClass("compare-row-active", !!isActive);
   $rows.closest(".card").toggleClass("compare-card-active", !!isActive);
@@ -160,14 +161,4 @@ const setCompareHighlight = (coinId, isActive) => {
 export const clearCompareHighlights = () => {
   $(".compare-row").removeClass("compare-row-active");
   $(".card.compare-card-active").removeClass("compare-card-active");
-};
-
-export const CoinUI = {
-  displayCoins,
-  showReplaceModal,
-  showCompareModal,
-  updateToggleStates,
-  setCompareHighlight,
-  clearCompareHighlights,
-  getCompareSelection,
 };

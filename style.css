@@ -27,6 +27,12 @@
   z-index: 500;
 }
 
+.darkmode--activated header.parallax,
+.darkmode--activated #aboutSection img,
+.darkmode--activated .news-card img {
+  mix-blend-mode: difference;
+}
+
 /* ===== BASE STYLES ===== */
 * {
   margin: 0;
@@ -217,4 +223,3 @@ header.parallax {
 #aboutSection {
   color: var(--color-text);
 }
-

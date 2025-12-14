@@ -1,7 +1,6 @@
 import { StorageHelper } from "../services/storage-manager.js";
 import { showCoinDetails, updateFavoriteIcon } from "../ui/coin-ui.js";
 import { BaseUI } from "../ui/base-ui.js";
-import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
@@ -9,22 +8,29 @@ import { getCoinDetails ,searchCoin, getAllCoins, sortCoins} from "../services/c
 import { normalizeSymbol } from "../utils/general-utils.js";
 
 
-const { UI_FAV_EMPTY } = APP_CONFIG
-
-let isRegistered = false;
+const { NO_FAVORITES } = ERRORS
 let isShowingFavoritesOnly = false;
+
+const renderFavoritesList = () => {
+  const favoriteSymbols = StorageHelper.getFavorites();
+  const filtered = getAllCoins().filter((coin) =>
+    favoriteSymbols.includes(normalizeSymbol(coin.symbol))
+  );
+
+  renderCoins(filtered, {
+    favorites: favoriteSymbols,
+    emptyMessage: NO_FAVORITES,
+  });
+};
 
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
-  const searchTerm = $("#searchInput").val();
-
-  const { ok, code, term, data } = searchCoin(searchTerm);
-  BaseUI.toggleClearButton(true);
+  const { ok, code, term, data } = searchCoin( $("#searchInput").val());
+  $("#clearSearchBtn").toggleClass("d-none");
 
   if (!ok) {ErrorUI.showError("#coinsContainer", code, { term });
     return;
   }
-
   renderCoins(data);
 };
 
@@ -43,65 +49,47 @@ const handleFavoriteToggle = (e) => {
     : StorageHelper.addFavorite(coinSymbol);
 
   updateFavoriteIcon(coinSymbol, !isFavorite);
-  
   if (isShowingFavoritesOnly) {
     renderFavoritesList();
   }
 };
 
-const renderFavoritesList = () => {
-  const favoriteSymbols = StorageHelper.getFavorites();
-  const filtered = getAllCoins().filter((coin) =>
-    favoriteSymbols.includes(normalizeSymbol(coin.symbol))
-  );
 
-  renderCoins(filtered, {
-    favorites: favoriteSymbols,
-    emptyMessage: UI_FAV_EMPTY,
-  });
-};
 
 const handleMoreInfo = async (e) => {
   const coinId = $(e.currentTarget).data("id");
   const collapseId = `collapse-${coinId}`;
-  const $collapse = $(`#${collapseId}`);
+  const collapseSelector = `#${collapseId}`;
+  const $collapse = $(collapseSelector);
 
   if ($collapse.hasClass("show")) {
     BaseUI.toggleCollapse(collapseId, false);
     return;
   }
 
-  BaseUI.showSpinner(`#${collapseId}`, "Loading details…");
+  BaseUI.showSpinner(collapseSelector, "Loading details…");
   BaseUI.toggleCollapse(collapseId, true);
 
   try {
-    const { ok, data, status, error } = await getCoinDetails(coinId);
+    const { ok, data, status } = await getCoinDetails(coinId);
 
     if (!ok || !data) {
-      ErrorUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
+      ErrorUI.showError(collapseSelector, "COIN_DETAILS_ERROR", {
         status,
       });
       return;
     }
-
     showCoinDetails(collapseId, data);
-  } catch (error) {
-    ErrorUI.showError(`#${collapseId}`, "COIN_DETAILS_ERROR", {
+  } catch {
+    ErrorUI.showError(collapseSelector, "COIN_DETAILS_ERROR", {
       status: null,
     });
   }
 };
 
 const handleShowFavorites = () => {
-  if (isShowingFavoritesOnly) {
-    renderCoins(getAllCoins());
-    BaseUI.setFavoritesButtonLabel(false);
-    isShowingFavoritesOnly = false;
-  } else {
-    renderFavoritesList();
-    BaseUI.setFavoritesButtonLabel(true);
-    isShowingFavoritesOnly = true;
-  }
+  isShowingFavoritesOnly = !isShowingFavoritesOnly;
+  isShowingFavoritesOnly ? renderFavoritesList() : renderCoins(getAllCoins());
 };
 
 const handleSortChange = () => {
@@ -109,27 +97,19 @@ const handleSortChange = () => {
   renderCoins(data);
 };
 
-const handleRefreshCoins = (e) => {
-  e.preventDefault();
-  showCurrenciesPage({ forceRefresh: true });
-};
-
 // ===== REGISTRATION =====
 const setupEventListeners = () => {
-  if (isRegistered) return;
-
   $(document)
     .on("keypress", "#searchInput", (e) => {
       if (e.key === "Enter") handleSearch();
     })
+    
     .on("click", "#clearSearchBtn", handleClearSearch)
     .on("click", "#showFavoritesBtn", handleShowFavorites)
-    .on("click", "#refreshCoinsBtn", handleRefreshCoins)
+    .on("click", "#refreshCoinsBtn", () => showCurrenciesPage({ forceRefresh: true }))
     .on("click", ".favorite-btn", handleFavoriteToggle)
     .on("click", ".more-info", handleMoreInfo)
     .on("change", "#sortSelect", handleSortChange);
-
-  isRegistered = true;
 };
 
 export const CoinEvents = { register: setupEventListeners };

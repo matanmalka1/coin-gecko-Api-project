@@ -31,9 +31,6 @@ export const APP_CONFIG = {
   UI_LOAD_COINS: "Loading coins...",
   UI_COMPARE_TITLE: "Compare Coins",
   UI_NO_COINS: "No coins found.",
-  UI_FAV_EMPTY: "No favorites yet. Tap the star to add coins.",
-  UI_FAV_SHOW: "Favorites ⭐",
-  UI_FAV_HIDE: "All Coins",
 
   // ===== NEWS UI =====
   NEWS_LOAD_GEN: "Loading news...",

@@ -20,7 +20,7 @@ export const ERRORS = {
     `Search term is too long. Maximum allowed is ${max} characters.`,
   INVALID_TERM:
     "Search term contains invalid characters. Use letters, numbers, spaces, dots or hyphens.",
-
+  
   // ===== REPORTS / COMPARE ERRORS =====
   NONE_SELECTED: "No coins selected.",
   LIMIT: (max = 5) => `You can select up to ${max} coins for reports.`,
@@ -35,7 +35,7 @@ export const ERRORS = {
 
   // ===== NEWS ERRORS =====
   NEWS_ERROR: "Failed to load news. Please try again later.",
-  NO_FAVORITES: "No favorite coins selected.",
+  NO_FAVORITES: "No favorites yet. Tap the star to add coins.",
   EMPTY: "No news found for the last 5 hours.",
 
   // ===== GENERIC UI ERRORS =====
@@ -44,9 +44,11 @@ export const ERRORS = {
 
 // ===== RESOLVER =====
 export const ErrorResolver = {
-  resolve(code, context = {}) {    
+  resolve(code, context = {}) {
     const error = ERRORS[code];
-    if (context.defaultMessage) {return context.defaultMessage;}
+    if (context.defaultMessage) {
+      return context.defaultMessage;
+    }
 
     if (!error) {
       console.warn(`Unknown error code: ${code}`);
@@ -54,8 +56,13 @@ export const ErrorResolver = {
     }
 
     if (typeof error === "function") {
-      const param = context.term || context.limit || context.max || 
-                    context.min || context.symbols || context.status;
+      const param =
+        context.term ||
+        context.limit ||
+        context.max ||
+        context.min ||
+        context.symbols ||
+        context.status;
       const result = error(param);
       return result;
     }

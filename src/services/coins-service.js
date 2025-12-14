@@ -4,7 +4,7 @@ import { APP_CONFIG } from "../config/app-config.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 
 const { fetchWithCache, getCache, setCache } = CacheManager;
-const { readJSON, writeJSON, getSelectedReports, setSelectedReports } = StorageHelper;
+const { writeJSON, getSelectedReports, setSelectedReports } = StorageHelper;
 
 const {
   MIN_LENGTH,
@@ -29,14 +29,6 @@ const sortFunctions = {
 // ===== COINS DATA =====
 export const getAllCoins = () => getCache(COINS_CACHE_KEY) || [];
 
-export const getCoinsLastUpdated = () => {
-  return readJSON(COINS_TIMESTAMP_KEY, 0);
-};
-
-const setCoinsLastUpdated = (timestamp) => {
-  writeJSON(COINS_TIMESTAMP_KEY, timestamp);
-};
-
 export const loadAllCoins = async () => {
   const { ok, data, status } = await fetchWithRetry(
     `${COINGECKO_BASE}/coins/markets` +
@@ -57,7 +49,7 @@ export const loadAllCoins = async () => {
     }));
 
   setCache(COINS_CACHE_KEY, filteredCoins);
-  setCoinsLastUpdated(Date.now());
+  writeJSON(COINS_TIMESTAMP_KEY, Date.now());
 
   return { ok: true, data: filteredCoins };
 };
@@ -77,39 +69,31 @@ export const sortCoins = (sortType) => {
   const sorter = sortFunctions[sortType];
   const sorted = sorter ? [...coins].sort(sorter) : coins;
 
-  setCache(COINS_CACHE_KEY, sorted);
-
-return { ok: true, data: sorted }
+  return { ok: true, data: sorted };
 };
 
 export const searchCoin = (term) => {
   const cleanTerm = String(term || "").trim().toLowerCase();
 
-  if (!cleanTerm) {return { ok: false, code: "EMPTY_TERM" };}
-  if (cleanTerm.length < MIN_LENGTH) {return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
-}
-  if (cleanTerm.length > MAX_LENGTH) {return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
-}
- if (!ALLOWED_PATTERN.test(cleanTerm)) {return { ok: false, code: "INVALID_TERM" };
-}
-
+  if (!cleanTerm) return { ok: false, code: "EMPTY_TERM" };
+  if (cleanTerm.length < MIN_LENGTH) 
+    return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
+  if (cleanTerm.length > MAX_LENGTH) 
+    return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
+  if (!ALLOWED_PATTERN.test(cleanTerm)) 
+    return { ok: false, code: "INVALID_TERM" };
 
   const allCoins = getAllCoins();
   if (!allCoins.length) return { ok: false, code: "LOAD_WAIT" };
 
-  const filteredCoins = allCoins.filter((coin) => {
-  const symbolMatch = coin.symbol?.toLowerCase().includes(cleanTerm) ?? false;
-  const nameMatch = coin.name?.toLowerCase().includes(cleanTerm) ?? false;
-    return symbolMatch || nameMatch;
-  });
+  const filteredCoins = allCoins.filter((coin) => 
+  coin.symbol?.toLowerCase().includes(cleanTerm) || 
+  coin.name?.toLowerCase().includes(cleanTerm)
+);
 
-  if (!filteredCoins.length) {return { ok: false, code: "NO_MATCH", term: cleanTerm };
-}
+  if (!filteredCoins.length) return { ok: false, code: "NO_MATCH", term: cleanTerm };
 
-  return {
-    ok: true,
-    data: filteredCoins,
-  };
+  return {ok: true, data: filteredCoins,};
 };
 
 export const filterSelectedCoins = () => {
@@ -118,25 +102,27 @@ export const filterSelectedCoins = () => {
     return { ok: false, code: "NONE_SELECTED" };
   }
 
-  const allCoins = getAllCoins();
-  const filtered = allCoins.filter((coin) =>
-    selectedReports.includes(coin.symbol)
-  );
+  const selectedSet = new Set(selectedReports);
+  const filtered = [];
+  const validSymbols = new Set();
+
+  getAllCoins().forEach((coin) => {
+    if (selectedSet.has(coin.symbol)) {
+      filtered.push(coin);
+      validSymbols.add(coin.symbol);
+    }
+  });
 
   if (!filtered.length) {
-    StorageHelper.setSelectedReports([]);
+    setSelectedReports([]);
     return { ok: false, code: "NOT_FOUND" };
   }
-
-  const validSymbols = new Set(filtered.map((coin) => coin.symbol));
   const cleanedSelection = selectedReports.filter((symbol) =>
     validSymbols.has(symbol)
   );
+  if (cleanedSelection.length !== selectedReports.length) {
+    setSelectedReports(cleanedSelection);
+  }
 
-  setSelectedReports(cleanedSelection);
-
-  return {
-    ok: true,
-    data: filtered,
-  };
+  return {ok: true, data: filtered,};
 };

@@ -13,10 +13,6 @@ const showSpinner = (container, message) => {
   if (el.length) el.html(spinner(message));
 };
 
-const toggleClearButton = (visible) => {
-  $("#clearSearchBtn").toggleClass("d-none", !visible);
-};
-
 // Opens/closes a collapse region with a smooth slide animation.
 const toggleCollapse = (collapseId, show) => {
   const element = $(`#${collapseId}`);
@@ -26,13 +22,6 @@ const toggleCollapse = (collapseId, show) => {
   show ? element.slideDown() : element.slideUp();
 };
 
-// Updates the favorites toggle button caption based on mode.
-const setFavoritesButtonLabel = (showingFavorites) => {
-  const label = showingFavorites
-    ? APP_CONFIG.UI_FAV_HIDE
-    : APP_CONFIG.UI_FAV_SHOW;
-  $("#showFavoritesBtn").text(label);
-};
 
 const setStatsBar = ({ totalMarketCap, totalVolume, btcDominance, marketChange } = {}) => [
   {label: "Market Cap",value: formatLargeNumber(totalMarketCap),},
@@ -67,7 +56,6 @@ export const BaseUI = {
   showPage,
   showSpinner,
   toggleCollapse,
-  setFavoritesButtonLabel,
   renderStatsBar,
-  toggleClearButton,
+
 };

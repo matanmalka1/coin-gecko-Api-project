@@ -1,9 +1,9 @@
 import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
-import { displayCoins,getCompareSelection,clearCompareHighlights,showLoading } from "../ui/coin-ui.js";
+import { displayCoins,getCompareSelection,showLoading } from "../ui/coin-ui.js";
 import { NewsUI } from "../ui/news-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
 import { PageComponents } from "../ui/Components/page-components.js";
-import { getAllCoins, getCoinsLastUpdated ,loadAllCoins, getGlobalStats} from "../services/coins-service.js";
+import { getAllCoins, loadAllCoins, getGlobalStats} from "../services/coins-service.js";
 import { cleanup,startLiveChart } from "../services/chart-service.js";
 import { getGeneralNews,getNewsForFavorites } from "../services/news-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
@@ -13,6 +13,7 @@ import { ErrorUI } from "../ui/error-ui.js";
 
 const {
   CACHE_COINS_REFRESH_MS,
+  COINS_TIMESTAMP_KEY,
   ABOUT_NAME,
   ABOUT_IMAGE,
   ABOUT_LINKEDIN,
@@ -56,13 +57,12 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 
   const $compareStatus = $("#compareStatus");
   $compareStatus.addClass("d-none").empty();
-  clearCompareHighlights();
 
   const coins = getAllCoins();
 
   coins.length > 0 ? renderCoins(coins) : showLoading();
   
-  const lastUpdated = getCoinsLastUpdated();
+  const lastUpdated = StorageHelper.readJSON(COINS_TIMESTAMP_KEY, 0);
   const isCacheExpired =
     !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
 

@@ -59,13 +59,7 @@ const setupCharts = (symbols, options = {}) => {
     const chart = LightweightCharts.createChart(container, {
       width: container.clientWidth,
       height,
-      layout: {
-        background: {
-          type: "solid",
-          color: CHART_BG,
-        },
-        textColor: CHART_TEXT_BORDER,
-      },
+      layout: {background: {type: "solid",color: CHART_BG,},textColor: CHART_TEXT_BORDER,},
       rightPriceScale: { borderColor: CHART_TEXT_BORDER },
       timeScale: { borderColor: CHART_TEXT_BORDER },
     });

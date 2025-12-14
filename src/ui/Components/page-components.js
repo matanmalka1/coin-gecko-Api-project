@@ -17,7 +17,7 @@ const currenciesPage = () => `
     </div>
     <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
       <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
-      <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites</button>
+      <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites ⭐️</button>
       <button type="button" id="clearSearchBtn" class="btn btn-light mx-2 d-none" >Clear</button>
       <button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2"><i class="bi bi-arrow-clockwise"></i></button>
     </div>

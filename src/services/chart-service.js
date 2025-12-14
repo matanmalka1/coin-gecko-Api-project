@@ -14,11 +14,10 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
   const now = Math.floor(Date.now() / 1000);
 
   symbols.forEach((symbol) => {
-   const sym = normalizeSymbol(symbol);
-   const price = Number(pricesBySymbol?.[sym]?.USD);
-   if (!Number.isFinite(price)) return;
+    const price = Number(pricesBySymbol?.[symbol]?.USD);
+    if (!Number.isFinite(price)) return;
 
-    const series = (liveCandlesBySymbol[sym] ||= []);
+    const series = (liveCandlesBySymbol[symbol] ||= []);
     series.push({ time: now, open: price, high: price, low: price, close: price });
     if (series.length > CHART_POINTS) series.splice(0, series.length - CHART_POINTS);
   });
@@ -34,13 +33,11 @@ const fetchLivePrices = async (symbols) => {
   if (!Object.keys(liveCandlesBySymbol).length) {
     const historyResults = await Promise.all(
       normalizedSymbols.map(async (symbol) => {
-        const upper = normalizeSymbol(symbol);
 
-        const { ok, data, error, status } = await fetchWithRetry(`${CRYPTOCOMPARE_BASE}/histohour?fsym=${upper}&tsym=USD&limit=${24 * 7}`
-        );
+        const { ok, data, error, status } =  await fetchWithRetry(`${CRYPTOCOMPARE_BASE}/histohour?fsym=${symbol}&tsym=USD&limit=${24 * 7}&api_key=${CRYPTOCOMPARE_KEY}`);
 
         if (!ok || !data?.Data || !Array.isArray(data.Data)) {
-          return { symbol: upper, candles: [], ok: false, error, status };
+          return { symbol, candles: [], ok: false, error, status };
         }
 
         const candles = data.Data.filter(
@@ -58,7 +55,7 @@ const fetchLivePrices = async (symbols) => {
           close: point.close,
         }));
 
-        return { symbol: upper, candles, ok: true };
+        return { symbol, candles, ok: true };
       })
     );
 
@@ -77,7 +74,7 @@ const fetchLivePrices = async (symbols) => {
     return {ok: false,code: "LIVE_CHART_ERROR",error: error || ERRORS.LIVE_CHART_ERROR,status,};
   }
 
-  const candlesBySymbol = updateSeriesFromPrices(symbols, data);
+  const candlesBySymbol = updateSeriesFromPrices(normalizedSymbols, data);
   return { ok: true, candlesBySymbol };
 };
 
