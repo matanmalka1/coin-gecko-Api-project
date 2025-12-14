@@ -85,5 +85,4 @@ export const CONFIG_CHART = {
   CHART_WICK_DOWN: "#ef5350",
   CHART_BG: "#ffffff",
   CHART_TEXT_BORDER: "#000000ff",
-  
 };

@@ -1,4 +1,4 @@
-// Centralized error messages + resolver for the entire app.
+//  error messages + resolver for the entire app.
 export const ERRORS = {
   DEFAULT: "Failed to load data. Please try again.",
   COIN_LIST_ERROR: "Failed to load coins data. Please try again.",
