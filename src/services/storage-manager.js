@@ -15,9 +15,7 @@ const getCache = (key) => {
   if (!entry) return null;
 
   const { timestamp, ttl, data } = entry;
-  const expired = Date.now() - timestamp >= ttl;
-
-  if (expired) {
+  if (Date.now() - timestamp >= ttl) {
     cacheStore.delete(key);
     return null;
   }
@@ -27,25 +25,20 @@ const getCache = (key) => {
 };
 
 const setCache = (key, data, ttl = EXPIRY_TIME) => {
-  const entry = { data, timestamp: Date.now(), ttl };
+ cacheStore.delete(key); 
+  cacheStore.set(key, { data, timestamp: Date.now(), ttl });
 
-  if (cacheStore.has(key)) cacheStore.delete(key);
-  cacheStore.set(key, entry);
-
-  while (cacheStore.size > MAX_ENTRIES) {
+  if (cacheStore.size > MAX_ENTRIES) {
     const oldestKey = cacheStore.keys().next().value;
     cacheStore.delete(oldestKey);
   }
 };
-
- export const fetchWithCache = async (cacheKey, fetcher, ttl = EXPIRY_TIME) => {
+export const fetchWithCache = async (cacheKey, fetcher, ttl = EXPIRY_TIME) => {
   const cached = getCache(cacheKey);
   if (cached) return { ok: true, data: cached, fromCache: true };
 
- const { ok, data, code, error, status } = await fetcher();
-  if (!ok) {
-    return { ok: false, code: code || "DEFAULT", error, status };
-  }
+  const { ok, data, code, error, status } = await fetcher();
+  if (!ok) {return { ok: false, code: code || "DEFAULT", error, status };}
 
   setCache(cacheKey, data, ttl);
   return { ok: true, data, fromCache: false, status };
@@ -79,14 +72,13 @@ const getFavorites = () => {
 const addFavorite = (symbol) => {
   const favorites = getFavorites();
   if (!favorites.includes(symbol)) {
-    writeJSON(KEY_FAVORITES, [...favorites, symbol]);}
-   
+    writeJSON(KEY_FAVORITES, [...favorites, symbol]);
+  }
 };
 
-const removeFavorite = (symbol) => {
-  const favorites = getFavorites();
-  writeJSON(KEY_FAVORITES,favorites.filter((f) => f !== symbol));
-};
+const removeFavorite = (symbol) =>
+  writeJSON(KEY_FAVORITES, getFavorites().filter((f) => f !== symbol));
+
 
 const isFavorite = (symbol) => getFavorites().includes(symbol);
 
@@ -106,20 +98,8 @@ const addReport = (symbol) => {
   }
 };
 
-const removeReport = (symbol) => {
-  const reports = getSelectedReports();
-  writeJSON(
-    KEY_REPORTS,
-    reports.filter((r) => r !== symbol)
-  );
-};
-
-const hasReport = (symbol) => getSelectedReports().includes(symbol);
-
-const getUIState = () => ({
-  selected: getSelectedReports(),
-  favorites: getFavorites(),
-});
+const removeReport = (symbol) =>
+  writeJSON(KEY_REPORTS, getSelectedReports().filter((r) => r !== symbol));
 
 export const CacheManager = {
   getCache,
@@ -138,6 +118,4 @@ export const StorageHelper = {
   setSelectedReports,
   addReport,
   removeReport,
-  hasReport,
-  getUIState,
 };
