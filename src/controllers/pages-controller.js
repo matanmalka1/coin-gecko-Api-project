@@ -7,7 +7,7 @@ import { getAllCoins, loadAllCoins, getGlobalStats} from "../services/coins-serv
 import { cleanup,startLiveChart } from "../services/chart-service.js";
 import { getNewsForFavorites ,fetchNews } from "../services/news-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
-import { BaseUI } from "../ui/base-ui.js";
+import { showPage ,renderStatsBar } from "../ui/base-ui.js";
 import { skeleton } from "../ui/Components/base-components.js";
 import { ErrorUI } from "../ui/error-ui.js";
 
@@ -22,6 +22,7 @@ const {
   NEWS_CACHE_GEN,  
   NEWS_QUERY,  
 } = APP_CONFIG;
+
 const { CHART_POINTS } = CONFIG_CHART;
 
 let isLoadingCoins = false;
@@ -38,24 +39,18 @@ export const renderCoins = (coins, extras = {}) => {
 // ===== STATS BAR =====
 export const initStatsBar = async () => {
   const { ok, data } = await getGlobalStats();
+  if (!ok || !data) return;
+
   const stats = data?.data || data;
-  if (!ok || !stats) return;
-
-  BaseUI.renderStatsBar("#statsBar", {
-    totalMarketCap: stats.total_market_cap?.usd,
-    totalVolume: stats.total_volume?.usd,
-    btcDominance: stats.market_cap_percentage?.btc,
-    marketChange: stats.market_cap_change_percentage_24h_usd,
-  });
+  renderStatsBar("#statsBar", stats);
 };
-
 // ===== CURRENCIES PAGE =====
 export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   cleanup();
   if (isLoadingCoins) return;
   isLoadingCoins = true;
 
-  BaseUI.showPage(PageComponents.currenciesPage());
+  showPage(PageComponents.currenciesPage());
 
   const $compareStatus = $("#compareStatus");
   $compareStatus.addClass("d-none").empty();
@@ -91,7 +86,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 export const showReportsPage = async () => {
   cleanup();
 
-  BaseUI.showPage(PageComponents.reportsPage());
+  showPage(PageComponents.reportsPage());
   $("#chartsGrid").html(skeleton("charts", 6));
 
   await startLiveChart({
@@ -141,13 +136,13 @@ const loadNews = async (mode = "general") => {
 
 export const showNewsPage = async () => {
   cleanup();
-  BaseUI.showPage(PageComponents.newsPage());
+ showPage(PageComponents.newsPage());
   await loadNews("general");
 };
 
 export const showFavoritesNewsPage = async () => {
   cleanup();
-  BaseUI.showPage(PageComponents.newsPage());
+  showPage(PageComponents.newsPage());
   await loadNews("favorites");
 };
 
@@ -155,7 +150,7 @@ export const showFavoritesNewsPage = async () => {
 export const showAboutPage = () => {
  cleanup();
 
-  BaseUI.showPage(
+  showPage(
     PageComponents.aboutPage({
       name: ABOUT_NAME,
       image: ABOUT_IMAGE,

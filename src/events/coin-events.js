@@ -1,13 +1,12 @@
 import { StorageHelper } from "../services/storage-manager.js";
 import { showCoinDetails, updateFavoriteIcon } from "../ui/coin-ui.js";
-import { BaseUI } from "../ui/base-ui.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
 import {filterSelectedCoins, getCoinDetails ,searchCoin, getAllCoins, sortCoins} from "../services/coins-service.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
-
-
+import { toggleCollapse } from "../ui/base-ui.js";
+import { spinner } from "../ui/Components/base-components.js";
 const { NO_FAVORITES } = ERRORS
 
 let isShowingFavoritesOnly = false;
@@ -61,12 +60,12 @@ const handleMoreInfo = async (e) => {
   const $collapse = $(collapseSelector);
 
   if ($collapse.hasClass("show")) {
-    BaseUI.toggleCollapse(collapseId, false);
+    toggleCollapse(collapseId, false);
     return;
   }
 
-  BaseUI.showSpinner(collapseSelector, "Loading details…");
-  BaseUI.toggleCollapse(collapseId, true);
+   $(collapseSelector).html(spinner("Loading details…"));
+  toggleCollapse(collapseId, true);
 
   try {
     const { ok, data, status } = await getCoinDetails(coinId);
