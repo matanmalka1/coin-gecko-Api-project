@@ -1,8 +1,4 @@
-import { CONFIG_CHART } from "../config/app-config.js";
-import { getCoinMarketChart } from "../services/coins-service.js";
-import { ErrorUI } from "./error-ui.js";
-
-const {
+import {
   CHART_POINTS,
   CHART_H,
   CHART_H_MOBILE,
@@ -15,7 +11,9 @@ const {
   CHART_BORDER_DOWN,
   CHART_WICK_UP,
   CHART_WICK_DOWN,
-} = CONFIG_CHART;
+} from "../config/app-config.js";
+import { getCoinMarketChart } from "../services/coins-service.js";
+import { ErrorUI } from "./error-ui.js";
 
 // ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 const charts = new Map();

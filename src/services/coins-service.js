@@ -1,21 +1,8 @@
 import { fetchWithRetry } from "./api.js";
-import { CacheManager, StorageHelper } from "./storage-manager.js";
-import { APP_CONFIG } from "../config/app-config.js";
+import { fetchWithCache, getCache, setCache, writeJSON, getSelectedReports, setSelectedReports } from "./storage-manager.js";
+import { ALLOWED_PATTERN, COINGECKO_BASE, CHART_HISTORY_DAYS, COINS_PER_PAGE, COINS_CACHE_KEY, COINS_TIMESTAMP_KEY } from "../config/app-config.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
-
-const { fetchWithCache, getCache, setCache } = CacheManager;
-const { writeJSON, getSelectedReports, setSelectedReports } = StorageHelper;
-
-const {
-  MIN_LENGTH,
-  MAX_LENGTH,
-  ALLOWED_PATTERN,
-  COINGECKO_BASE,
-  CHART_HISTORY_DAYS,
-  COINS_PER_PAGE,
-  COINS_CACHE_KEY,
-  COINS_TIMESTAMP_KEY,
-} = APP_CONFIG;
+import { ERRORS } from "../config/error.js";
 
 const sortFunctions = {
   price_desc: (a, b) => b.current_price - a.current_price,
@@ -30,14 +17,14 @@ const sortFunctions = {
 export const getAllCoins = () => getCache(COINS_CACHE_KEY) || [];
 
 export const loadAllCoins = async () => {
-  const { ok, data, status, code, error } = await fetchWithRetry(
+  const { ok, data, status, error } = await fetchWithRetry(
     `${COINGECKO_BASE}/coins/markets` +
       `?vs_currency=usd&order=market_cap_desc` +
       `&per_page=${COINS_PER_PAGE}&page=1&sparkline=false`
   );
 
   if (!ok) {
-    return { ok: false, code: code || "COIN_LIST_ERROR", error, status };
+    return { ok: false, error: error || ERRORS.COIN_LIST_ERROR, status };
   }
 
   const coinsArray = Array.isArray(data) ? data : [];
@@ -75,23 +62,20 @@ export const sortCoins = (sortType) => {
 export const searchCoin = (term) => {
   const cleanTerm = String(term || "").trim().toLowerCase();
 
-  if (!cleanTerm) return { ok: false, code: "EMPTY_TERM" };
-  if (cleanTerm.length < MIN_LENGTH) 
-    return { ok: false, code: "TERM_TOO_SHORT", min: MIN_LENGTH };
-  if (cleanTerm.length > MAX_LENGTH) 
-    return { ok: false, code: "TERM_TOO_LONG", limit: MAX_LENGTH };
-  if (!ALLOWED_PATTERN.test(cleanTerm)) 
-    return { ok: false, code: "INVALID_TERM" };
+  const isValidLength = cleanTerm.length >= 2 && cleanTerm.length <= 20;
+  if (!cleanTerm || !isValidLength || !ALLOWED_PATTERN.test(cleanTerm)) {
+    return { ok: false, error: ERRORS.INVALID_TERM };
+  }
 
   const allCoins = getAllCoins();
-  if (!allCoins.length) return { ok: false, code: "LOAD_WAIT" };
+  if (!allCoins.length) return { ok: false, error: ERRORS.LOAD_WAIT };
 
   const filteredCoins = allCoins.filter((coin) => 
   coin.symbol?.toLowerCase().includes(cleanTerm) || 
   coin.name?.toLowerCase().includes(cleanTerm)
 );
 
-  if (!filteredCoins.length) return { ok: false, code: "NO_MATCH", term: cleanTerm };
+  if (!filteredCoins.length) return { ok: false, error: ERRORS.NO_MATCH(cleanTerm) };
 
   return {ok: true, data: filteredCoins,};
 };
@@ -99,7 +83,7 @@ export const searchCoin = (term) => {
 export const filterSelectedCoins = () => {
   const selectedReports = getSelectedReports();
   if (!selectedReports.length) {
-    return { ok: false, code: "NONE_SELECTED" };
+    return { ok: false, error: ERRORS.NONE_SELECTED };
   }
 
   const selectedSet = new Set(selectedReports);
@@ -115,7 +99,7 @@ export const filterSelectedCoins = () => {
 
   if (!filtered.length) {
     setSelectedReports([]);
-    return { ok: false, code: "NOT_FOUND" };
+    return { ok: false, error: ERRORS.NOT_FOUND };
   }
   const cleanedSelection = selectedReports.filter((symbol) =>
     validSymbols.has(symbol)

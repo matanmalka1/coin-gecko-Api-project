@@ -1,4 +1,4 @@
-//  error messages + resolver for the entire app.
+// Error messages used across the app.
 export const ERRORS = {
   DEFAULT: "Failed to load data. Please try again.",
   COIN_LIST_ERROR: "Failed to load coins data. Please try again.",
@@ -14,10 +14,6 @@ export const ERRORS = {
   EMPTY_TERM: "Please enter a search term.",
   LOAD_WAIT: "Please wait for coins to load...",
   NO_MATCH: (term = "") => `No coins found matching "${term}".`,
-  TERM_TOO_SHORT: (min = 1) =>
-    `Search term is too short. Minimum ${min} characters.`,
-  TERM_TOO_LONG: (max = 40) =>
-    `Search term is too long. Maximum allowed is ${max} characters.`,
   INVALID_TERM:
     "Search term contains invalid characters. Use letters, numbers, spaces, dots or hyphens.",
   
@@ -40,32 +36,4 @@ export const ERRORS = {
 
   // ===== GENERIC UI ERRORS =====
   GENERIC: "An error occurred. Please try again.",
-};
-
-// ===== RESOLVER =====
-export const ErrorResolver = {
-  resolve(code, context = {}) {
-    const error = ERRORS[code];
-    if (context.defaultMessage) {
-      return context.defaultMessage;
-    }
-
-    if (!error) {
-      console.warn(`Unknown error code: ${code}`);
-      return context.defaultMessage || ERRORS.DEFAULT;
-    }
-
-    if (typeof error === "function") {
-      const param =
-        context.term ||
-        context.limit ||
-        context.max ||
-        context.min ||
-        context.symbols ||
-        context.status;
-      const result = error(param);
-      return result;
-    }
-    return error;
-  },
 };

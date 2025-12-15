@@ -3,7 +3,7 @@ import { ERRORS } from "../../config/error.js";
 import { ErrorUI } from "../error-ui.js";
 import { formatPrice, formatLargeNumber, formatPercent } from "../../utils/general-utils.js";
 
-const { UI_NO_COINS, UI_COMPARE_TITLE } = APP_CONFIG;
+const { UI_NO_COINS } = APP_CONFIG;
 
 const replaceModal = (newSymbol, existingCoins, options = {}) => {
   const limit =
@@ -98,7 +98,8 @@ export const showReplaceModal = (
   const modalHTML = replaceModal(newSymbol, existingCoins, { maxCoins });
 
   $("body").append(modalHTML);
-  const modal = new bootstrap.Modal(document.getElementById("replaceModal"));
+  const $modalEl = $("#replaceModal");
+  const modal = new bootstrap.Modal($modalEl[0]);
   modal.show();
   $("#confirmReplace")
     .off()
@@ -110,8 +111,8 @@ export const showReplaceModal = (
         ? onConfirm({ remove: selectedToRemove, add: newSymbol, modal })
         : modal.hide();
     });
-  $("#replaceModal").one("hidden.bs.modal", () => {
-    $("#replaceModal").remove();
+  $modalEl.one("hidden.bs.modal", () => {
+    $modalEl.remove();
     onClose?.();
   });
   return modal;
@@ -119,10 +120,11 @@ export const showReplaceModal = (
 
 export const showCompareModal = (coins, { missingSymbols = [], title, onClose } = {}) => {
   const content = buildCompareTable(coins);
-  const modalHTML = compareModal(content, { title: title || UI_COMPARE_TITLE });
+  const modalHTML = compareModal(content, { title: title || "Compare Coins" });
 
   $("body").append(modalHTML);
-  const modal = new bootstrap.Modal(document.getElementById("compareModal"));
+  const $modalEl = $("#compareModal");
+  const modal = new bootstrap.Modal($modalEl[0]);
 
   if (missingSymbols.length)
     ErrorUI.showInfo(
@@ -131,8 +133,8 @@ export const showCompareModal = (coins, { missingSymbols = [], title, onClose } 
       "warning"
     );
 
-  $("#compareModal").on("hidden.bs.modal", () => {
-    $("#compareModal").remove();
+  $modalEl.on("hidden.bs.modal", () => {
+    $modalEl.remove();
     onClose?.();
   });
 

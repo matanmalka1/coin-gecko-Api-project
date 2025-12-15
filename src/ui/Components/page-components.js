@@ -2,18 +2,13 @@ import { APP_CONFIG } from "../../config/app-config.js";
 import { shortenText } from "../../utils/general-utils.js";
 import { cardContainer } from "./base-components.js";
 
-const {
-  REPORTS_CREDIT_LABEL,
-  REPORTS_CREDIT_LINK,
-  REPORTS_CREDIT_NAME,
-  NEWS_DESC_MAX,
-} = APP_CONFIG;
+const { NEWS_DESC_MAX } = APP_CONFIG;
 
 // Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `
   <div id="searchArea" class="my-4 d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-center gap-2">
     <div class="flex-grow-1 d-flex justify-content-center justify-content-md-end">
-      <input type="text" id="searchInput" class="w-100 w-md-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)">
+      <input type="text" id="searchInput" class="w-100 w-md-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)" minlength="2" maxlength="20" pattern="[a-zA-Z0-9\\s.-]+">
     </div>
     <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
       <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
@@ -38,8 +33,8 @@ const currenciesPage = () => `
 const reportsPage = () => `
   <h3 class="mb-4">Live Reports</h3>
   <div id="chartsGrid" class="row g-3"></div>
-  <div class="mt-2"><small class="text-muted">${REPORTS_CREDIT_LABEL} 
-    <a href="${REPORTS_CREDIT_LINK}" target="_blank" rel="noreferrer">${REPORTS_CREDIT_NAME}</a></small></div>`;
+  <div class="mt-2"><small class="text-muted">Reports charts powered by 
+    <a href="https://www.tradingview.com" target="_blank" rel="noreferrer">TradingView Lightweight Charts</a></small></div>`;
 
 // Static about page with author details pulled from APP_CONFIG.
 const aboutPage = (userData = {}) => {

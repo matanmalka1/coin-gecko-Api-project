@@ -1,73 +1,53 @@
-// Flat configuration container (grouped by comment, no nested objects)
-export const APP_CONFIG = {
-  // ===== API ENDPOINTS =====
-  COINGECKO_BASE: "https://api.coingecko.com/api/v3",
-  CRYPTOCOMPARE_BASE: "https://min-api.cryptocompare.com/data",
-  NEWS_URL: "https://newsdata.io/api/1/crypto",
+// ===== API ENDPOINTS & KEYS =====
+export const COINGECKO_BASE = "https://api.coingecko.com/api/v3";
+export const CRYPTOCOMPARE_BASE = "https://min-api.cryptocompare.com/data";
+export const NEWS_URL = "https://newsdata.io/api/1/crypto";
 
-  CRYPTOCOMPARE_KEY: "4ef2fdc02875bc61baebda22cab1520bc687d182b4a7f09af1b5d3c087812578",
-  NEWS_KEY: "pub_f179a246e66740f4943967a02e0bd77e",
+export const CRYPTOCOMPARE_KEY = "4ef2fdc02875bc61baebda22cab1520bc687d182b4a7f09af1b5d3c087812578";
+export const NEWS_KEY = "pub_f179a246e66740f4943967a02e0bd77e";
 
-  CHART_HISTORY_DAYS: 7,
-  COINS_PER_PAGE: 50,
+// ===== DATA / FETCH LIMITS =====
+export const CHART_HISTORY_DAYS = 7;
+export const COINS_PER_PAGE = 50;
 
-  // ===== CACHE SETTINGS =====
-  CACHE_TTL: 5 * 60 * 1000,
-  CACHE_MAX: 100,
-  CACHE_COINS_REFRESH_MS: 5 * 60 * 1000,
-  NEWS_TTL: 30 * 60 * 1000,
-  NEWS_FRESH_MS: 5 * 60 * 60 * 1000,
-  KEY_FAVORITES: "favorites",
-  KEY_REPORTS: "reportsSelection",
-  COINS_CACHE_KEY: "marketData",
-  COINS_TIMESTAMP_KEY: "marketDataTimestamp",
+// ===== CACHE SETTINGS =====
+export const CACHE_TTL = 5 * 60 * 1000;
+export const CACHE_MAX = 100;
+export const CACHE_COINS_REFRESH_MS = 5 * 60 * 1000;
+export const NEWS_TTL = 30 * 60 * 1000;
+export const NEWS_FRESH_MS = 5 * 60 * 60 * 1000;
+export const KEY_FAVORITES = "favorites";
+export const KEY_REPORTS = "reportsSelection";
+export const COINS_CACHE_KEY = "marketData";
+export const COINS_TIMESTAMP_KEY = "marketDataTimestamp";
 
-  // ===== SEARCH =====
-  MIN_LENGTH: 2,
-  MAX_LENGTH: 20,
-  ALLOWED_PATTERN: /^[a-z0-9\s.-]+$/i,
+// ===== SEARCH =====
+export const ALLOWED_PATTERN = /^[a-z0-9\s.-]+$/i;
 
-  // ===== GENERAL UI TEXT =====
-  UI_COMPARE_TITLE: "Compare Coins",
-  UI_NO_COINS: "No coins found.",
+// ===== UI TEXT / LIMITS =====
+export const UI_NO_COINS = "No coins found.";
+export const NEWS_DESC_MAX = 200;
+export const NEWS_QUERY = "crypto OR cryptocurrency";
+export const NEWS_LANG = "en";
+export const NEWS_CACHE_GEN = "news_cache_general";
+export const NEWS_CACHE_FAV = "news_cache_favorites";
+export const COIN_DESC_MAX = 200;
 
-  NEWS_DESC_MAX: 200,
+// ===== REPORTS =====
+export const REPORTS_MAX = 5;
+export const REPORTS_COMPARE_MAX = 2;
+export const REPORTS_UPDATE_MS = 2000;
 
-  // ===== NEWS DEFAULTS =====
-  NEWS_QUERY: "crypto OR cryptocurrency",
-  NEWS_LANG: "en",
-  NEWS_CACHE_GEN: "news_cache_general",
-  NEWS_CACHE_FAV: "news_cache_favorites",
-
-  // ===== COIN DETAILS =====
-  COIN_DESC_MAX: 200,
-
-  // ===== REPORTS =====
-  REPORTS_MAX: 5,
-  REPORTS_COMPARE_MAX: 2,
-  REPORTS_UPDATE_MS: 2000,
-  REPORTS_CREDIT_LABEL: "Reports charts powered by",
-  REPORTS_CREDIT_NAME: "TradingView Lightweight Charts",
-  REPORTS_CREDIT_LINK: "https://www.tradingview.com",
-
-  // ===== ABOUT =====
-  ABOUT_NAME: "Matan Yehuda Malka",
-  ABOUT_IMAGE: "images/2.jpeg",
-  ABOUT_LINKEDIN: "https://www.linkedin.com/in/matanyehudamalka",
-};
-
-export const CONFIG_CHART = {
-  // ===== CHART SETTINGS =====
-  CHART_POINTS: 70,
-  CHART_BADGE: "Live",
-  CHART_H: 220,
-  CHART_H_MOBILE: 180,
-  CHART_UP: "#26a69a",
-  CHART_DOWN: "#ef5350",
-  CHART_BORDER_UP: "#26a69a",
-  CHART_BORDER_DOWN: "#ef5350",
-  CHART_WICK_UP: "#26a69a",
-  CHART_WICK_DOWN: "#ef5350",
-  CHART_BG: "#ffffff",
-  CHART_TEXT_BORDER: "#000000ff",
-};
+// ===== CHART SETTINGS =====
+export const CHART_POINTS = 70;
+export const CHART_BADGE = "Live";
+export const CHART_H = 220;
+export const CHART_H_MOBILE = 180;
+export const CHART_UP = "#26a69a";
+export const CHART_DOWN = "#ef5350";
+export const CHART_BORDER_UP = "#26a69a";
+export const CHART_BORDER_DOWN = "#ef5350";
+export const CHART_WICK_UP = "#26a69a";
+export const CHART_WICK_DOWN = "#ef5350";
+export const CHART_BG = "#ffffff";
+export const CHART_TEXT_BORDER = "#000000ff";

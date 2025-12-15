@@ -1,11 +1,7 @@
 import { fetchWithRetry } from "./api.js";
 import { getSelectedReports } from "./storage-manager.js";
-import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
-import { normalizeSymbol } from "../utils/general-utils.js";
+import { CHART_POINTS, CRYPTOCOMPARE_BASE, CRYPTOCOMPARE_KEY, REPORTS_UPDATE_MS } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
-
-const { CRYPTOCOMPARE_BASE, CRYPTOCOMPARE_KEY, REPORTS_UPDATE_MS } = APP_CONFIG;
-const { CHART_POINTS } = CONFIG_CHART;
 
 let liveIntervalId = null;
 let liveCandlesBySymbol = {};
@@ -26,13 +22,11 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
 };
 
 const fetchLivePrices = async (symbols) => {
-  const normalizedSymbols = symbols.map(normalizeSymbol);
-
-  if (!normalizedSymbols.length) {return { ok: false, code: "NONE_SELECTED" };}
+  if (!symbols.length) {return { ok: false, error: ERRORS.NONE_SELECTED };}
 
   if (!Object.keys(liveCandlesBySymbol).length) {
     const historyResults = await Promise.all(
-      normalizedSymbols.map(async (symbol) => {
+      symbols.map(async (symbol) => {
 
         const { ok, data, error, status } =  await fetchWithRetry(`${CRYPTOCOMPARE_BASE}/histohour?fsym=${symbol}&tsym=USD&limit=${24 * 7}&api_key=${CRYPTOCOMPARE_KEY}`);
 
@@ -64,17 +58,17 @@ const fetchLivePrices = async (symbols) => {
       liveCandlesBySymbol[symbol] = candles.slice(-CHART_POINTS);
     });
   }
-  const fsyms = normalizedSymbols.join(",");
+  const fsyms = symbols.join(",");
 
   const { ok, data, error, status } = await fetchWithRetry(
     `${CRYPTOCOMPARE_BASE}/pricemulti?fsyms=${fsyms}&tsyms=USD&api_key=${CRYPTOCOMPARE_KEY}`
   );
 
   if (!ok || !data) {
-    return {ok: false,code: "LIVE_CHART_ERROR",error: error || ERRORS.LIVE_CHART_ERROR,status,};
+    return {ok: false,error: error || ERRORS.LIVE_CHART_ERROR,status,};
   }
 
-  const candlesBySymbol = updateSeriesFromPrices(normalizedSymbols, data);
+  const candlesBySymbol = updateSeriesFromPrices(symbols, data);
   return { ok: true, candlesBySymbol };
 };
 
@@ -92,8 +86,8 @@ export const startLiveChart = async (chartCallbacks = {}) => {
 
   const selected = getSelectedReports();
   if (!selected.length) {
-    chartCallbacks.onError?.({ code: "NONE_SELECTED" });
-    return { ok: false, code: "NONE_SELECTED" };
+    chartCallbacks.onError?.({ error: ERRORS.NONE_SELECTED });
+    return { ok: false, error: ERRORS.NONE_SELECTED };
   }
 
   chartCallbacks.onChartReady?.({
@@ -104,7 +98,8 @@ export const startLiveChart = async (chartCallbacks = {}) => {
   const handleResult = (result) => {
     if (!result.ok) {
       chartCallbacks.onError?.({
-        code: result.code || "LIVE_CHART_ERROR",status: result.status,error: result.error,
+        status: result.status,
+        error: result.error || ERRORS.LIVE_CHART_ERROR,
       });
       return;
     }

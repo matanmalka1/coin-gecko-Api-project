@@ -1,10 +1,9 @@
-import { StorageHelper } from "../services/storage-manager.js";
+import { getFavorites, isFavorite, addFavorite, removeFavorite } from "../services/storage-manager.js";
 import {showCoinDetails,updateFavoriteIcon,} from "../ui/Components/coin-components.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import {showCurrenciesPage,renderCoins,} from "../controllers/pages-controller.js";
 import {filterSelectedCoins,getCoinDetails,searchCoin,getAllCoins,sortCoins,} from "../services/coins-service.js";
-import { normalizeSymbol } from "../utils/general-utils.js";
 import { spinner, toggleCollapse } from "../ui/Components/base-components.js";
 
 const { NO_FAVORITES } = ERRORS;
@@ -18,9 +17,9 @@ const handleSortChange = () => {
 };
 
 const renderFavoritesList = () => {
-  const favoriteSymbols = StorageHelper.getFavorites();
+  const favoriteSymbols = getFavorites();
   const filtered = getAllCoins().filter((coin) =>
-    favoriteSymbols.includes(normalizeSymbol(coin.symbol))
+    favoriteSymbols.includes(coin.symbol)
   );
 
   renderCoins(filtered, {
@@ -30,53 +29,49 @@ const renderFavoritesList = () => {
 };
 
 const renderSelectedList = () => {
-  const { ok, code, data } = filterSelectedCoins();
+  const { ok, error, data } = filterSelectedCoins();
 
   if (!ok) {
-    ErrorUI.showError("#coinsContainer", code, {
-      defaultMessage: ERRORS.NONE_SELECTED,
-    });
+    ErrorUI.showError("#coinsContainer", error || ERRORS.NONE_SELECTED);
     return;
   }
   renderCoins(data);
 };
 
+const RENDER_MODES = {
+  favorites: renderFavoritesList,
+  selected: renderSelectedList,
+  all: () => renderCoins(getAllCoins()),
+};
+
 const handleFavoriteToggle = (e) => {
   const coinSymbol = $(e.currentTarget).data("symbol");
-  const isFavorite = StorageHelper.isFavorite(coinSymbol);
+  const favorite = isFavorite(coinSymbol);
 
-  isFavorite
-    ? StorageHelper.removeFavorite(coinSymbol)
-    : StorageHelper.addFavorite(coinSymbol);
+  favorite ? removeFavorite(coinSymbol) : addFavorite(coinSymbol);
 
-  updateFavoriteIcon(coinSymbol, !isFavorite);
+  updateFavoriteIcon(coinSymbol, !favorite);
   if (isShowingFavoritesOnly) {renderFavoritesList();
   }
 };
 
 const toggleViewMode = (mode) => {
-  const isFavorites = mode === "favorites";
-  const isSelected = mode === "selected";
-  if (!isFavorites && !isSelected) return;
+  const render = RENDER_MODES[mode];
+  if (!render) return;
 
-  const shouldShow = isFavorites
-    ? !isShowingFavoritesOnly
-    : !isShowingSelectedOnly;
+  isShowingFavoritesOnly = mode === "favorites";
+  isShowingSelectedOnly = mode === "selected";
 
-  isShowingFavoritesOnly = isFavorites ? shouldShow : false;
-  isShowingSelectedOnly = isSelected ? shouldShow : false;
-
-  if (isShowingFavoritesOnly) return renderFavoritesList();
-  if (isShowingSelectedOnly) return renderSelectedList();
-  renderCoins(getAllCoins());
+  render();
 };
 
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
-  const { ok, code, term, data } = searchCoin($("#searchInput").val());
+  const { ok, error, data } = searchCoin($("#searchInput").val());
   $("#clearSearchBtn").toggleClass("d-none");
 
-  if (!ok) {ErrorUI.showError("#coinsContainer", code, { term });
+  if (!ok) {
+    ErrorUI.showError("#coinsContainer", error || ERRORS.DEFAULT);
     return;
   }
   renderCoins(data);
@@ -99,23 +94,19 @@ const handleMoreInfo = async (e) => {
     return;
   }
 
-  $(collapseSelector).html(spinner("Loading details…"));
+  $collapse.html(spinner("Loading details…"));
   toggleCollapse(collapseId, true);
 
   try {
     const { ok, data, status } = await getCoinDetails(coinId);
 
     if (!ok || !data) {
-      ErrorUI.showError(collapseSelector, "COIN_DETAILS_ERROR", {
-        status,
-      });
+      ErrorUI.showError(collapseSelector, ERRORS.COIN_DETAILS_ERROR);
       return;
     }
     showCoinDetails(collapseId, data);
   } catch {
-    ErrorUI.showError(collapseSelector, "COIN_DETAILS_ERROR", {
-      status: null,
-    });
+    ErrorUI.showError(collapseSelector, ERRORS.COIN_DETAILS_ERROR);
   }
 };
 

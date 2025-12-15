@@ -15,7 +15,6 @@ export const fetchWithRetry = async (url, options = {}, retries = 1) => {
 
       return {
         ok: false,
-        code: status === 429 ? "RATE_LIMIT" : "HTTP_STATUS",
         error: status === 429 ? ERRORS.RATE_LIMIT : ERRORS.NETWORK_ERROR,
         status,
       };
@@ -24,6 +23,6 @@ export const fetchWithRetry = async (url, options = {}, retries = 1) => {
     const data = await response.json();
     return { ok: true, data, status };
   } catch {
-    return { ok: false, code: "NETWORK_ERROR", error: ERRORS.DEFAULT };
+    return { ok: false, error: ERRORS.DEFAULT };
   }
 };

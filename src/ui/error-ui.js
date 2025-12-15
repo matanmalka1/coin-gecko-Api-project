@@ -1,4 +1,4 @@
-import { ErrorResolver } from "../config/error.js";
+import { ERRORS } from "../config/error.js";
 
 const buildAlert = (type = "info", text = "") => {
   const icons = {
@@ -28,10 +28,10 @@ const getNotyf = () => {
   return notyf;
 };
 
-const showError = (target, code, context = {}) => {
-  const message = ErrorResolver.resolve(code, context);
-  $(target).html(buildAlert("danger", message));
-  getNotyf().error(message);
+const showError = (target, message) => {
+  const resolved = (message && ERRORS[message]) || message || ERRORS.DEFAULT;
+  $(target).html(buildAlert("danger", resolved));
+  getNotyf().error(resolved);
 };
 
 const showInfo = (target, message, type = "primary") => {

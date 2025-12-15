@@ -1,15 +1,60 @@
-import { APP_CONFIG } from "../../config/app-config.js";
+import { UI_NO_COINS, COIN_DESC_MAX, REPORTS_COMPARE_MAX } from "../../config/app-config.js";
 import { ErrorUI } from "../error-ui.js";
 import { shortenText, formatPrice, formatLargeNumber } from "../../utils/general-utils.js";
 import { ChartRenderer } from "../chart-renderer.js";
-
-const { UI_NO_COINS, COIN_DESC_MAX } = APP_CONFIG;
 const PLACEHOLDER_THUMB = "images/2.png";
 
 const CURRENCIES = {
   USD: { symbol: "$", label: "USD" },
   EUR: { symbol: "€", label: "EUR" },
   ILS: { symbol: "₪", label: "ILS" },
+};
+
+let compareSelection = [];
+
+const refreshCompareHighlights = () => {
+  const selectedSet = new Set(compareSelection);
+  $(".compare-row").each(function () {
+    const $row = $(this);
+    const isActive = selectedSet.has(String($row.data("id")));
+    $row.toggleClass("compare-row-active", isActive);
+    $row.closest(".card").toggleClass("compare-card-active", isActive);
+  });
+};
+
+export const getCompareSelection = () => [...compareSelection];
+
+export const resetCompareSelection = () => {
+  compareSelection = [];
+  refreshCompareHighlights();
+};
+
+export const setCompareSelection = (nextSelection = []) => {
+  compareSelection = Array.isArray(nextSelection)
+    ? nextSelection.map((id) => String(id))
+    : [];
+  refreshCompareHighlights();
+  return getCompareSelection();
+};
+
+export const toggleCompareSelection = (coinId, max = REPORTS_COMPARE_MAX) => {
+  const id = String(coinId || "");
+  if (!id) return { ok: false, error: null, selected: getCompareSelection() };
+
+  const exists = compareSelection.includes(id);
+  if (exists) {
+    compareSelection = compareSelection.filter((cid) => cid !== id);
+    refreshCompareHighlights();
+    return { ok: true, selected: getCompareSelection(), wasAdded: false };
+  }
+
+  if (compareSelection.length >= max) {
+    return { ok: false, error: null, selected: getCompareSelection(), limitExceeded: true };
+  }
+
+  compareSelection = [...compareSelection, id];
+  refreshCompareHighlights();
+  return { ok: true, selected: getCompareSelection(), wasAdded: true };
 };
 
 const coinCardHeader = (coin) => {
@@ -203,18 +248,16 @@ export const updateToggleStates = (selectedReports) => {
   });
 };
 
-export const getCompareSelection = () =>
-  $(".compare-row-active")
-    .map((_, el) => String($(el).data("id")))
-    .get();
-
+// Deprecated: highlights now driven by compareSelection state; left for compatibility
 export const setCompareHighlight = (coinId, isActive) => {
-  const $rows = $(`.compare-row[data-id="${String(coinId)}"]`);
-  $rows.toggleClass("compare-row-active", !!isActive);
-  $rows.closest(".card").toggleClass("compare-card-active", !!isActive);
+  if (!isActive) {
+    compareSelection = compareSelection.filter((id) => id !== String(coinId));
+  } else if (!compareSelection.includes(String(coinId))) {
+    compareSelection = [...compareSelection, String(coinId)];
+  }
+  refreshCompareHighlights();
 };
 
 export const clearCompareHighlights = () => {
-  $(".compare-row").removeClass("compare-row-active");
-  $(".card.compare-card-active").removeClass("compare-card-active");
+  resetCompareSelection();
 };

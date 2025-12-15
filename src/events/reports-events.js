@@ -1,6 +1,6 @@
 import {getAllCoins } from "../services/coins-service.js";
 import {toggleCoinSelection,replaceReport,getCompareData,} from "../services/reports-service.js";
-import {setCompareHighlight,clearCompareHighlights,getCompareSelection,updateToggleStates,} from "../ui/Components/coin-components.js";
+import {toggleCompareSelection,getCompareSelection,resetCompareSelection,updateToggleStates,} from "../ui/Components/coin-components.js";
 import { showReplaceModal, showCompareModal } from "../ui/Components/modals.js";
 import {APP_CONFIG } from "../config/app-config.js";
 import {ERRORS } from "../config/error.js";
@@ -12,12 +12,12 @@ export const updateCompareIndicator = (selected = getCompareSelection()) => {
   const $status = $("#compareStatus"); 
 
   if (!selectedCount) {
+    resetCompareSelection();
     $status.addClass("d-none").empty();
-    clearCompareHighlights();
     return;
   }
   
-  ErrorUI.showInfo("#compareStatus", `${selectedCount} / ${REPORTS_COMPARE_MAX} coins selected`);
+  ErrorUI.showInfo($status, `${selectedCount} / ${REPORTS_COMPARE_MAX} coins selected`);
   $status.removeClass("d-none");
 }
 
@@ -25,10 +25,10 @@ const openReplaceFlow = ({ newSymbol, existing, limit }) => {
   showReplaceModal(newSymbol, existing, {
     maxCoins: limit,
     onConfirm: ({ remove, add, modal }) => {
-      const { ok, code, selected } = replaceReport(remove, add);
+      const { ok, error, selected } = replaceReport(remove, add);
       updateToggleStates(selected);
       if (!ok) {
-        ErrorUI.showError("#content", code);
+        ErrorUI.showError("#content", error || ERRORS.DEFAULT);
         return;
       }
       modal.hide();
@@ -38,11 +38,13 @@ const openReplaceFlow = ({ newSymbol, existing, limit }) => {
 
 const handleCoinToggle = function () {
   const coinSymbol = $(this).data("symbol");
-  const { ok, code, selected, ...rest } = toggleCoinSelection(coinSymbol);
+  const { ok, error, selected, limitExceeded, ...rest } = toggleCoinSelection(coinSymbol);
   if (ok) {
     updateToggleStates(selected);
-  } else if (code === "LIMIT") {
-    openReplaceFlow({ code, selected, ...rest });
+  } else if (limitExceeded) {
+    openReplaceFlow({ selected, ...rest });
+  } else if (error) {
+    ErrorUI.showError("#content", error);
   }
 };
 
@@ -51,42 +53,35 @@ const handleCompareClick = async function () {
   const coinId = String($(this).data("id"));
   const coinExists = getAllCoins().some((coin) => String(coin.id) === coinId);
   if (!coinExists) {
-    ErrorUI.showError("#content", "NO_MATCH", {
-      defaultMessage: ERRORS.NOT_FOUND,
-    });
+    ErrorUI.showError("#content", ERRORS.NOT_FOUND);
     return;
   }
 
-  let currentSelection = getCompareSelection();
-
-  if (currentSelection.includes(coinId)) {
-    currentSelection = currentSelection.filter((id) => id !== coinId);
-    setCompareHighlight(coinId, false);
-  } else {
-    if (currentSelection.length >= REPORTS_COMPARE_MAX) {
-      ErrorUI.showError("#content", "COMPARE_FULL", {
-        limit: REPORTS_COMPARE_MAX,
-      });
-      return;
+  const { ok, selected, limitExceeded, error } = toggleCompareSelection(coinId, REPORTS_COMPARE_MAX);
+  if (!ok) {
+    if (limitExceeded) {
+      ErrorUI.showError("#content", ERRORS.COMPARE_FULL(REPORTS_COMPARE_MAX));
+    } else if (error) {
+      ErrorUI.showError("#content", error);
     }
-    currentSelection = [...currentSelection, coinId];
+    return;
   }
 
-  currentSelection.forEach((id) => setCompareHighlight(id, true));
+  const currentSelection = selected;
   updateCompareIndicator(currentSelection);
 
   if (currentSelection.length < REPORTS_COMPARE_MAX) return;
 
-  const { ok, code, coins, missing } = await getCompareData(currentSelection);
-  if (!ok) {
-    ErrorUI.showError("#content", code, { defaultMessage: ERRORS.DEFAULT });
+  const { ok: compareOk, coins, missing, error: compareError } = await getCompareData(currentSelection);
+  if (!compareOk) {
+    ErrorUI.showError("#content", compareError || ERRORS.DEFAULT);
     return;
   }
 
   showCompareModal(coins, {
     missingSymbols: missing,
     onClose: () => {
-      clearCompareHighlights();
+      resetCompareSelection();
       updateCompareIndicator();
     },
   });
