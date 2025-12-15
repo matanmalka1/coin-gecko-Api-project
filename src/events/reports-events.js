@@ -1,6 +1,7 @@
 import {getAllCoins } from "../services/coins-service.js";
 import {toggleCoinSelection,replaceReport,getCompareData,} from "../services/reports-service.js";
-import {setCompareHighlight,clearCompareHighlights,getCompareSelection,showReplaceModal,updateToggleStates,showCompareModal,} from "../ui/Components/coin-components.js";
+import {setCompareHighlight,clearCompareHighlights,getCompareSelection,updateToggleStates,} from "../ui/Components/coin-components.js";
+import { showReplaceModal, showCompareModal } from "../ui/Components/modals.js";
 import {APP_CONFIG } from "../config/app-config.js";
 import {ERRORS } from "../config/error.js";
 import {ErrorUI } from "../ui/error-ui.js";

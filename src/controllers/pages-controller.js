@@ -80,7 +80,6 @@ export const showReportsPage = async () => {
 
   await startLiveChart({
     onChartReady: ({ symbols, historyPoints }) => {
-      ChartRenderer.clear();
       ChartRenderer.setupCharts(symbols, { historyPoints });
     },
     onData: ({ candlesBySymbol }) => {

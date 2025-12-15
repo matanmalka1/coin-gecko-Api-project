@@ -119,7 +119,6 @@ const handleMoreInfo = async (e) => {
   }
 };
 
-
 // ===== REGISTRATION =====
 const setupEventListeners = () => {
   $(document)
