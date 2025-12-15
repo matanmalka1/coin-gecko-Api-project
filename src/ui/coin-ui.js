@@ -1,4 +1,3 @@
-import { spinner, skeleton } from "./Components/base-components.js";
 import {coinCard,coinDetails,coinMiniChart,replaceModal,compareModal,} from "./Components/coin-components.js";
 import { APP_CONFIG } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
@@ -6,7 +5,7 @@ import { ErrorUI } from "./error-ui.js";
 import {formatPrice,formatLargeNumber,formatPercent,} from "../utils/general-utils.js";
 import { ChartRenderer } from "./chart-renderer.js";
 
-const { UI_NO_COINS, UI_LOAD_COINS, UI_COMPARE_TITLE } = APP_CONFIG;
+const { UI_NO_COINS, UI_COMPARE_TITLE } = APP_CONFIG;
 
 const CURRENCIES = {
   USD: { symbol: "$", label: "USD" },
@@ -41,13 +40,6 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
 
 container.html(html);
 };
-// ===== LOADING STATE =====
-export const showLoading = () => {
-  const container = $("#coinsContainer");
-  if (!container.length) return;
-  container.html(`${spinner(UI_LOAD_COINS)}${skeleton("coins", 6)}`);
-};
-
 // ===== FAVORITE ICON =====
 export const updateFavoriteIcon = (symbol, isFavorite) => {
   const favoriteIcon = $(`.favorite-btn[data-symbol="${symbol}"] i`);

@@ -1,5 +1,5 @@
 import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
-import { displayCoins,getCompareSelection,showLoading } from "../ui/coin-ui.js";
+import { displayCoins,getCompareSelection } from "../ui/coin-ui.js";
 import { NewsUI } from "../ui/news-ui.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
 import { PageComponents } from "../ui/Components/page-components.js";
@@ -47,16 +47,16 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   $compareStatus.addClass("d-none").empty();
 
   const coins = getAllCoins();
-
-  coins.length > 0 ? renderCoins(coins) : showLoading();
-  
   const lastUpdated = StorageHelper.readJSON(COINS_TIMESTAMP_KEY, 0);
-  const isCacheExpired =
-    !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
+  const isCacheExpired = !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
 
   if (coins.length > 0 && !forceRefresh && !isCacheExpired) {
+    renderCoins(coins);
     isLoadingCoins = false;
     return;
+  }
+   if (coins.length === 0) {
+    $("#coinsContainer").html(skeleton("coins", 6));
   }
 
   try {
