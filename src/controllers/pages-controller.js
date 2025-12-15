@@ -7,7 +7,7 @@ import { getAllCoins, loadAllCoins, getGlobalStats} from "../services/coins-serv
 import { cleanup,startLiveChart } from "../services/chart-service.js";
 import { getNewsForFavorites ,fetchNews } from "../services/news-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
-import { showPage ,renderStatsBar } from "../ui/base-ui.js";
+import { renderStatsBar } from "../ui/base-ui.js";
 import { skeleton } from "../ui/Components/base-components.js";
 import { ErrorUI } from "../ui/error-ui.js";
 
@@ -41,7 +41,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   if (isLoadingCoins) return;
   isLoadingCoins = true;
 
-  showPage(PageComponents.currenciesPage());
+  $("#content").html(PageComponents.currenciesPage());
 
   const $compareStatus = $("#compareStatus");
   $compareStatus.addClass("d-none").empty();
@@ -76,8 +76,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 // ===== REPORTS PAGE =====
 export const showReportsPage = async () => {
   cleanup();
-
-  showPage(PageComponents.reportsPage());
+  $("#content").html(PageComponents.reportsPage());
   $("#chartsGrid").html(skeleton("charts", 6));
 
   await startLiveChart({
@@ -127,13 +126,13 @@ const loadNews = async (mode = "general") => {
 
 export const showNewsPage = async () => {
   cleanup();
- showPage(PageComponents.newsPage());
+  $("#content").html(PageComponents.newsPage());
   await loadNews("general");
 };
 
 export const showFavoritesNewsPage = async () => {
   cleanup();
-  showPage(PageComponents.newsPage());
+  $("#content").html(PageComponents.newsPage());
   await loadNews("favorites");
 };
 
@@ -141,11 +140,10 @@ export const showFavoritesNewsPage = async () => {
 export const showAboutPage = () => {
  cleanup();
 
-  showPage(
-    PageComponents.aboutPage({
-      name: ABOUT_NAME,
-      image: ABOUT_IMAGE,
-      linkedin: ABOUT_LINKEDIN,
-    })
-  );
+  $("#content").html(PageComponents.aboutPage({
+        name: ABOUT_NAME,
+        image: ABOUT_IMAGE,
+        linkedin: ABOUT_LINKEDIN,
+      })
+    );
 };

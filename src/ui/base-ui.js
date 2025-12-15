@@ -1,10 +1,5 @@
 import { formatLargeNumber, formatPercent } from "../utils/general-utils.js";
 
-// Replaces the entire page container with provided HTML and resets cache.
-export const showPage = (html, containerSelector = "#content") => {
-  $(containerSelector).empty().html(html);
-};
-
 export const toggleCollapse = (collapseId, show) => {
   const element = $(`#${collapseId}`);
   if (!element.length) return;
