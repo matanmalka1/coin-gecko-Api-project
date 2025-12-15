@@ -5,14 +5,12 @@ export const showPage = (html, containerSelector = "#content") => {
   $(containerSelector).empty().html(html);
 };
 
-// Opens/closes a collapse region with a smooth slide animation.
- export const toggleCollapse = (collapseId, show) => {
+export const toggleCollapse = (collapseId, show) => {
   const element = $(`#${collapseId}`);
   if (!element.length) return;
 
   element.toggleClass("show", show)[show ? "slideDown" : "slideUp"]();
 };
-
 
 export const renderStatsBar = (targetSelector, data) => {
   const {total_market_cap,total_volume,market_cap_percentage,market_cap_change_percentage_24h_usd } = data;

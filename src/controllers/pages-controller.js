@@ -11,17 +11,7 @@ import { showPage ,renderStatsBar } from "../ui/base-ui.js";
 import { skeleton } from "../ui/Components/base-components.js";
 import { ErrorUI } from "../ui/error-ui.js";
 
-const {
-  CACHE_COINS_REFRESH_MS,
-  COINS_TIMESTAMP_KEY,
-  ABOUT_NAME,
-  ABOUT_IMAGE,
-  ABOUT_LINKEDIN,
-  NEWS_LOAD_GEN,
-  NEWS_LOAD_FAV,
-  NEWS_CACHE_GEN,  
-  NEWS_QUERY,  
-} = APP_CONFIG;
+const {CACHE_COINS_REFRESH_MS,COINS_TIMESTAMP_KEY,ABOUT_NAME,ABOUT_IMAGE,ABOUT_LINKEDIN,NEWS_LOAD_GEN,NEWS_LOAD_FAV,NEWS_CACHE_GEN,NEWS_QUERY,} = APP_CONFIG;
 
 const { CHART_POINTS } = CONFIG_CHART;
 
@@ -44,6 +34,7 @@ export const initStatsBar = async () => {
   const stats = data?.data || data;
   renderStatsBar("#statsBar", stats);
 };
+
 // ===== CURRENCIES PAGE =====
 export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   cleanup();

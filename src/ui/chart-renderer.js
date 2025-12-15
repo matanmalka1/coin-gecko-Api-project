@@ -135,14 +135,10 @@ const drawMiniChart = async (coinId) => {
   chart.render();
 };
 
-// ===== EXPORTS =====
-
 export const ChartRenderer = {
-  // Lightweight Charts (Live Reports)
   setupCharts,
   update,
   clear,
 
-  // CanvasJS Mini Charts (Coin Details)
   drawMiniChart,
 };
