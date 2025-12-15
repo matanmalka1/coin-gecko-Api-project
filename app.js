@@ -3,11 +3,8 @@ import { ReportsEvents } from "./src/events/reports-events.js";
 import {showCurrenciesPage,showReportsPage,showNewsPage,showFavoritesNewsPage,showAboutPage,initStatsBar,} from "./src/controllers/pages-controller.js";
 
   // ===== DARKMODE WIDGET =====
-let darkmodeInstance = null;
-
 const initDarkmodeWidget = () => {
-  if (darkmodeInstance) return darkmodeInstance;
-  darkmodeInstance = new Darkmode({
+  const darkmode = new Darkmode({
     bottom: "20px",
     right: "5px",
     left: "unset",
@@ -20,9 +17,7 @@ const initDarkmodeWidget = () => {
     label: "☀️",
     autoMatchOsTheme: true,
   });
-  darkmodeInstance.showWidget();
-
-  return darkmodeInstance;
+  darkmode.showWidget();
 };
 
 $(() => {

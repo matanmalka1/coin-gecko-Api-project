@@ -1,7 +1,7 @@
-import { ERRORS } from "../config/error.js";
-import { skeleton } from "./Components/base-components.js";
-import { newsArticleCard } from "./Components/page-components.js";
-import { ErrorUI } from "./error-ui.js";
+import { ERRORS } from "../../config/error.js";
+import { skeleton } from "./base-components.js";
+import { newsArticleCard } from "./page-components.js";
+import { ErrorUI } from "../error-ui.js";
 
 // Renders the list of article cards or an empty-state message.
 const showNews = (articles = [], { emptyMessage = ERRORS.EMPTY } = {}) => {
@@ -15,7 +15,6 @@ const showNews = (articles = [], { emptyMessage = ERRORS.EMPTY } = {}) => {
 // Shows placeholder skeleton cards while fetching headlines.
 const showNewsLoading = (message = "Loading news...") => {
   $("#newsList").html(skeleton("news", 3));
-
 };
 
 // Toggles the active state between General/Favorites filters.

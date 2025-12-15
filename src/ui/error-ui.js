@@ -40,8 +40,9 @@ const showError = (target, code, context = {}) => {
 };
 
 const showInfo = (target, message, type = "info") => {
-  const $target = typeof target === "string" ? $(target) : $(target);
-  $target.html(buildAlert(type, message));
+const $target = $(target);
+$target.html(buildAlert(type, message));
+getNotyf().error(message);
 };
 
 const showSuccess = (target, message, options = {}) => {

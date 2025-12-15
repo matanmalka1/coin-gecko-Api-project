@@ -1,14 +1,13 @@
 import { APP_CONFIG, CONFIG_CHART } from "../config/app-config.js";
-import { displayCoins,getCompareSelection } from "../ui/coin-ui.js";
-import { NewsUI } from "../ui/news-ui.js";
+import { displayCoins,getCompareSelection } from "../ui/Components/coin-components.js";
+import { NewsUI } from "../ui/Components/news-components.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
 import { PageComponents } from "../ui/Components/page-components.js";
 import { getAllCoins, loadAllCoins, getGlobalStats} from "../services/coins-service.js";
 import { cleanup,startLiveChart } from "../services/chart-service.js";
 import { getNewsForFavorites ,fetchNews } from "../services/news-service.js";
 import { StorageHelper } from "../services/storage-manager.js";
-import { renderStatsBar } from "../ui/base-ui.js";
-import { skeleton } from "../ui/Components/base-components.js";
+import { skeleton,renderStatsBar } from "../ui/Components/base-components.js";
 import { ErrorUI } from "../ui/error-ui.js";
 
 const {CACHE_COINS_REFRESH_MS,COINS_TIMESTAMP_KEY,ABOUT_NAME,ABOUT_IMAGE,ABOUT_LINKEDIN,NEWS_LOAD_GEN,NEWS_LOAD_FAV,NEWS_CACHE_GEN,NEWS_QUERY,} = APP_CONFIG;

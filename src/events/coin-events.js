@@ -1,13 +1,13 @@
 import { StorageHelper } from "../services/storage-manager.js";
-import { showCoinDetails, updateFavoriteIcon } from "../ui/coin-ui.js";
+import {showCoinDetails,updateFavoriteIcon,} from "../ui/Components/coin-components.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
-import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
-import {filterSelectedCoins, getCoinDetails ,searchCoin, getAllCoins, sortCoins} from "../services/coins-service.js";
+import {showCurrenciesPage,renderCoins,} from "../controllers/pages-controller.js";
+import {filterSelectedCoins,getCoinDetails,searchCoin,getAllCoins,sortCoins,} from "../services/coins-service.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
-import { toggleCollapse } from "../ui/base-ui.js";
-import { spinner } from "../ui/Components/base-components.js";
-const { NO_FAVORITES } = ERRORS
+import { spinner, toggleCollapse } from "../ui/Components/base-components.js";
+
+const { NO_FAVORITES } = ERRORS;
 
 let isShowingFavoritesOnly = false;
 let isShowingSelectedOnly = false;
@@ -26,19 +26,18 @@ const renderFavoritesList = () => {
 
 const renderSelectedList = () => {
   const { ok, code, data } = filterSelectedCoins();
-  
+
   if (!ok) {
     ErrorUI.showError("#coinsContainer", code, {
       defaultMessage: ERRORS.NONE_SELECTED,
     });
     return;
   }
-  
   renderCoins(data);
 };
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
-  const { ok, code, term, data } = searchCoin( $("#searchInput").val());
+  const { ok, code, term, data } = searchCoin($("#searchInput").val());
   $("#clearSearchBtn").toggleClass("d-none");
 
   if (!ok) {ErrorUI.showError("#coinsContainer", code, { term });
@@ -64,7 +63,7 @@ const handleMoreInfo = async (e) => {
     return;
   }
 
-   $(collapseSelector).html(spinner("Loading details…"));
+  $(collapseSelector).html(spinner("Loading details…"));
   toggleCollapse(collapseId, true);
 
   try {
@@ -88,7 +87,7 @@ const handleFavoriteToggle = (e) => {
   const coinSymbol = $(e.currentTarget).data("symbol");
   const isFavorite = StorageHelper.isFavorite(coinSymbol);
 
-  isFavorite 
+  isFavorite
     ? StorageHelper.removeFavorite(coinSymbol)
     : StorageHelper.addFavorite(coinSymbol);
 
@@ -120,7 +119,7 @@ const setupEventListeners = () => {
     .on("keypress", "#searchInput", (e) => {
       if (e.key === "Enter") handleSearch();
     })
-    
+
     .on("click", "#clearSearchBtn", handleClearSearch)
     .on("click", "#showFavoritesBtn", handleShowFavorites)
     .on("click", "#filterReportsBtn", handleShowSelected)

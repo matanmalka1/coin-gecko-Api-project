@@ -16,8 +16,8 @@ const {
   CHART_WICK_UP,
   CHART_WICK_DOWN,
 } = CONFIG_CHART;
-// ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 
+// ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 const charts = new Map();
 let maxHistoryPoints = CHART_POINTS;
 
