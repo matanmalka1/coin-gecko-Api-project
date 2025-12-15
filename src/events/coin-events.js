@@ -12,6 +12,11 @@ const { NO_FAVORITES } = ERRORS;
 let isShowingFavoritesOnly = false;
 let isShowingSelectedOnly = false;
 
+const handleSortChange = () => {
+  const { data } = sortCoins($("#sortSelect").val());
+  renderCoins(data);
+};
+
 const renderFavoritesList = () => {
   const favoriteSymbols = StorageHelper.getFavorites();
   const filtered = getAllCoins().filter((coin) =>
@@ -35,6 +40,37 @@ const renderSelectedList = () => {
   }
   renderCoins(data);
 };
+
+const handleFavoriteToggle = (e) => {
+  const coinSymbol = $(e.currentTarget).data("symbol");
+  const isFavorite = StorageHelper.isFavorite(coinSymbol);
+
+  isFavorite
+    ? StorageHelper.removeFavorite(coinSymbol)
+    : StorageHelper.addFavorite(coinSymbol);
+
+  updateFavoriteIcon(coinSymbol, !isFavorite);
+  if (isShowingFavoritesOnly) {renderFavoritesList();
+  }
+};
+
+const toggleViewMode = (mode) => {
+  const isFavorites = mode === "favorites";
+  const isSelected = mode === "selected";
+  if (!isFavorites && !isSelected) return;
+
+  const shouldShow = isFavorites
+    ? !isShowingFavoritesOnly
+    : !isShowingSelectedOnly;
+
+  isShowingFavoritesOnly = isFavorites ? shouldShow : false;
+  isShowingSelectedOnly = isSelected ? shouldShow : false;
+
+  if (isShowingFavoritesOnly) return renderFavoritesList();
+  if (isShowingSelectedOnly) return renderSelectedList();
+  renderCoins(getAllCoins());
+};
+
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
   const { ok, code, term, data } = searchCoin($("#searchInput").val());
@@ -83,35 +119,6 @@ const handleMoreInfo = async (e) => {
   }
 };
 
-const handleFavoriteToggle = (e) => {
-  const coinSymbol = $(e.currentTarget).data("symbol");
-  const isFavorite = StorageHelper.isFavorite(coinSymbol);
-
-  isFavorite
-    ? StorageHelper.removeFavorite(coinSymbol)
-    : StorageHelper.addFavorite(coinSymbol);
-
-  updateFavoriteIcon(coinSymbol, !isFavorite);
-  if (isShowingFavoritesOnly) {
-    renderFavoritesList();
-  }
-};
-
-const handleShowFavorites = () => {
-  isShowingFavoritesOnly = !isShowingFavoritesOnly;
-   if (isShowingFavoritesOnly) isShowingSelectedOnly = false;
-  isShowingFavoritesOnly ? renderFavoritesList() : renderCoins(getAllCoins());
-};
-const handleShowSelected = () => {
-  isShowingSelectedOnly = !isShowingSelectedOnly;
-   if (isShowingSelectedOnly) isShowingFavoritesOnly = false;
-  isShowingSelectedOnly ? renderSelectedList() : renderCoins(getAllCoins());
- 
-};
-const handleSortChange = () => {
-  const { data } = sortCoins($("#sortSelect").val());
-  renderCoins(data);
-};
 
 // ===== REGISTRATION =====
 const setupEventListeners = () => {
@@ -121,8 +128,8 @@ const setupEventListeners = () => {
     })
 
     .on("click", "#clearSearchBtn", handleClearSearch)
-    .on("click", "#showFavoritesBtn", handleShowFavorites)
-    .on("click", "#filterReportsBtn", handleShowSelected)
+    .on("click", "#showFavoritesBtn", () => toggleViewMode("favorites"))
+    .on("click", "#filterReportsBtn", () => toggleViewMode("selected"))
     .on("click", "#refreshCoinsBtn", () => showCurrenciesPage({ forceRefresh: true }))
     .on("click", ".favorite-btn", handleFavoriteToggle)
     .on("click", ".more-info", handleMoreInfo)

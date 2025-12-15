@@ -28,13 +28,9 @@ export const APP_CONFIG = {
   ALLOWED_PATTERN: /^[a-z0-9\s.-]+$/i,
 
   // ===== GENERAL UI TEXT =====
-  UI_LOAD_COINS: "Loading coins...",
   UI_COMPARE_TITLE: "Compare Coins",
   UI_NO_COINS: "No coins found.",
 
-  // ===== NEWS UI =====
-  NEWS_LOAD_GEN: "Loading news...",
-  NEWS_LOAD_FAV: "Loading favorites news...",
   NEWS_DESC_MAX: 200,
 
   // ===== NEWS DEFAULTS =====
@@ -49,7 +45,6 @@ export const APP_CONFIG = {
   // ===== REPORTS =====
   REPORTS_MAX: 5,
   REPORTS_COMPARE_MAX: 2,
-  REPORTS_DAYS: 30,
   REPORTS_UPDATE_MS: 2000,
   REPORTS_CREDIT_LABEL: "Reports charts powered by",
   REPORTS_CREDIT_NAME: "TradingView Lightweight Charts",

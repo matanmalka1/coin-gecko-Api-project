@@ -47,6 +47,3 @@ export const filterLastHours = (articles = [], maxAgeInMs = 0) => {
     return Date.now() - publishedTime <= maxAgeInMs;
   });
 };
-
-
-

@@ -10,7 +10,7 @@ import { StorageHelper } from "../services/storage-manager.js";
 import { skeleton,renderStatsBar } from "../ui/Components/base-components.js";
 import { ErrorUI } from "../ui/error-ui.js";
 
-const {CACHE_COINS_REFRESH_MS,COINS_TIMESTAMP_KEY,ABOUT_NAME,ABOUT_IMAGE,ABOUT_LINKEDIN,NEWS_LOAD_GEN,NEWS_LOAD_FAV,NEWS_CACHE_GEN,NEWS_QUERY,} = APP_CONFIG;
+const {CACHE_COINS_REFRESH_MS,COINS_TIMESTAMP_KEY,ABOUT_NAME,ABOUT_IMAGE,ABOUT_LINKEDIN,NEWS_CACHE_GEN,NEWS_QUERY,} = APP_CONFIG;
 
 const { CHART_POINTS } = CONFIG_CHART;
 
@@ -107,9 +107,8 @@ export const showReportsPage = async () => {
 // ===== NEWS PAGE =====
 const loadNews = async (mode = "general") => {
   const isFavorites = mode === "favorites";
-  const loading = isFavorites ? NEWS_LOAD_FAV : NEWS_LOAD_GEN;
 
-  NewsUI.showNewsLoading(loading);
+  $("#newsList").html(skeleton("news", 3))
   NewsUI.setNewsFilterMode(mode);
 
   const {ok,data,code,error,status,} = isFavorites
@@ -123,16 +122,10 @@ const loadNews = async (mode = "general") => {
   NewsUI.showNews(data);
 };
 
-export const showNewsPage = async () => {
+export const showNewsPage = async (mode = "general") => {
   cleanup();
   $("#content").html(PageComponents.newsPage());
-  await loadNews("general");
-};
-
-export const showFavoritesNewsPage = async () => {
-  cleanup();
-  $("#content").html(PageComponents.newsPage());
-  await loadNews("favorites");
+  await loadNews(mode);
 };
 
 // ===== ABOUT PAGE =====

@@ -1,6 +1,6 @@
 import { CoinEvents } from "./src/events/coin-events.js";
 import { ReportsEvents } from "./src/events/reports-events.js";
-import {showCurrenciesPage,showReportsPage,showNewsPage,showFavoritesNewsPage,showAboutPage,initStatsBar,} from "./src/controllers/pages-controller.js";
+import {showCurrenciesPage,showReportsPage,showNewsPage,showAboutPage,initStatsBar,} from "./src/controllers/pages-controller.js";
 
   // ===== DARKMODE WIDGET =====
 const initDarkmodeWidget = () => {
@@ -30,8 +30,8 @@ $(() => {
   $("#aboutBtn").on("click", () => showAboutPage());
 
   $(document)
-    .on("click", "#newsGeneralBtn", () => {showNewsPage()})
-    .on("click", "#newsFavoritesBtn", () => {showFavoritesNewsPage()});
+    .on("click", "#newsGeneralBtn", () => {showNewsPage("general")})
+    .on("click", "#newsFavoritesBtn", () => {showNewsPage("favorites")});
 
   showCurrenciesPage();
   initDarkmodeWidget();
