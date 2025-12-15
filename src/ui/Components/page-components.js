@@ -1,6 +1,6 @@
 import { APP_CONFIG } from "../../config/app-config.js";
 import { shortenText } from "../../utils/general-utils.js";
-import { cardContainer } from "./base-components.js";
+import { newsCardWrapper } from "./base-components.js";
 
 const { NEWS_DESC_MAX } = APP_CONFIG;
 
@@ -97,7 +97,7 @@ export const newsArticleCard = (article) => {
     : "Unknown time";
 
   return `
-        ${cardContainer(
+        ${newsCardWrapper(
         `
         <div class="ratio ratio-16x9 bg-light rounded-top">
           <img src="${image || "images/2.jpeg"}" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"}" loading = "lazy" />
@@ -118,8 +118,6 @@ export const newsArticleCard = (article) => {
           }
           <a href="${original_url || url || "#"}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a></div>
       `,
-      "col-12 col-md-6 col-lg-4 d-flex",
-      "card news-card h-100 shadow-sm border-0"
     )}
   `;
 };

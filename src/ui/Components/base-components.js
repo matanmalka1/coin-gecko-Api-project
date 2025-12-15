@@ -9,12 +9,11 @@ export const spinner = (message = "Loading...") => `
   </div>
 `;
 
-export const cardContainer = (
-  content,
-  colClasses = "col-md-6 col-lg-4",
-  cardClasses = "card h-100 shadow-sm border"
-) =>
-  `<div class="${colClasses}"><div class="${cardClasses}">${content}</div></div>`;
+export const coinCardWrapper = (content) =>
+  `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm border">${content}</div></div>`;
+
+export const newsCardWrapper = (content) =>
+  `<div class="col-12 col-md-6 col-lg-4 d-flex"><div class="card news-card h-100 shadow-sm border-0">${content}</div></div>`;
 
 export const skeleton = (type = "coins", count = 6) => {
   const templates = {
@@ -48,19 +47,14 @@ export const skeleton = (type = "coins", count = 6) => {
     `,
   };
 
+  const template = templates[type] || templates.coins;
   const colClasses =
     type === "news"
       ? "col-12 col-md-6 col-lg-4 d-flex"
       : "col-12 col-md-6 col-lg-4";
 
-  const template = templates[type] || templates.coins;
-
   const cards = Array.from({ length: count }, () =>
-    cardContainer(
-      template,
-      colClasses,
-      "card border shadow-sm placeholder-wave h-100 p-3"
-    )
+    `<div class="${colClasses}"><div class="card border shadow-sm placeholder-wave h-100 p-3">${template}</div></div>`
   ).join("");
 
   return `<div class="row g-4 align-items-stretch">${cards}</div>`;
