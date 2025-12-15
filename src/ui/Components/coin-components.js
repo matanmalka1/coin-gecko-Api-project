@@ -147,7 +147,7 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
   if (!container.length) return;
 
   if (!coins || coins.length === 0) {
-    ErrorUI.showInfo(container, emptyMessage || UI_NO_COINS, "info");
+    ErrorUI.showInfo(container, emptyMessage || UI_NO_COINS);
     return;
   }
   const favoriteSymbols = Array.isArray(favorites)

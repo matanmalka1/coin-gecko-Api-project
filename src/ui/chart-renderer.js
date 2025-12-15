@@ -139,6 +139,5 @@ export const ChartRenderer = {
   setupCharts,
   update,
   clear,
-
   drawMiniChart,
 };

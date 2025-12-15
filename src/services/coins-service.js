@@ -30,14 +30,14 @@ const sortFunctions = {
 export const getAllCoins = () => getCache(COINS_CACHE_KEY) || [];
 
 export const loadAllCoins = async () => {
-  const { ok, data, status } = await fetchWithRetry(
+  const { ok, data, status, code, error } = await fetchWithRetry(
     `${COINGECKO_BASE}/coins/markets` +
       `?vs_currency=usd&order=market_cap_desc` +
       `&per_page=${COINS_PER_PAGE}&page=1&sparkline=false`
   );
 
   if (!ok) {
-    return { ok: false, code: "COIN_LIST_ERROR", status };
+    return { ok: false, code: code || "COIN_LIST_ERROR", error, status };
   }
 
   const coinsArray = Array.isArray(data) ? data : [];
