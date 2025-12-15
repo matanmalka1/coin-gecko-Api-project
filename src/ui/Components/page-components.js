@@ -1,8 +1,7 @@
-import { APP_CONFIG } from "../../config/app-config.js";
 import { shortenText } from "../../utils/general-utils.js";
 import { newsCardWrapper } from "./base-components.js";
 
-const { NEWS_DESC_MAX } = APP_CONFIG;
+const NEWS_DESC_MAX = 200;
 
 // Renders the currencies page shell: search/sort areas and compare status slot.
 const currenciesPage = () => `

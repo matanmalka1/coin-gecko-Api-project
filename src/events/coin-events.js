@@ -6,42 +6,30 @@ import {showCurrenciesPage,renderCoins,} from "../controllers/pages-controller.j
 import {filterSelectedCoins,getCoinDetails,searchCoin,getAllCoins,sortCoins,} from "../services/coins-service.js";
 import { spinner, toggleCollapse } from "../ui/Components/base-components.js";
 
-const { NO_FAVORITES } = ERRORS;
-
 let isShowingFavoritesOnly = false;
 let isShowingSelectedOnly = false;
+
+// Unified rendering logic
+const RENDER_STRATEGIES = {
+  favorites: () => {
+    const favoriteSymbols = getFavorites();
+    const coins = getAllCoins().filter((coin) => favoriteSymbols.includes(coin.symbol));
+    return { coins, options: { favorites: favoriteSymbols, emptyMessage: ERRORS.NO_FAVORITES } };
+  },
+  selected: () => {
+    const { ok, error, data } = filterSelectedCoins();
+    if (!ok) {
+      ErrorUI.showError("#coinsContainer", error || ERRORS.NONE_SELECTED);
+      return null;
+    }
+    return { coins: data, options: {} };
+  },
+  all: () => ({ coins: getAllCoins(), options: {} })
+};
 
 const handleSortChange = () => {
   const { data } = sortCoins($("#sortSelect").val());
   renderCoins(data);
-};
-
-const renderFavoritesList = () => {
-  const favoriteSymbols = getFavorites();
-  const filtered = getAllCoins().filter((coin) =>
-    favoriteSymbols.includes(coin.symbol)
-  );
-
-  renderCoins(filtered, {
-    favorites: favoriteSymbols,
-    emptyMessage: NO_FAVORITES,
-  });
-};
-
-const renderSelectedList = () => {
-  const { ok, error, data } = filterSelectedCoins();
-
-  if (!ok) {
-    ErrorUI.showError("#coinsContainer", error || ERRORS.NONE_SELECTED);
-    return;
-  }
-  renderCoins(data);
-};
-
-const RENDER_MODES = {
-  favorites: renderFavoritesList,
-  selected: renderSelectedList,
-  all: () => renderCoins(getAllCoins()),
 };
 
 const handleFavoriteToggle = (e) => {
@@ -51,24 +39,27 @@ const handleFavoriteToggle = (e) => {
   favorite ? removeFavorite(coinSymbol) : addFavorite(coinSymbol);
 
   updateFavoriteIcon(coinSymbol, !favorite);
-  if (isShowingFavoritesOnly) {renderFavoritesList();
-  }
+  if (isShowingFavoritesOnly) {toggleViewMode("favorites");}
 };
 
 const toggleViewMode = (mode) => {
-  const render = RENDER_MODES[mode];
-  if (!render) return;
+  const strategy = RENDER_STRATEGIES[mode];
+  if (!strategy) return;
+
+  const result = strategy();
+  if (!result) return;
 
   isShowingFavoritesOnly = mode === "favorites";
   isShowingSelectedOnly = mode === "selected";
 
-  render();
+  renderCoins(result.coins, result.options);
 };
 
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
+  const $clearBtn = $("#clearSearchBtn");
   const { ok, error, data } = searchCoin($("#searchInput").val());
-  $("#clearSearchBtn").toggleClass("d-none");
+  $clearBtn.toggleClass("d-none", !$("#searchInput").val());
 
   if (!ok) {
     ErrorUI.showError("#coinsContainer", error || ERRORS.DEFAULT);
@@ -79,8 +70,9 @@ const handleSearch = () => {
 
 const handleClearSearch = () => {
   $("#searchInput").val("");
+  const $clearBtn = $("#clearSearchBtn");
   renderCoins(getAllCoins());
-  $("#clearSearchBtn").addClass("d-none");
+  $clearBtn.addClass("d-none");
 };
 
 const handleMoreInfo = async (e) => {
@@ -116,7 +108,6 @@ const setupEventListeners = () => {
     .on("keypress", "#searchInput", (e) => {
       if (e.key === "Enter") handleSearch();
     })
-
     .on("click", "#clearSearchBtn", handleClearSearch)
     .on("click", "#showFavoritesBtn", () => toggleViewMode("favorites"))
     .on("click", "#filterReportsBtn", () => toggleViewMode("selected"))

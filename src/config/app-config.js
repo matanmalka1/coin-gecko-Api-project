@@ -24,30 +24,32 @@ export const COINS_TIMESTAMP_KEY = "marketDataTimestamp";
 // ===== SEARCH =====
 export const ALLOWED_PATTERN = /^[a-z0-9\s.-]+$/i;
 
-// ===== UI TEXT / LIMITS =====
-export const UI_NO_COINS = "No coins found.";
-export const NEWS_DESC_MAX = 200;
 export const NEWS_QUERY = "crypto OR cryptocurrency";
 export const NEWS_LANG = "en";
 export const NEWS_CACHE_GEN = "news_cache_general";
 export const NEWS_CACHE_FAV = "news_cache_favorites";
-export const COIN_DESC_MAX = 200;
 
 // ===== REPORTS =====
 export const REPORTS_MAX = 5;
 export const REPORTS_COMPARE_MAX = 2;
 export const REPORTS_UPDATE_MS = 2000;
 
-// ===== CHART SETTINGS =====
-export const CHART_POINTS = 70;
-export const CHART_BADGE = "Live";
-export const CHART_H = 220;
-export const CHART_H_MOBILE = 180;
-export const CHART_UP = "#26a69a";
-export const CHART_DOWN = "#ef5350";
-export const CHART_BORDER_UP = "#26a69a";
-export const CHART_BORDER_DOWN = "#ef5350";
-export const CHART_WICK_UP = "#26a69a";
-export const CHART_WICK_DOWN = "#ef5350";
-export const CHART_BG = "#ffffff";
-export const CHART_TEXT_BORDER = "#000000ff";
+// ===== CHART CONFIGURATION =====
+export const CHART_CONFIG = {
+  points: 70,
+  badge: "Live",
+  height: {
+    default: 220,
+    mobile: 180,
+  },
+  colors: {
+    up: "#26a69a",
+    down: "#ef5350",
+    borderUp: "#26a69a",
+    borderDown: "#ef5350",
+    wickUp: "#26a69a",
+    wickDown: "#ef5350",
+    background: "#ffffff",
+    textBorder: "#000000ff",
+  },
+};

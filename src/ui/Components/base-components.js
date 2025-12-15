@@ -9,9 +9,6 @@ export const spinner = (message = "Loading...") => `
   </div>
 `;
 
-export const coinCardWrapper = (content) =>
-  `<div class="col-md-6 col-lg-4"><div class="card h-100 shadow-sm border">${content}</div></div>`;
-
 export const newsCardWrapper = (content) =>
   `<div class="col-12 col-md-6 col-lg-4 d-flex"><div class="card news-card h-100 shadow-sm border-0">${content}</div></div>`;
 

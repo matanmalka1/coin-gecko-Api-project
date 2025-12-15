@@ -1,4 +1,4 @@
-import { CACHE_COINS_REFRESH_MS, COINS_TIMESTAMP_KEY, NEWS_CACHE_GEN, NEWS_QUERY, CHART_POINTS } from "../config/app-config.js";
+import { CACHE_COINS_REFRESH_MS, COINS_TIMESTAMP_KEY, NEWS_CACHE_GEN, NEWS_QUERY, CHART_CONFIG } from "../config/app-config.js";
 import { displayCoins,getCompareSelection } from "../ui/Components/coin-components.js";
 import { NewsUI } from "../ui/Components/news-components.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
@@ -37,7 +37,8 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   if (isLoadingCoins) return;
   isLoadingCoins = true;
 
-  $("#content").html(PageComponents.currenciesPage());
+  const $content = $("#content");
+  $content.html(PageComponents.currenciesPage());
 
   const $compareStatus = $("#compareStatus");
   $compareStatus.addClass("d-none").empty();
@@ -46,13 +47,15 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   const lastUpdated = readJSON(COINS_TIMESTAMP_KEY, 0);
   const isCacheExpired = !lastUpdated || Date.now() - lastUpdated >= CACHE_COINS_REFRESH_MS;
 
+  const $coinsContainer = $("#coinsContainer");
+
   if (coins.length > 0 && !forceRefresh && !isCacheExpired) {
     renderCoins(coins);
     isLoadingCoins = false;
     return;
   }
-   if (coins.length === 0) {
-    $("#coinsContainer").html(skeleton("coins", 6));
+  if (coins.length === 0) {
+    $coinsContainer.html(skeleton("coins", 6));
   }
 
   try {
@@ -60,7 +63,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 
     if (!ok) {
       const message = error || ERRORS.COIN_LIST_ERROR;
-      ErrorUI.showError("#coinsContainer", message);
+      ErrorUI.showError($coinsContainer, message);
       return;
     }
 
@@ -82,7 +85,7 @@ export const showReportsPage = async () => {
     },
     onData: ({ candlesBySymbol }) => {
       ChartRenderer.update(candlesBySymbol, {
-        historyPoints: CHART_POINTS,
+        historyPoints: CHART_CONFIG.points,
       });
     },
     onError: ({ symbol, error, status }) => {

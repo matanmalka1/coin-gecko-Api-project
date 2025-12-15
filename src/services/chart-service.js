@@ -1,6 +1,6 @@
 import { fetchWithRetry } from "./api.js";
 import { getSelectedReports } from "./storage-manager.js";
-import { CHART_POINTS, CRYPTOCOMPARE_BASE, CRYPTOCOMPARE_KEY, REPORTS_UPDATE_MS } from "../config/app-config.js";
+import { CHART_CONFIG, CRYPTOCOMPARE_BASE, CRYPTOCOMPARE_KEY, REPORTS_UPDATE_MS } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 
 let liveIntervalId = null;
@@ -15,7 +15,7 @@ const updateSeriesFromPrices = (symbols, pricesBySymbol) => {
 
     const series = (liveCandlesBySymbol[symbol] ||= []);
     series.push({ time: now, open: price, high: price, low: price, close: price });
-    if (series.length > CHART_POINTS) series.splice(0, series.length - CHART_POINTS);
+    if (series.length > CHART_CONFIG.points) series.splice(0, series.length - CHART_CONFIG.points);
   });
 
   return liveCandlesBySymbol;
@@ -55,7 +55,7 @@ const fetchLivePrices = async (symbols) => {
 
     historyResults.forEach(({ symbol, candles }) => {
       if (!candles.length) return;
-      liveCandlesBySymbol[symbol] = candles.slice(-CHART_POINTS);
+      liveCandlesBySymbol[symbol] = candles.slice(-CHART_CONFIG.points);
     });
   }
   const fsyms = symbols.join(",");
@@ -92,7 +92,7 @@ export const startLiveChart = async (chartCallbacks = {}) => {
 
   chartCallbacks.onChartReady?.({
     symbols: selected,
-    historyPoints: CHART_POINTS,
+    historyPoints: CHART_CONFIG.points,
   });
 
   const handleResult = (result) => {

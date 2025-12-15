@@ -1,8 +1,9 @@
-import { UI_NO_COINS, COIN_DESC_MAX, REPORTS_COMPARE_MAX } from "../../config/app-config.js";
+import { REPORTS_COMPARE_MAX } from "../../config/app-config.js";
 import { ErrorUI } from "../error-ui.js";
 import { shortenText, formatPrice, formatLargeNumber } from "../../utils/general-utils.js";
 import { ChartRenderer } from "../chart-renderer.js";
 const PLACEHOLDER_THUMB = "images/2.png";
+const COIN_DESC_MAX = 200;
 
 const CURRENCIES = {
   USD: { symbol: "$", label: "USD" },
@@ -192,7 +193,7 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
   if (!container.length) return;
 
   if (!coins || coins.length === 0) {
-    ErrorUI.showInfo(container, emptyMessage || UI_NO_COINS);
+    ErrorUI.showInfo(container, emptyMessage || "No coins found.");
     return;
   }
   const favoriteSymbols = Array.isArray(favorites)

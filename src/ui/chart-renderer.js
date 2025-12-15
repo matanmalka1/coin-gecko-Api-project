@@ -1,28 +1,15 @@
-import {
-  CHART_POINTS,
-  CHART_H,
-  CHART_H_MOBILE,
-  CHART_BADGE,
-  CHART_BG,
-  CHART_TEXT_BORDER,
-  CHART_UP,
-  CHART_DOWN,
-  CHART_BORDER_UP,
-  CHART_BORDER_DOWN,
-  CHART_WICK_UP,
-  CHART_WICK_DOWN,
-} from "../config/app-config.js";
+import { CHART_CONFIG } from "../config/app-config.js";
 import { getCoinMarketChart } from "../services/coins-service.js";
 import { ErrorUI } from "./error-ui.js";
 
 // ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 const charts = new Map();
-let maxHistoryPoints = CHART_POINTS;
+let maxHistoryPoints = CHART_CONFIG.points;
 
 const destroyAll = () => {
   charts.forEach((entry) => entry?.chart?.remove());
   charts.clear();
-  maxHistoryPoints = CHART_POINTS;
+  maxHistoryPoints = CHART_CONFIG.points;
 };
 
 const setupCharts = (symbols, options = {}) => {
@@ -32,10 +19,14 @@ const setupCharts = (symbols, options = {}) => {
   destroyAll();
   grid.empty();
 
-  maxHistoryPoints = options.historyPoints ?? CHART_POINTS;
+  maxHistoryPoints = options.historyPoints ?? CHART_CONFIG.points;
 
   const isMobile = window.innerWidth <= 576;
-  const height = isMobile ? CHART_H_MOBILE ?? CHART_H : CHART_H;
+  const heightConfig = CHART_CONFIG.height || {};
+  const height = isMobile
+    ? heightConfig.mobile ?? heightConfig.default
+    : heightConfig.default;
+  const colors = CHART_CONFIG.colors || {};
 
   symbols.forEach((symbol) => {
     const containerId = `chart-${symbol}`;
@@ -44,7 +35,7 @@ const setupCharts = (symbols, options = {}) => {
         <div class="card shadow-sm p-3 h-100 rounded-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">${symbol}</h6>
-            <small class="text-muted">${CHART_BADGE}</small>
+            <small class="text-muted">${CHART_CONFIG.badge}</small>
           </div>
           <div id="${containerId}" style="height:${height}px;"></div>
         </div>
@@ -57,18 +48,21 @@ const setupCharts = (symbols, options = {}) => {
     const chart = LightweightCharts.createChart(container, {
       width: container.clientWidth,
       height,
-      layout: {background: {type: "solid",color: CHART_BG,},textColor: CHART_TEXT_BORDER,},
-      rightPriceScale: { borderColor: CHART_TEXT_BORDER },
-      timeScale: { borderColor: CHART_TEXT_BORDER },
+      layout: {
+        background: { type: "solid", color: colors.background },
+        textColor: colors.textBorder,
+      },
+      rightPriceScale: { borderColor: colors.textBorder },
+      timeScale: { borderColor: colors.textBorder },
     });
 
     const series = chart.addSeries(LightweightCharts.CandlestickSeries, {
-      upColor: CHART_UP,
-      downColor: CHART_DOWN,
-      borderUpColor: CHART_BORDER_UP,
-      borderDownColor: CHART_BORDER_DOWN,
-      wickUpColor: CHART_WICK_UP,
-      wickDownColor: CHART_WICK_DOWN,
+      upColor: colors.up,
+      downColor: colors.down,
+      borderUpColor: colors.borderUp,
+      borderDownColor: colors.borderDown,
+      wickUpColor: colors.wickUp,
+      wickDownColor: colors.wickDown,
     });
     charts.set(symbol, { chart, series });
   });

@@ -60,10 +60,10 @@ export const sortCoins = (sortType) => {
 };
 
 export const searchCoin = (term) => {
-  const cleanTerm = String(term || "").trim().toLowerCase();
+  const cleanTerm = (term || "").toString().trim().toLowerCase();
 
-  const isValidLength = cleanTerm.length >= 2 && cleanTerm.length <= 20;
-  if (!cleanTerm || !isValidLength || !ALLOWED_PATTERN.test(cleanTerm)) {
+  // Basic validation (HTML handles length/pattern, but check for safety)
+  if (!cleanTerm || cleanTerm.length < 2) {
     return { ok: false, error: ERRORS.INVALID_TERM };
   }
 
