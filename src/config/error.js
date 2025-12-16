@@ -18,7 +18,7 @@ export const ERRORS = {
     "Search term contains invalid characters. Use letters, numbers, spaces, dots or hyphens.",
   
   // ===== REPORTS / COMPARE ERRORS =====
-  NONE_SELECTED: "No coins selected.",
+  NONE_SELECTED: "No selected reports yet. Toggle coins to add reports.",
   LIMIT: (max = 5) => `You can select up to ${max} coins for reports.`,
   COMPARE_FULL: (limit = 2) =>
     `Maximum ${limit} coins for comparison. Deselect one first.`,

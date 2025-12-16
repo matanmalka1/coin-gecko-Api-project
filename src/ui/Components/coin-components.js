@@ -1,5 +1,4 @@
 import { REPORTS_COMPARE_MAX } from "../../config/app-config.js";
-import { ErrorUI } from "../error-ui.js";
 import { shortenText, formatPrice, formatLargeNumber, ensureArray } from "../../utils/general-utils.js";
 import { ChartRenderer } from "../chart-renderer.js";
 const COIN_DESC_MAX = 200;
@@ -186,10 +185,9 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
   if (!container.length) return;
 
   if (!coins || coins.length === 0) {
-    ErrorUI.showInfo(emptyMessage || "No coins found.");
     return;
   }
-  const favoriteSymbols = ensureArray(favorites?.favorites || favorites);
+  const favoriteSymbols = ensureArray(favorites);
 
   const favoriteSet = new Set(favoriteSymbols);
   const compareSet = new Set(ensureArray(compareSelection));

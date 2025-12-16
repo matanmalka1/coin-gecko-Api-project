@@ -54,7 +54,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     return;
   }
   if (coins.length === 0) {$coinsContainer.html(skeleton("coins", 6));
-    
+
   }
 
   try {
@@ -78,7 +78,7 @@ export const showReportsPage = async () => {
   $chartsGrid.html(skeleton("charts", 6));
 
   await startLiveChart({
-    onChartReady: ({ symbols, historyPoints }) => {
+    onChartReady: ({ symbols }) => {
       ChartRenderer.setupCharts(symbols, { historyPoints });
     },
     onData: ({ candlesBySymbol }) => {
@@ -86,7 +86,7 @@ export const showReportsPage = async () => {
         historyPoints: CHART_CONFIG.points,
       });
     },
-    onError: ({ symbol, error, status }) => {
+    onError: ({error}) => {
       const message = error || ERRORS.LIVE_CHART_ERROR;
       ErrorUI.showError(message);
       $("#chartsGrid").html(`<p class="text-center text-muted py-5">${message}</p>`);

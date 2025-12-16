@@ -17,8 +17,7 @@ const RENDER_STRATEGIES = {
     if (coins.length === 0) {
       ErrorUI.showInfo(ERRORS.NO_FAVORITES);
     }
-    return {coins, options: { favorites: favoriteSymbols, emptyMessage: "No favorites yet. Tap the star to add coins." },
-    };
+    return { coins, options: { favorites: favoriteSymbols } };
   },
   selected: () => {
     const { ok, data, error } = filterSelectedCoins();
@@ -26,8 +25,7 @@ const RENDER_STRATEGIES = {
       ErrorUI.showInfo(error || ERRORS.NONE_SELECTED);
       return null;
     }
-    return {coins: data, options: { emptyMessage: "No selected reports yet. Toggle coins to add reports." },
-    };
+    return { coins: data, options: {} };
   },
   all: () => ({ coins: getAllCoins(), options: {} })
 };

@@ -29,17 +29,9 @@ const showInfo = (message, type = "primary") => {
   }
 };
 
-const handleResult = (result = {}, fallbackMessage = ERRORS.DEFAULT) => {
-  if (result.ok) return true;
-  const resolved = result.error || fallbackMessage;
-  getNotyf().error(resolved);
-  return false;
-};
-
 export const ErrorUI = {
   showError,
   showInfo,
-  handleResult,
 };
 
 export { getNotyf };
