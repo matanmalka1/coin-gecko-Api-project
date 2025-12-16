@@ -5,21 +5,19 @@ import { ChartRenderer } from "../chart-renderer.js";
 const PLACEHOLDER_THUMB = "images/2.png";
 const COIN_DESC_MAX = 200;
 
-const CURRENCIES = {
-  USD: { symbol: "$", label: "USD" },
-  EUR: { symbol: "€", label: "EUR" },
-  ILS: { symbol: "₪", label: "ILS" },
-};
-
 let compareSelection = [];
 
 const refreshCompareHighlights = () => {
   const selectedSet = new Set(compareSelection);
+
   $(".compare-row").each(function () {
     const $row = $(this);
     const isActive = selectedSet.has(String($row.data("id")));
-    $row.toggleClass("compare-row-active", isActive);
-    $row.closest(".card").toggleClass("compare-card-active", isActive);
+
+    if ($row.hasClass("compare-row-active") !== isActive) {
+      $row.toggleClass("compare-row-active", isActive);
+      $row.closest(".card").toggleClass("compare-card-active", isActive);
+    }
   });
 };
 
@@ -132,12 +130,12 @@ const coinCard = (coin, isSelected = false, options = {}) => {
     </div>`;
 };
 
-const priceItem = (label, value, curr) =>
+const priceItem = (label, value, symbol) =>
   `<div class="price-badge mb-2 p-2 border-left rounded ${
     typeof value !== "number" ? "text-muted" : ""
-  }">${label}: ${formatPrice(value, curr)}</div>`;
+  }">${label}: ${formatPrice(value, { symbol })}</div>`;
 
-const coinDetails = (data = {}, currencies = {}) => {
+const coinDetails = (data = {}) => {
   const { image, name, symbol, description, platforms, market_data } = data;
   const desc = description?.en
     ? shortenText(description.en, COIN_DESC_MAX)
@@ -171,11 +169,11 @@ const coinDetails = (data = {}, currencies = {}) => {
           </div>
         </div>
         <div class="mb-2"><strong>Current Prices:</strong></div>
-        ${priceItem("USD", prices.usd, currencies.USD)}
-        ${priceItem("EUR", prices.eur, currencies.EUR)}
-        ${priceItem("ILS", prices.ils, currencies.ILS)}
+        ${priceItem("USD", prices.usd, "$")}
+        ${priceItem("EUR", prices.eur, "€")}
+        ${priceItem("ILS", prices.ils, "₪")}
         <div class="mb-2 mt-3"><strong>All-Time High (USD):</strong></div>
-        ${priceItem("ATH", market_data?.ath?.usd, currencies.USD)}
+        ${priceItem("ATH", market_data?.ath?.usd, "$")}
         <div class="mt-2"><small class="text-muted"><strong>CA:</strong> ${
           contractAddress || "N/A"
         }</small></div>
@@ -230,10 +228,8 @@ export const updateFavoriteIcon = (symbol, isFavorite) => {
     .attr("title", isFavorite ? "Remove from favorites" : "Add to favorites");
 };
 
-export const showCoinDetails = (containerId,data,{ currencies = CURRENCIES } = {}) => {
-  $(`#${containerId}`).html(
-    coinDetails(data, currencies) + coinMiniChart(data.id)
-  );
+export const showCoinDetails = (containerId,data) => {
+  $(`#${containerId}`).html(coinDetails(data) + coinMiniChart(data.id));
   ChartRenderer.drawMiniChart(data.id);
 };
 

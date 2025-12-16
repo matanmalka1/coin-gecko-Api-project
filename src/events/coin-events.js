@@ -4,10 +4,8 @@ import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import {showCurrenciesPage,renderCoins,} from "../controllers/pages-controller.js";
 import {filterSelectedCoins,getCoinDetails,searchCoin,getAllCoins,sortCoins,} from "../services/coins-service.js";
-import { spinner, toggleCollapse } from "../ui/Components/base-components.js";
+import { spinner } from "../ui/Components/base-components.js";
 
-let isShowingFavoritesOnly = false;
-let isShowingSelectedOnly = false;
 let currentViewMode = "all";
 
 const RENDER_STRATEGIES = {
@@ -45,7 +43,9 @@ const handleFavoriteToggle = (e) => {
   favorite ? removeFavorite(coinSymbol) : addFavorite(coinSymbol);
 
   updateFavoriteIcon(coinSymbol, !favorite);
-  if (isShowingFavoritesOnly) {toggleViewMode("favorites");}
+  if (currentViewMode === "favorites") {
+    toggleViewMode("favorites");
+  }
 };
 
 const toggleViewMode = (mode) => {
@@ -57,8 +57,6 @@ const toggleViewMode = (mode) => {
   const result = strategy();
   if (!result) return;
 
-  isShowingFavoritesOnly = targetMode === "favorites";
-  isShowingSelectedOnly = targetMode === "selected";
   currentViewMode = targetMode;
 
   $("#showFavoritesBtn").toggleClass("active", targetMode === "favorites");
@@ -95,12 +93,12 @@ const handleMoreInfo = async (e) => {
   const $collapse = $(collapseSelector);
 
   if ($collapse.hasClass("show")) {
-    toggleCollapse(collapseId, false);
+    $collapse.collapse("hide");
     return;
   }
 
   $collapse.html(spinner("Loading details…"));
-  toggleCollapse(collapseId, true);
+  $collapse.collapse("show");
 
   try {
     const { ok, data, status } = await getCoinDetails(coinId);

@@ -1,5 +1,5 @@
 import { fetchWithRetry } from "./api.js";
-import { fetchWithCache, getCache, setCache, writeJSON, getSelectedReports, setSelectedReports } from "./storage-manager.js";
+import { getCache, setCache, writeJSON, getSelectedReports, setSelectedReports } from "./storage-manager.js";
 import { COINGECKO_BASE, CHART_HISTORY_DAYS, COINS_PER_PAGE, COINS_CACHE_KEY, COINS_TIMESTAMP_KEY } from "../config/app-config.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 import { ERRORS } from "../config/error.js";
@@ -41,15 +41,35 @@ export const loadAllCoins = async () => {
   return { ok: true, data: filteredCoins };
 };
 
-export const getCoinDetails = (coinId) => 
-  fetchWithCache(coinId, () => fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}`));
+export const getCoinDetails = async (coinId) => {
+  const cached = getCache(coinId);
+  if (cached) return { ok: true, data: cached };
 
-export const getCoinMarketChart = (coinId) =>
-  fetchWithCache(`chart:${coinId}`, () =>
-    fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${CHART_HISTORY_DAYS}`));
+  const { ok, data, status, error } = await fetchWithRetry(`${COINGECKO_BASE}/coins/${coinId}`);
+  if (ok) setCache(coinId, data);
+  return { ok, data, status, error };
+};
 
-export const getGlobalStats = () =>
-  fetchWithCache("globalStats", () => fetchWithRetry(`${COINGECKO_BASE}/global`));
+export const getCoinMarketChart = async (coinId) => {
+  const cacheKey = `chart:${coinId}`;
+  const cached = getCache(cacheKey);
+  if (cached) return { ok: true, data: cached };
+
+  const { ok, data, status, error } = await fetchWithRetry(
+    `${COINGECKO_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${CHART_HISTORY_DAYS}`
+  );
+  if (ok) setCache(cacheKey, data);
+  return { ok, data, status, error };
+};
+
+export const getGlobalStats = async () => {
+  const cached = getCache("globalStats");
+  if (cached) return { ok: true, data: cached };
+
+  const { ok, data, status, error } = await fetchWithRetry(`${COINGECKO_BASE}/global`);
+  if (ok) setCache("globalStats", data);
+  return { ok, data, status, error };
+};
 
 export const sortCoins = (sortType, coinsToSort = null) => {
   const coins = coinsToSort ?? getAllCoins();
