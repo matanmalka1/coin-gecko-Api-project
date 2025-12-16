@@ -35,7 +35,6 @@ const reportsPage = () => `
   <div class="mt-2"><small class="text-muted">Reports charts powered by 
     <a href="https://www.tradingview.com" target="_blank" rel="noreferrer">TradingView Lightweight Charts</a></small></div>`;
 
-// Static about page with author details pulled from APP_CONFIG.
 const aboutPage = (userData = {}) => {
   const { image, name, linkedin } = userData;
   return `
@@ -70,7 +69,6 @@ const aboutPage = (userData = {}) => {
   `;
 };
 
-// News landing page hero + list container (general/favorites modes).
 const newsPage = () => `
     <div class="news-hero mb-2 py-3 rounded-3">
           <div class="row gy-4 ">
@@ -88,7 +86,6 @@ const newsPage = () => `
     <div id="newsList" class="row g-4"></div>
 `;
 
-// Generates a single article card including metadata and CTA link.
 export const newsArticleCard = (article) => {
   const { title, description, published_at, source = {}, original_url, url, image } = article || {};
   const publishedDate = published_at

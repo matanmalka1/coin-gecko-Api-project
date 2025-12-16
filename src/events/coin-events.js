@@ -8,8 +8,8 @@ import { spinner, toggleCollapse } from "../ui/Components/base-components.js";
 
 let isShowingFavoritesOnly = false;
 let isShowingSelectedOnly = false;
+let currentViewMode = "all";
 
-// Unified rendering logic
 const RENDER_STRATEGIES = {
   favorites: () => {
     const favoriteSymbols = getFavorites();
@@ -28,8 +28,14 @@ const RENDER_STRATEGIES = {
 };
 
 const handleSortChange = () => {
-  const { data } = sortCoins($("#sortSelect").val());
-  renderCoins(data);
+  const sortType = $("#sortSelect").val();
+  
+  const strategy = RENDER_STRATEGIES[currentViewMode];
+  const result = strategy?.();
+  if (!result) return;
+  
+  const { data } = sortCoins(sortType, result.coins);
+  renderCoins(data, result.options);
 };
 
 const handleFavoriteToggle = (e) => {
@@ -43,23 +49,30 @@ const handleFavoriteToggle = (e) => {
 };
 
 const toggleViewMode = (mode) => {
-  const strategy = RENDER_STRATEGIES[mode];
+  const targetMode = currentViewMode === mode ? "all" : mode;
+
+  const strategy = RENDER_STRATEGIES[targetMode];
   if (!strategy) return;
 
   const result = strategy();
   if (!result) return;
 
-  isShowingFavoritesOnly = mode === "favorites";
-  isShowingSelectedOnly = mode === "selected";
+  isShowingFavoritesOnly = targetMode === "favorites";
+  isShowingSelectedOnly = targetMode === "selected";
+  currentViewMode = targetMode;
+
+  $("#showFavoritesBtn").toggleClass("active", targetMode === "favorites");
+  $("#filterReportsBtn").toggleClass("active", targetMode === "selected");
 
   renderCoins(result.coins, result.options);
 };
 
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
+  const $searchInput = $("#searchInput");
   const $clearBtn = $("#clearSearchBtn");
-  const { ok, error, data } = searchCoin($("#searchInput").val());
-  $clearBtn.toggleClass("d-none", !$("#searchInput").val());
+  const { ok, error, data } = searchCoin($searchInput.val());
+  $clearBtn.toggleClass("d-none", !$searchInput.val());
 
   if (!ok) {
     ErrorUI.showError("#coinsContainer", error || ERRORS.DEFAULT);

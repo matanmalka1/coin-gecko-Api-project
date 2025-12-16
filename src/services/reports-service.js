@@ -1,10 +1,8 @@
 import { getSelectedReports, removeReport, addReport } from "./storage-manager.js";
 import { getAllCoins } from "./coins-service.js";
-import { APP_CONFIG } from "../config/app-config.js";
+import { REPORTS_COMPARE_MAX, REPORTS_MAX, COINGECKO_BASE } from "../config/app-config.js";
 import { fetchWithRetry } from "./api.js";
 import { ERRORS } from "../config/error.js";
-
-const { REPORTS_COMPARE_MAX, REPORTS_MAX, COINGECKO_BASE } = APP_CONFIG;
 
 export const toggleCoinSelection = (symbol) => {
   const selected = getSelectedReports();

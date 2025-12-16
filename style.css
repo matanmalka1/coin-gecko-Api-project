@@ -65,6 +65,12 @@ a:hover {
   transform: translateY(-2px);
 }
 
+.btn.active {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+  border-color: var(--color-primary) !important;
+}
+
 /* ===== HEADER & PARALLAX ===== */
 header.parallax {
   background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920");

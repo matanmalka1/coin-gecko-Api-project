@@ -1,6 +1,6 @@
 import { fetchWithRetry } from "./api.js";
 import { fetchWithCache, getCache, setCache, writeJSON, getSelectedReports, setSelectedReports } from "./storage-manager.js";
-import { ALLOWED_PATTERN, COINGECKO_BASE, CHART_HISTORY_DAYS, COINS_PER_PAGE, COINS_CACHE_KEY, COINS_TIMESTAMP_KEY } from "../config/app-config.js";
+import { COINGECKO_BASE, CHART_HISTORY_DAYS, COINS_PER_PAGE, COINS_CACHE_KEY, COINS_TIMESTAMP_KEY } from "../config/app-config.js";
 import { normalizeSymbol } from "../utils/general-utils.js";
 import { ERRORS } from "../config/error.js";
 
@@ -51,8 +51,8 @@ export const getCoinMarketChart = (coinId) =>
 export const getGlobalStats = () =>
   fetchWithCache("globalStats", () => fetchWithRetry(`${COINGECKO_BASE}/global`));
 
-export const sortCoins = (sortType) => {
-  const coins = getAllCoins();
+export const sortCoins = (sortType, coinsToSort = null) => {
+  const coins = coinsToSort ?? getAllCoins();
   const sorter = sortFunctions[sortType];
   const sorted = sorter ? [...coins].sort(sorter) : coins;
 

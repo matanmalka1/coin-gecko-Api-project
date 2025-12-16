@@ -2,10 +2,9 @@ import {getAllCoins } from "../services/coins-service.js";
 import {toggleCoinSelection,replaceReport,getCompareData,} from "../services/reports-service.js";
 import {toggleCompareSelection,getCompareSelection,resetCompareSelection,updateToggleStates,} from "../ui/Components/coin-components.js";
 import { showReplaceModal, showCompareModal } from "../ui/Components/modals.js";
-import {APP_CONFIG } from "../config/app-config.js";
+import { REPORTS_COMPARE_MAX } from "../config/app-config.js";
 import {ERRORS } from "../config/error.js";
 import {ErrorUI } from "../ui/error-ui.js";
-const { REPORTS_COMPARE_MAX } = APP_CONFIG;
 
 export const updateCompareIndicator = (selected = getCompareSelection()) => {
   const selectedCount = Array.isArray(selected) ? selected.length : 0;

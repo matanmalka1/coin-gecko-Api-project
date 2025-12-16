@@ -21,9 +21,7 @@ export const KEY_REPORTS = "reportsSelection";
 export const COINS_CACHE_KEY = "marketData";
 export const COINS_TIMESTAMP_KEY = "marketDataTimestamp";
 
-// ===== SEARCH =====
-export const ALLOWED_PATTERN = /^[a-z0-9\s.-]+$/i;
-
+// ===== NEWS =====
 export const NEWS_QUERY = "crypto OR cryptocurrency";
 export const NEWS_LANG = "en";
 export const NEWS_CACHE_GEN = "news_cache_general";

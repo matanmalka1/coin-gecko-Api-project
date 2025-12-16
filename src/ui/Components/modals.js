@@ -1,9 +1,7 @@
-import { APP_CONFIG } from "../../config/app-config.js";
 import { ERRORS } from "../../config/error.js";
 import { ErrorUI } from "../error-ui.js";
 import { formatPrice, formatLargeNumber, formatPercent } from "../../utils/general-utils.js";
 
-const { UI_NO_COINS } = APP_CONFIG;
 
 const replaceModal = (newSymbol, existingCoins, options = {}) => {
   const limit =
@@ -90,29 +88,25 @@ const buildCompareTable = (coins) =>
     <tbody>${coins.map(buildCompareRow).join("")}</tbody>
   </table>`;
 
-export const showReplaceModal = (
-  newSymbol,
-  existingCoins,
-  { maxCoins, onConfirm, onClose } = {}
-) => {
+export const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, onClose } = {}) => {
   const modalHTML = replaceModal(newSymbol, existingCoins, { maxCoins });
 
   $("body").append(modalHTML);
-  const $modalEl = $("#replaceModal");
-  const modal = new bootstrap.Modal($modalEl[0]);
+  const $replaceModal = $("#replaceModal");
+  const modal = new bootstrap.Modal($replaceModal[0]);
   modal.show();
   $("#confirmReplace")
     .off()
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
       if (!selectedToRemove)
-        return ErrorUI.showInfo("#replaceModalError", UI_NO_COINS);
+        return ErrorUI.showInfo("#replaceModalError", "No coins found.");
       typeof onConfirm === "function"
         ? onConfirm({ remove: selectedToRemove, add: newSymbol, modal })
         : modal.hide();
     });
-  $modalEl.one("hidden.bs.modal", () => {
-    $modalEl.remove();
+  $replaceModal.one("hidden.bs.modal", () => {
+    $replaceModal.remove();
     onClose?.();
   });
   return modal;
@@ -123,18 +117,16 @@ export const showCompareModal = (coins, { missingSymbols = [], title, onClose } 
   const modalHTML = compareModal(content, { title: title || "Compare Coins" });
 
   $("body").append(modalHTML);
-  const $modalEl = $("#compareModal");
-  const modal = new bootstrap.Modal($modalEl[0]);
+  const $compareModal = $("#compareModal");
+  const modal = new bootstrap.Modal($compareModal[0]);
 
   if (missingSymbols.length)
-    ErrorUI.showInfo(
-      "#compareModalMessage",
-      ERRORS.MISSING_DATA(missingSymbols.join(", ")),
+    ErrorUI.showInfo("#compareModalMessage",ERRORS.MISSING_DATA(missingSymbols.join(", ")),
       "warning"
     );
 
-  $modalEl.on("hidden.bs.modal", () => {
-    $modalEl.remove();
+  $compareModal.on("hidden.bs.modal", () => {
+    $compareModal.remove();
     onClose?.();
   });
 
