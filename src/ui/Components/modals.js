@@ -31,7 +31,6 @@ const replaceModal = (newSymbol, existingCoins, options = {}) => {
         </div>
 
         <div class="modal-body">
-          <div id="replaceModalError"></div>
           <p>You've reached the limit of ${limit} coins.</p>
           <p>Choose a coin to replace with <strong>${newSymbol}</strong>:</p>
           <ul class="list-group">${listItems}</ul>
@@ -57,7 +56,6 @@ const compareModal = (coinsHTML, options = {}) => `
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div id="compareModalMessage" class="mb-3"></div>
           ${coinsHTML}
         </div>
       </div>
@@ -100,7 +98,7 @@ export const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, 
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
       if (!selectedToRemove)
-        return ErrorUI.showInfo("#replaceModalError", "No coins found.");
+        return ErrorUI.showInfo(null, ERRORS.REPLACE_SELECTION_REQUIRED);
       typeof onConfirm === "function"
         ? onConfirm({ remove: selectedToRemove, add: newSymbol, modal })
         : modal.hide();
@@ -120,10 +118,13 @@ export const showCompareModal = (coins, { missingSymbols = [], title, onClose } 
   const $compareModal = $("#compareModal");
   const modal = new bootstrap.Modal($compareModal[0]);
 
-  if (missingSymbols.length)
-    ErrorUI.showInfo("#compareModalMessage",ERRORS.MISSING_DATA(missingSymbols.join(", ")),
+  if (missingSymbols.length) {
+    ErrorUI.showInfo(
+      null,
+      ERRORS.MISSING_DATA(missingSymbols.join(", ")),
       "warning"
     );
+  }
 
   $compareModal.on("hidden.bs.modal", () => {
     $compareModal.remove();

@@ -88,10 +88,7 @@ const drawMiniChart = async (coinId) => {
   const { ok, data } = await getCoinMarketChart(coinId);
 
   if (!ok || !data?.prices || data.prices.length === 0) {
-    ErrorUI.showInfo(
-      `#miniChart-${coinId}`,
-      "No chart data available for this period"
-    );
+    $(`#miniChart-${coinId}`).html(`<p class="text-center text-muted">No chart data available</p>`);
     return;
   }
 

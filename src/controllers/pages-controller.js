@@ -59,7 +59,10 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 
   try {
     const result = await loadAllCoins();
-    if (!ErrorUI.handleResult(result, $coinsContainer, ERRORS.COIN_LIST_ERROR)) return;
+    if (!result.ok) {
+      ErrorUI.showError(null, result.error || ERRORS.COIN_LIST_ERROR);
+      return;
+    }
 
     renderCoins(result.data);
   } finally {
@@ -70,8 +73,10 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 // ===== REPORTS PAGE =====
 export const showReportsPage = async () => {
   cleanup();
-  $("#content").html(reportsPage());
-  $("#chartsGrid").html(skeleton("charts", 6));
+  const $content = $("#content");
+  $content.html(reportsPage());
+  const $chartsGrid = $content.find("#chartsGrid");
+  $chartsGrid.html(skeleton("charts", 6));
 
   await startLiveChart({
     onChartReady: ({ symbols, historyPoints }) => {
@@ -84,15 +89,8 @@ export const showReportsPage = async () => {
     },
     onError: ({ symbol, error, status }) => {
       const message = error || ERRORS.LIVE_CHART_ERROR;
-      if (symbol) {
-        const $cardBody = $(`#chart-${symbol}`)
-          .closest(".card")
-          .find(".card-body");
-
-        ErrorUI.showError($cardBody, message);
-      } else {
-        ErrorUI.showError("#chartsGrid", message);
-      }
+      ErrorUI.showError(null, message);
+      $("#chartsGrid").html(`<p class="text-center text-muted py-5">${message}</p>`);
     },
   });
 };
@@ -109,7 +107,11 @@ const loadNews = async (mode = "general") => {
     ? await getNewsForFavorites(getFavorites())
     : await fetchNews(NEWS_CACHE_GEN, { q: NEWS_QUERY });
 
-  if (!ErrorUI.handleResult({ ok, data, error, status }, $newsList, ERRORS.NEWS_ERROR)) return;
+  if (!ok) {
+    ErrorUI.showError(null, error || ERRORS.NEWS_ERROR);
+    $newsList.html(`<p class="text-center text-muted py-5">${error || ERRORS.NEWS_ERROR}</p>`);
+    return;
+  }
   NewsUI.showNews(data);
 };
 
