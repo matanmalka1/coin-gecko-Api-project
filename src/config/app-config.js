@@ -23,7 +23,6 @@ export const COINS_TIMESTAMP_KEY = "marketDataTimestamp";
 
 // ===== NEWS =====
 export const NEWS_QUERY = "crypto OR cryptocurrency";
-export const NEWS_LANG = "en";
 export const NEWS_CACHE_GEN = "news_cache_general";
 export const NEWS_CACHE_FAV = "news_cache_favorites";
 
@@ -36,10 +35,6 @@ export const REPORTS_UPDATE_MS = 2000;
 export const CHART_CONFIG = {
   points: 70,
   badge: "Live",
-  height: {
-    default: 220,
-    mobile: 180,
-  },
   colors: {
     up: "#26a69a",
     down: "#ef5350",

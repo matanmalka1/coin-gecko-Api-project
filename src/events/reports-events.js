@@ -1,13 +1,14 @@
-import {getAllCoins } from "../services/coins-service.js";
-import {toggleCoinSelection,replaceReport,getCompareData,} from "../services/reports-service.js";
-import {toggleCompareSelection,getCompareSelection,resetCompareSelection,updateToggleStates,} from "../ui/Components/coin-components.js";
+import { getAllCoins } from "../services/coins-service.js";
+import { toggleCoinSelection, replaceReport, getCompareData } from "../services/reports-service.js";
+import { toggleCompareSelection, getCompareSelection, resetCompareSelection, updateToggleStates } from "../ui/Components/coin-components.js";
 import { showReplaceModal, showCompareModal } from "../ui/Components/modals.js";
 import { REPORTS_COMPARE_MAX } from "../config/app-config.js";
-import {ERRORS } from "../config/error.js";
-import {ErrorUI } from "../ui/error-ui.js";
+import { ERRORS } from "../config/error.js";
+import { ErrorUI } from "../ui/error-ui.js";
+import { ensureArray } from "../utils/general-utils.js";
 
 export const updateCompareIndicator = (selected = getCompareSelection()) => {
-  const selectedCount = Array.isArray(selected) ? selected.length : 0;
+  const selectedCount = ensureArray(selected).length;
   const $status = $("#compareStatus"); 
 
   if (!selectedCount) {
@@ -30,6 +31,9 @@ const openReplaceFlow = ({ newSymbol, existing, limit }) => {
         ErrorUI.showError("#content", error || ERRORS.DEFAULT);
         return;
       }
+      ErrorUI.showInfo("#coinsContainer",`Replaced ${remove} with ${add} in reports`,
+        "primary"
+      );
       modal.hide();
     },
   });
@@ -40,6 +44,12 @@ const handleCoinToggle = function () {
   const { ok, error, selected, limitExceeded, ...rest } = toggleCoinSelection(coinSymbol);
   if (ok) {
     updateToggleStates(selected);
+    const wasAdded = rest.wasAdded;
+    if (wasAdded) {
+      ErrorUI.showInfo("#coinsContainer", "Added to reports", "primary");
+    } else {
+      ErrorUI.showInfo("#coinsContainer", "Removed from reports", "primary");
+    }
   } else if (limitExceeded) {
     openReplaceFlow({ selected, ...rest });
   } else if (error) {

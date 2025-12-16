@@ -35,12 +35,19 @@ const showError = (target, message) => {
 };
 
 const showInfo = (target, message, type = "primary") => {
-  $(target).html(buildAlert(type, message));
+  // $(target).html(buildAlert(type, message));
   getNotyf().success(message);
+};
+
+const handleResult = (result = {}, target, fallbackMessage = ERRORS.DEFAULT) => {
+  if (result.ok) return true;
+  showError(target, result.error || fallbackMessage);
+  return false;
 };
 
 export const ErrorUI = {
   showError,
   showInfo,
   buildAlert,
+  handleResult,
 };

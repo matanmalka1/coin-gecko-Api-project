@@ -2,7 +2,7 @@ import { CACHE_COINS_REFRESH_MS, COINS_TIMESTAMP_KEY, NEWS_CACHE_GEN, NEWS_QUERY
 import { displayCoins,getCompareSelection } from "../ui/Components/coin-components.js";
 import { NewsUI } from "../ui/Components/news-components.js";
 import { ChartRenderer } from "../ui/chart-renderer.js";
-import { PageComponents } from "../ui/Components/page-components.js";
+import { currenciesPage, reportsPage, newsPage, aboutPage } from "../ui/Components/page-components.js";
 import { getAllCoins, loadAllCoins, getGlobalStats} from "../services/coins-service.js";
 import { cleanup,startLiveChart } from "../services/chart-service.js";
 import { getNewsForFavorites ,fetchNews } from "../services/news-service.js";
@@ -38,10 +38,9 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   isLoadingCoins = true;
 
   const $content = $("#content");
-  $content.html(PageComponents.currenciesPage());
+  $content.html(currenciesPage());
 
-  const $compareStatus = $("#compareStatus");
-  $compareStatus.addClass("d-none").empty();
+  $("#compareStatus").addClass("d-none").empty();
 
   const coins = getAllCoins();
   const lastUpdated = readJSON(COINS_TIMESTAMP_KEY, 0);
@@ -59,15 +58,10 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   }
 
   try {
-    const { ok, data, error, status } = await loadAllCoins();
+    const result = await loadAllCoins();
+    if (!ErrorUI.handleResult(result, $coinsContainer, ERRORS.COIN_LIST_ERROR)) return;
 
-    if (!ok) {
-      const message = error || ERRORS.COIN_LIST_ERROR;
-      ErrorUI.showError($coinsContainer, message);
-      return;
-    }
-
-    renderCoins(data);
+    renderCoins(result.data);
   } finally {
     isLoadingCoins = false;
   }
@@ -76,7 +70,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
 // ===== REPORTS PAGE =====
 export const showReportsPage = async () => {
   cleanup();
-  $("#content").html(PageComponents.reportsPage());
+  $("#content").html(reportsPage());
   $("#chartsGrid").html(skeleton("charts", 6));
 
   await startLiveChart({
@@ -115,17 +109,13 @@ const loadNews = async (mode = "general") => {
     ? await getNewsForFavorites(getFavorites())
     : await fetchNews(NEWS_CACHE_GEN, { q: NEWS_QUERY });
 
-  if (!ok) {
-    const message = error || ERRORS.NEWS_ERROR;
-    ErrorUI.showError($newsList, message);
-    return;
-  }
+  if (!ErrorUI.handleResult({ ok, data, error, status }, $newsList, ERRORS.NEWS_ERROR)) return;
   NewsUI.showNews(data);
 };
 
 export const showNewsPage = async (mode = "general") => {
   cleanup();
-  $("#content").html(PageComponents.newsPage());
+  $("#content").html(newsPage());
   await loadNews(mode);
 };
 
@@ -133,7 +123,7 @@ export const showNewsPage = async (mode = "general") => {
 export const showAboutPage = () => {
  cleanup();
 
-  $("#content").html(PageComponents.aboutPage({
+  $("#content").html(aboutPage({
         name: "Matan Yehuda Malka",
         image: "images/2.jpeg",
         linkedin: "https://www.linkedin.com/in/matanyehudamalka",

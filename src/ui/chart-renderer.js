@@ -22,11 +22,8 @@ const setupCharts = (symbols, options = {}) => {
   maxHistoryPoints = options.historyPoints ?? CHART_CONFIG.points;
 
   const isMobile = window.innerWidth <= 576;
-  const heightConfig = CHART_CONFIG.height || {};
-  const height = isMobile
-    ? heightConfig.mobile ?? heightConfig.default
-    : heightConfig.default;
-  const colors = CHART_CONFIG.colors || {};
+  const height = isMobile ? 180 : 220;
+  const colors = CHART_CONFIG.colors;
 
   symbols.forEach((symbol) => {
     const containerId = `chart-${symbol}`;

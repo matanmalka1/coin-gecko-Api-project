@@ -1,3 +1,5 @@
+export const ensureArray = (val) => (Array.isArray(val) ? val : []);
+
 export const shortenText = (text = "", max = 200) =>
   !text ? "" : text.length > max ? `${text.slice(0, max)}...` : text;
 

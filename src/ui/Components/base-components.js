@@ -9,9 +9,6 @@ export const spinner = (message = "Loading...") => `
   </div>
 `;
 
-export const newsCardWrapper = (content) =>
-  `<div class="col-12 col-md-6 col-lg-4 d-flex"><div class="card news-card h-100 shadow-sm border-0">${content}</div></div>`;
-
 export const skeleton = (type = "coins", count = 6) => {
   const templates = {
     news: `

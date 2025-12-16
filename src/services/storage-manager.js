@@ -1,4 +1,5 @@
 import { CACHE_MAX as MAX_ENTRIES, CACHE_TTL as EXPIRY_TIME, KEY_FAVORITES, KEY_REPORTS } from "../config/app-config.js";
+import { ensureArray } from "../utils/general-utils.js";
 
 // ===== IN-MEMORY CACHE (LRU) =====
 const cacheStore = new Map();
@@ -58,8 +59,7 @@ export const writeJSON = (key, value) => {
 
 // ===== FAVORITES & REPORTS HELPERS =====
 export const getFavorites = () => {
-  const stored = readJSON(KEY_FAVORITES, []);
-  return Array.isArray(stored) ? stored : [];
+  return ensureArray(readJSON(KEY_FAVORITES, []));
 };
 
 export const addFavorite = (symbol) => {
@@ -75,12 +75,11 @@ export const removeFavorite = (symbol) =>
 export const isFavorite = (symbol) => getFavorites().includes(symbol);
 
 export const getSelectedReports = () => {
-  const stored = readJSON(KEY_REPORTS, []);
-  return Array.isArray(stored) ? stored : [];
+  return ensureArray(readJSON(KEY_REPORTS, []));
 };
 
 export const setSelectedReports = (reports) => {
-  writeJSON(KEY_REPORTS, Array.isArray(reports) ? reports : []);
+  writeJSON(KEY_REPORTS, ensureArray(reports));
 };
 
 export const addReport = (symbol) => {

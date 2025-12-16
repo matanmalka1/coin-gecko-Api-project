@@ -1,10 +1,9 @@
 import { shortenText } from "../../utils/general-utils.js";
-import { newsCardWrapper } from "./base-components.js";
 
 const NEWS_DESC_MAX = 200;
 
 // Renders the currencies page shell: search/sort areas and compare status slot.
-const currenciesPage = () => `
+export const currenciesPage = () => `
   <div id="searchArea" class="my-4 d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-center gap-2">
     <div class="flex-grow-1 d-flex justify-content-center justify-content-md-end">
       <input type="text" id="searchInput" class="w-100 w-md-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)" minlength="2" maxlength="20" pattern="[a-zA-Z0-9\\s.-]+">
@@ -29,13 +28,13 @@ const currenciesPage = () => `
   <div id="coinsContainer" class="row g-3"></div>`;
 
 // Builds the container for the live reports (charts) page.
-const reportsPage = () => `
+export const reportsPage = () => `
   <h3 class="mb-4">Live Reports</h3>
   <div id="chartsGrid" class="row g-3"></div>
   <div class="mt-2"><small class="text-muted">Reports charts powered by 
     <a href="https://www.tradingview.com" target="_blank" rel="noreferrer">TradingView Lightweight Charts</a></small></div>`;
 
-const aboutPage = (userData = {}) => {
+export const aboutPage = (userData = {}) => {
   const { image, name, linkedin } = userData;
   return `
     <div id="aboutSection" class="container my-5">
@@ -69,7 +68,7 @@ const aboutPage = (userData = {}) => {
   `;
 };
 
-const newsPage = () => `
+export const newsPage = () => `
     <div class="news-hero mb-2 py-3 rounded-3">
           <div class="row gy-4 ">
             <div class="col-lg-7">
@@ -93,8 +92,7 @@ export const newsArticleCard = (article) => {
     : "Unknown time";
 
   return `
-        ${newsCardWrapper(
-        `
+    <div class="col-12 col-md-6 col-lg-4 d-flex"><div class="card news-card h-100 shadow-sm border-0">
         <div class="ratio ratio-16x9 bg-light rounded-top">
           <img src="${image || "images/2.jpeg"}" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"}" loading = "lazy" />
         </div>
@@ -113,14 +111,6 @@ export const newsArticleCard = (article) => {
               : `<p class="card-text flex-grow-1 mb-0 fst-italic">No description available.</p>`
           }
           <a href="${original_url || url || "#"}" class="btn btn-sm btn-primary mt-3 align-self-start" target="_blank" rel="noopener noreferrer">Read full article</a></div>
-      `,
-    )}
+      </div></div>
   `;
-};
-
-export const PageComponents = {
-  currenciesPage,
-  reportsPage,
-  aboutPage,
-  newsPage,
 };

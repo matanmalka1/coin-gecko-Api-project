@@ -1,11 +1,15 @@
 import { REPORTS_COMPARE_MAX } from "../../config/app-config.js";
 import { ErrorUI } from "../error-ui.js";
-import { shortenText, formatPrice, formatLargeNumber } from "../../utils/general-utils.js";
+import { shortenText, formatPrice, formatLargeNumber, ensureArray } from "../../utils/general-utils.js";
 import { ChartRenderer } from "../chart-renderer.js";
-const PLACEHOLDER_THUMB = "images/2.png";
 const COIN_DESC_MAX = 200;
 
 let compareSelection = [];
+
+const getCoinImage = (image) =>
+  typeof image === "string"
+    ? image
+    : image?.thumb || image?.small || image?.large || "images/2.png";
 
 const refreshCompareHighlights = () => {
   const selectedSet = new Set(compareSelection);
@@ -21,7 +25,7 @@ const refreshCompareHighlights = () => {
   });
 };
 
-export const getCompareSelection = () => [...compareSelection];
+export const getCompareSelection = () => ensureArray(compareSelection);
 
 export const resetCompareSelection = () => {
   compareSelection = [];
@@ -29,9 +33,7 @@ export const resetCompareSelection = () => {
 };
 
 export const setCompareSelection = (nextSelection = []) => {
-  compareSelection = Array.isArray(nextSelection)
-    ? nextSelection.map((id) => String(id))
-    : [];
+  compareSelection = ensureArray(nextSelection).map((id) => String(id));
   refreshCompareHighlights();
   return getCompareSelection();
 };
@@ -59,10 +61,7 @@ export const toggleCompareSelection = (coinId, max = REPORTS_COMPARE_MAX) => {
 const coinCardHeader = (coin) => {
   const { name, symbol, image } = coin;
 
-  const imageSource =
-    (typeof image === "string"
-      ? image
-      : image?.thumb || image?.small || image?.large) || PLACEHOLDER_THUMB;
+  const imageSource = getCoinImage(image);
 
   return `
     <div class="d-flex align-items-center gap-3 mb-3">
@@ -142,11 +141,7 @@ const coinDetails = (data = {}) => {
     : "No description available.";
 
   const prices = market_data?.current_price || {};
-  const imageSrc =
-    image?.large ||
-    image?.small ||
-    image?.thumb ||
-    (typeof image === "string" ? image : PLACEHOLDER_THUMB);
+  const imageSrc = getCoinImage(image);
   const sym = (symbol || "").toUpperCase();
 
   const contractAddress =
@@ -194,16 +189,10 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
     ErrorUI.showInfo(container, emptyMessage || "No coins found.");
     return;
   }
-  const favoriteSymbols = Array.isArray(favorites)
-    ? favorites
-    : Array.isArray(favorites?.favorites)
-    ? favorites.favorites
-    : [];
+  const favoriteSymbols = ensureArray(favorites?.favorites || favorites);
 
   const favoriteSet = new Set(favoriteSymbols);
-  const compareSet = new Set(
-    Array.isArray(compareSelection) ? compareSelection : []
-  );
+  const compareSet = new Set(ensureArray(compareSelection));
 
   const html = coins
     .map((coin) =>
@@ -234,9 +223,7 @@ export const showCoinDetails = (containerId,data) => {
 };
 
 export const updateToggleStates = (selectedReports) => {
-  const selectedSymbolsSet = new Set(
-    Array.isArray(selectedReports) ? selectedReports : []
-  );
+  const selectedSymbolsSet = new Set(ensureArray(selectedReports));
 
   $("#coinsContainer .coin-toggle").each(function () {
     const $this = $(this);

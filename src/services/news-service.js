@@ -1,6 +1,6 @@
-import { NEWS_FRESH_MS, NEWS_QUERY, NEWS_LANG, NEWS_CACHE_FAV, NEWS_URL, NEWS_KEY, NEWS_TTL } from "../config/app-config.js";
+import { NEWS_FRESH_MS, NEWS_QUERY, NEWS_CACHE_FAV, NEWS_URL, NEWS_KEY, NEWS_TTL } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
-import { filterLastHours } from "../utils/general-utils.js";
+import { filterLastHours, ensureArray } from "../utils/general-utils.js";
 import { fetchWithCache } from "./storage-manager.js";
 import { fetchWithRetry } from "./api.js";
 
@@ -21,7 +21,7 @@ export const fetchNews = async (cacheKey, params = {}) => {
     cacheKey,
     async () => {
       const { ok, data, status, error } = await fetchWithRetry(
-        `${NEWS_URL}?apikey=${NEWS_KEY}`+ (NEWS_LANG ? `&language=${NEWS_LANG}` : "") + `&q=${query}`
+        `${NEWS_URL}?apikey=${NEWS_KEY}&language=en&q=${query}`
       );
       if (!ok || !data) {return {ok: false,status,error: error || ERRORS.NEWS_ERROR,};}
 
@@ -34,7 +34,7 @@ export const fetchNews = async (cacheKey, params = {}) => {
   if (!ok) {return {ok: false,status,error: error || ERRORS.NEWS_ERROR,};
   }
 
-  const articles = Array.isArray(data) ? data : [];
+  const articles = ensureArray(data);
   const fresh = filterLastHours(articles, NEWS_FRESH_MS)
   return {
     ok: true,
@@ -47,7 +47,7 @@ export const getNewsForFavorites = (favoriteSymbols = []) => {
   if (!favoriteSymbols || favoriteSymbols.length === 0) {
     return {ok: false,error: ERRORS.NO_FAVORITES,};
   }
-  const unique = [...new Set((favoriteSymbols || []).filter(Boolean))].sort();
+  const unique = [...new Set(ensureArray(favoriteSymbols).filter(Boolean))].sort();
 
   const query = unique.join(" OR ");
   const cacheKey = `${NEWS_CACHE_FAV}:${unique.join(",")}`;

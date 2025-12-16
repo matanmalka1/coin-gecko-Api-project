@@ -6,6 +6,8 @@ import {showCurrenciesPage,renderCoins,} from "../controllers/pages-controller.j
 import {filterSelectedCoins,getCoinDetails,searchCoin,getAllCoins,sortCoins,} from "../services/coins-service.js";
 import { spinner } from "../ui/Components/base-components.js";
 
+let isShowingFavoritesOnly = false;
+let isShowingSelectedOnly = false;
 let currentViewMode = "all";
 
 const RENDER_STRATEGIES = {
@@ -15,11 +17,8 @@ const RENDER_STRATEGIES = {
     return { coins, options: { favorites: favoriteSymbols, emptyMessage: ERRORS.NO_FAVORITES } };
   },
   selected: () => {
-    const { ok, error, data } = filterSelectedCoins();
-    if (!ok) {
-      ErrorUI.showError("#coinsContainer", error || ERRORS.NONE_SELECTED);
-      return null;
-    }
+    const { ok, data, error, status } = filterSelectedCoins();
+    if (!ErrorUI.handleResult({ ok, data, error, status }, "#coinsContainer", ERRORS.NONE_SELECTED)) return null;
     return { coins: data, options: {} };
   },
   all: () => ({ coins: getAllCoins(), options: {} })
@@ -40,12 +39,13 @@ const handleFavoriteToggle = (e) => {
   const coinSymbol = $(e.currentTarget).data("symbol");
   const favorite = isFavorite(coinSymbol);
 
-  favorite ? removeFavorite(coinSymbol) : addFavorite(coinSymbol);
+(favorite ? removeFavorite : addFavorite)(coinSymbol);
+ErrorUI.showInfo("#coinsContainer",favorite ? "Removed from favorites" : "Added to favorites",
+  "primary"
+);
 
   updateFavoriteIcon(coinSymbol, !favorite);
-  if (currentViewMode === "favorites") {
-    toggleViewMode("favorites");
-  }
+  if (isShowingFavoritesOnly) {toggleViewMode("favorites");}
 };
 
 const toggleViewMode = (mode) => {
@@ -57,6 +57,8 @@ const toggleViewMode = (mode) => {
   const result = strategy();
   if (!result) return;
 
+  isShowingFavoritesOnly = targetMode === "favorites";
+  isShowingSelectedOnly = targetMode === "selected";
   currentViewMode = targetMode;
 
   $("#showFavoritesBtn").toggleClass("active", targetMode === "favorites");
@@ -69,13 +71,10 @@ const toggleViewMode = (mode) => {
 const handleSearch = () => {
   const $searchInput = $("#searchInput");
   const $clearBtn = $("#clearSearchBtn");
-  const { ok, error, data } = searchCoin($searchInput.val());
+  const { ok, data, error, status } = searchCoin($searchInput.val());
   $clearBtn.toggleClass("d-none", !$searchInput.val());
 
-  if (!ok) {
-    ErrorUI.showError("#coinsContainer", error || ERRORS.DEFAULT);
-    return;
-  }
+  if (!ErrorUI.handleResult({ ok, data, error, status }, "#coinsContainer", ERRORS.DEFAULT)) return;
   renderCoins(data);
 };
 
@@ -92,21 +91,14 @@ const handleMoreInfo = async (e) => {
   const collapseSelector = `#${collapseId}`;
   const $collapse = $(collapseSelector);
 
-  if ($collapse.hasClass("show")) {
-    $collapse.collapse("hide");
-    return;
-  }
+  if ($collapse.hasClass("show")) return $collapse.collapse("hide");
 
   $collapse.html(spinner("Loading details…"));
   $collapse.collapse("show");
 
   try {
-    const { ok, data, status } = await getCoinDetails(coinId);
-
-    if (!ok || !data) {
-      ErrorUI.showError(collapseSelector, ERRORS.COIN_DETAILS_ERROR);
-      return;
-    }
+    const { ok, data, status, error } = await getCoinDetails(coinId);
+    if (!data || !ErrorUI.handleResult({ ok, data, status, error }, collapseSelector, ERRORS.COIN_DETAILS_ERROR)) return;
     showCoinDetails(collapseId, data);
   } catch {
     ErrorUI.showError(collapseSelector, ERRORS.COIN_DETAILS_ERROR);
