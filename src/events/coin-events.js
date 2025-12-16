@@ -1,11 +1,10 @@
 import { getFavorites, isFavorite, addFavorite, removeFavorite } from "../services/storage-manager.js";
-import {showCoinDetails,updateFavoriteIcon,} from "../ui/Components/coin-components.js";
+import { showCoinDetails, updateFavoriteIcon } from "../ui/Components/coin-components.js";
 import { ERRORS } from "../config/error.js";
 import { ErrorUI } from "../ui/error-ui.js";
-import {showCurrenciesPage,renderCoins,} from "../controllers/pages-controller.js";
-import {filterSelectedCoins,getCoinDetails,searchCoin,getAllCoins,sortCoins,} from "../services/coins-service.js";
+import { showCurrenciesPage, renderCoins } from "../controllers/pages-controller.js";
+import { filterSelectedCoins, getCoinDetails, searchCoin, getAllCoins, sortCoins } from "../services/coins-service.js";
 import { spinner } from "../ui/Components/base-components.js";
-import { getNotyf } from "../ui/error-ui.js";
 
 let isShowingFavoritesOnly = false;
 let isShowingSelectedOnly = false;
@@ -18,12 +17,17 @@ const RENDER_STRATEGIES = {
     if (coins.length === 0) {
       ErrorUI.showInfo(ERRORS.NO_FAVORITES);
     }
-    return { coins, options: { favorites: favoriteSymbols } };
+    return {coins, options: { favorites: favoriteSymbols, emptyMessage: "No favorites yet. Tap the star to add coins." },
+    };
   },
   selected: () => {
-    const { ok, data, error, status } = filterSelectedCoins();
-    if (!ErrorUI.handleResult({ ok, data, error, status }, ERRORS.NONE_SELECTED)) return null;
-    return { coins: data, options: {} };
+    const { ok, data, error } = filterSelectedCoins();
+    if (!ok) {
+      ErrorUI.showInfo(error || ERRORS.NONE_SELECTED);
+      return null;
+    }
+    return {coins: data, options: { emptyMessage: "No selected reports yet. Toggle coins to add reports." },
+    };
   },
   all: () => ({ coins: getAllCoins(), options: {} })
 };
@@ -73,21 +77,29 @@ const toggleViewMode = (mode) => {
 const handleSearch = () => {
   const $searchInput = $("#searchInput");
   const $clearBtn = $("#clearSearchBtn");
-  const { ok, data, error, status } = searchCoin($searchInput.val());
-  $clearBtn.toggleClass("d-none", !$searchInput.val());
+  const searchTerm = $searchInput.val();
+
+  $clearBtn.toggleClass("d-none", !searchTerm);
+  if (!searchTerm) return;
+
+  const { ok, data, error } = searchCoin(searchTerm);
 
   if (!ok) {
     ErrorUI.showError(error);
+    renderCoins(getAllCoins());
     return;
   }
+  
   renderCoins(data);
 };
 
 const handleClearSearch = () => {
   $("#searchInput").val("");
-  const $clearBtn = $("#clearSearchBtn");
-  renderCoins(getAllCoins());
-  $clearBtn.addClass("d-none");
+  $("#clearSearchBtn").addClass("d-none");
+  
+  const strategy = RENDER_STRATEGIES[currentViewMode];
+  const { coins, options } = strategy?.() || {};
+  if (coins) renderCoins(coins, options);
 };
 
 const handleMoreInfo = async (e) => {
@@ -101,16 +113,13 @@ const handleMoreInfo = async (e) => {
   $collapse.html(spinner("Loading details…"));
   $collapse.collapse("show");
 
-  try {
-    const { ok, data, status, error } = await getCoinDetails(coinId);
-    if (!ok || !data) {
-      ErrorUI.showError(error);
-      return;
-    }
-    showCoinDetails(collapseId, data);
-  } catch {
-    ErrorUI.showError(ERRORS.COIN_DETAILS_ERROR);
+  const { ok, data, error } = await getCoinDetails(coinId);
+  if (!ok || !data) {
+    ErrorUI.showError(error);
+    $collapse.html(`<p class="text-muted p-2">Failed to load details</p>`);
+    return;
   }
+  showCoinDetails(collapseId, data);
 };
 
 // ===== REGISTRATION =====
