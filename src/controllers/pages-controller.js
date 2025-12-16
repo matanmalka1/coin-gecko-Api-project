@@ -53,18 +53,17 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
     isLoadingCoins = false;
     return;
   }
-  if (coins.length === 0) {
-    $coinsContainer.html(skeleton("coins", 6));
+  if (coins.length === 0) {$coinsContainer.html(skeleton("coins", 6));
+    
   }
 
   try {
-    const result = await loadAllCoins();
-    if (!result.ok) {
-      ErrorUI.showError(null, result.error || ERRORS.COIN_LIST_ERROR);
+    const { ok, data, error } = await loadAllCoins();
+    if (!ok) {ErrorUI.showError(error);
       return;
     }
 
-    renderCoins(result.data);
+    renderCoins(data);
   } finally {
     isLoadingCoins = false;
   }
@@ -89,7 +88,7 @@ export const showReportsPage = async () => {
     },
     onError: ({ symbol, error, status }) => {
       const message = error || ERRORS.LIVE_CHART_ERROR;
-      ErrorUI.showError(null, message);
+      ErrorUI.showError(message);
       $("#chartsGrid").html(`<p class="text-center text-muted py-5">${message}</p>`);
     },
   });
@@ -108,7 +107,7 @@ const loadNews = async (mode = "general") => {
     : await fetchNews(NEWS_CACHE_GEN, { q: NEWS_QUERY });
 
   if (!ok) {
-    ErrorUI.showError(null, error || ERRORS.NEWS_ERROR);
+    ErrorUI.showError(error);
     $newsList.html(`<p class="text-center text-muted py-5">${error || ERRORS.NEWS_ERROR}</p>`);
     return;
   }

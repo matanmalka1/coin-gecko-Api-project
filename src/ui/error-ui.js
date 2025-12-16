@@ -12,12 +12,12 @@ const getNotyf = () => {
   return notyf;
 };
 
-const showError = (target, message) => {
+const showError = (message) => {
   const resolved = (message && ERRORS[message]) || message || ERRORS.DEFAULT;
   getNotyf().error(resolved);
 };
 
-const showInfo = (target, message, type = "primary") => {
+const showInfo = (message, type = "primary") => {
   if (type === "warning") {
     getNotyf().open({
       type: "warning",
@@ -29,7 +29,7 @@ const showInfo = (target, message, type = "primary") => {
   }
 };
 
-const handleResult = (result = {}, target, fallbackMessage = ERRORS.DEFAULT) => {
+const handleResult = (result = {}, fallbackMessage = ERRORS.DEFAULT) => {
   if (result.ok) return true;
   const resolved = result.error || fallbackMessage;
   getNotyf().error(resolved);

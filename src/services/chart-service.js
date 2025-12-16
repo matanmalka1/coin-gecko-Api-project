@@ -95,17 +95,17 @@ export const startLiveChart = async (chartCallbacks = {}) => {
     historyPoints: CHART_CONFIG.points,
   });
 
-  const handleResult = (result) => {
-    if (!result.ok) {
+  const handleResult = ({ ok, status, error, candlesBySymbol }) => {
+    if (!ok) {
       chartCallbacks.onError?.({
-        status: result.status,
-        error: result.error || ERRORS.LIVE_CHART_ERROR,
+        status,
+        error: error || ERRORS.LIVE_CHART_ERROR,
       });
       return;
     }
 
     chartCallbacks.onData?.({
-      candlesBySymbol: result.candlesBySymbol,
+      candlesBySymbol,
     });
   };
 

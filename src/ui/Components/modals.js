@@ -98,7 +98,7 @@ export const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, 
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
       if (!selectedToRemove)
-        return ErrorUI.showInfo(null, ERRORS.REPLACE_SELECTION_REQUIRED);
+        return ErrorUI.showInfo(ERRORS.REPLACE_SELECTION_REQUIRED);
       typeof onConfirm === "function"
         ? onConfirm({ remove: selectedToRemove, add: newSymbol, modal })
         : modal.hide();
@@ -119,11 +119,7 @@ export const showCompareModal = (coins, { missingSymbols = [], title, onClose } 
   const modal = new bootstrap.Modal($compareModal[0]);
 
   if (missingSymbols.length) {
-    ErrorUI.showInfo(
-      null,
-      ERRORS.MISSING_DATA(missingSymbols.join(", ")),
-      "warning"
-    );
+    ErrorUI.showInfo(ERRORS.MISSING_DATA(missingSymbols.join(", ")), "warning");
   }
 
   $compareModal.on("hidden.bs.modal", () => {

@@ -186,7 +186,7 @@ export const displayCoins = (coins,selectedReports,{ favorites, emptyMessage, co
   if (!container.length) return;
 
   if (!coins || coins.length === 0) {
-    ErrorUI.showInfo(null, emptyMessage || "No coins found.");
+    ErrorUI.showInfo(emptyMessage || "No coins found.");
     return;
   }
   const favoriteSymbols = ensureArray(favorites?.favorites || favorites);

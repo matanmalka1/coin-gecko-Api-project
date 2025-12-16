@@ -6,7 +6,7 @@ import { ErrorUI } from "../error-ui.js";
 const showNews = (articles = [], { emptyMessage = ERRORS.EMPTY } = {}) => {
   if (!articles.length) {
     $("#newsList").html(`<p class="text-center text-muted py-5">${emptyMessage}</p>`);
-    ErrorUI.showInfo(null, emptyMessage);
+    ErrorUI.showInfo(emptyMessage);
     return;
   }
   $("#newsList").html(articles.map(newsArticleCard).join(""));

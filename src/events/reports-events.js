@@ -17,7 +17,7 @@ export const updateCompareIndicator = (selected = getCompareSelection()) => {
     return;
   }
   
-  ErrorUI.showInfo($status, `${selectedCount} / ${REPORTS_COMPARE_MAX} coins selected`);
+  ErrorUI.showInfo(`${selectedCount} / ${REPORTS_COMPARE_MAX} coins selected`);
   $status.removeClass("d-none");
 }
 
@@ -28,10 +28,10 @@ const openReplaceFlow = ({ newSymbol, existing, limit }) => {
       const { ok, error, selected } = replaceReport(remove, add);
       updateToggleStates(selected);
       if (!ok) {
-        ErrorUI.showError(null, error || ERRORS.DEFAULT);
+        ErrorUI.showError(error);
         return;
       }
-      ErrorUI.showInfo(null, `Replaced ${remove} with ${add} in reports`);
+      ErrorUI.showInfo(`Replaced ${remove} with ${add} in reports`);
       modal.hide();
     },
   });
@@ -44,14 +44,14 @@ const handleCoinToggle = function () {
     updateToggleStates(selected);
     const wasAdded = rest.wasAdded;
     if (wasAdded) {
-      ErrorUI.showInfo(null, "Added to reports");
+      ErrorUI.showInfo("Added to reports");
     } else {
-      ErrorUI.showInfo(null, "Removed from reports");
+      ErrorUI.showInfo("Removed from reports");
     }
   } else if (limitExceeded) {
     openReplaceFlow({ selected, ...rest });
   } else if (error) {
-    ErrorUI.showError(null, error);
+    ErrorUI.showError(error);
   }
 };
 
@@ -60,16 +60,16 @@ const handleCompareClick = async function () {
   const coinId = String($(this).data("id"));
   const coinExists = getAllCoins().some((coin) => String(coin.id) === coinId);
   if (!coinExists) {
-    ErrorUI.showError(null, ERRORS.NOT_FOUND);
+    ErrorUI.showError(ERRORS.NOT_FOUND);
     return;
   }
 
   const { ok, selected, limitExceeded, error } = toggleCompareSelection(coinId, REPORTS_COMPARE_MAX);
   if (!ok) {
     if (limitExceeded) {
-      ErrorUI.showError(null, ERRORS.COMPARE_FULL(REPORTS_COMPARE_MAX));
+      ErrorUI.showError(ERRORS.COMPARE_FULL(REPORTS_COMPARE_MAX));
     } else if (error) {
-      ErrorUI.showError(null, error);
+      ErrorUI.showError(error);
     }
     return;
   }
@@ -81,7 +81,7 @@ const handleCompareClick = async function () {
 
   const { ok: compareOk, coins, missing, error: compareError } = await getCompareData(currentSelection);
   if (!compareOk) {
-    ErrorUI.showError(null, compareError || ERRORS.DEFAULT);
+    ErrorUI.showError(compareError);
     return;
   }
 

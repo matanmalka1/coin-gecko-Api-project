@@ -16,13 +16,13 @@ const RENDER_STRATEGIES = {
     const favoriteSymbols = getFavorites();
     const coins = getAllCoins().filter((coin) => favoriteSymbols.includes(coin.symbol));
     if (coins.length === 0) {
-      ErrorUI.showInfo(null, ERRORS.NO_FAVORITES);
+      ErrorUI.showInfo(ERRORS.NO_FAVORITES);
     }
     return { coins, options: { favorites: favoriteSymbols } };
   },
   selected: () => {
     const { ok, data, error, status } = filterSelectedCoins();
-    if (!ErrorUI.handleResult({ ok, data, error, status }, null, ERRORS.NONE_SELECTED)) return null;
+    if (!ErrorUI.handleResult({ ok, data, error, status }, ERRORS.NONE_SELECTED)) return null;
     return { coins: data, options: {} };
   },
   all: () => ({ coins: getAllCoins(), options: {} })
@@ -44,7 +44,7 @@ const handleFavoriteToggle = (e) => {
   const favorite = isFavorite(coinSymbol);
 
   (favorite ? removeFavorite : addFavorite)(coinSymbol);
-  ErrorUI.showInfo(null, favorite ? "Removed from favorites" : "Added to favorites");
+  ErrorUI.showInfo(favorite ? "Removed from favorites" : "Added to favorites");
 
   updateFavoriteIcon(coinSymbol, !favorite);
   if (isShowingFavoritesOnly) {toggleViewMode("favorites");}
@@ -77,7 +77,7 @@ const handleSearch = () => {
   $clearBtn.toggleClass("d-none", !$searchInput.val());
 
   if (!ok) {
-    ErrorUI.showError(null, error || ERRORS.DEFAULT);
+    ErrorUI.showError(error);
     return;
   }
   renderCoins(data);
@@ -104,12 +104,12 @@ const handleMoreInfo = async (e) => {
   try {
     const { ok, data, status, error } = await getCoinDetails(coinId);
     if (!ok || !data) {
-      ErrorUI.showError(null, error || ERRORS.COIN_DETAILS_ERROR);
+      ErrorUI.showError(error);
       return;
     }
     showCoinDetails(collapseId, data);
   } catch {
-    ErrorUI.showError(null, ERRORS.COIN_DETAILS_ERROR);
+    ErrorUI.showError(ERRORS.COIN_DETAILS_ERROR);
   }
 };
 
