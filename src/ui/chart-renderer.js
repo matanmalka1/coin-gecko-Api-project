@@ -11,6 +11,22 @@ const destroyAll = () => {
   maxHistoryPoints = CHART_CONFIG.points;
 };
 
+const cleanAndValidateCandle = (c) => {
+  if (!c || c.time === null || c.time === undefined) return null;
+
+  const open = +c.open;
+  const high = +c.high;
+  const low = +c.low;
+  const close = +c.close;
+  
+  if (!Number.isFinite(open) || !Number.isFinite(high) || 
+      !Number.isFinite(low) || !Number.isFinite(close)) {
+    return null;
+  }
+  
+  return { time: c.time, open, high, low, close };
+};
+
 const setupCharts = (symbols, options = {}) => {
   const grid = $("#chartsGrid");
   if (!grid.length) return;
@@ -62,19 +78,25 @@ const setupCharts = (symbols, options = {}) => {
     });
     charts.set(symbol, { chart, series });
   });
+  
 };
 
-const update = (candlesBySymbol = {}, options = {}) => {
-  const limit = options.historyPoints ?? maxHistoryPoints;
-
+const update = (candlesBySymbol = {}) =>
   Object.entries(candlesBySymbol).forEach(([symbol, candles]) => {
-    const entry = charts.get(symbol);
-    if (!entry || !Array.isArray(candles) || candles.length === 0) return;
+    const series = charts.get(symbol)?.series;
+    if (!series || !Array.isArray(candles) || !candles.length) return;
 
-    const trimmed = candles.slice(-limit);
-    entry.series.setData(trimmed);
+    const data =
+      candles.length > 1
+        ? candles.map(cleanAndValidateCandle).filter(Boolean)
+        : cleanAndValidateCandle(candles[0]);
+
+    if (!data || (Array.isArray(data) && !data.length)) return;
+
+    try {
+      Array.isArray(data) ? series.setData(data) : series.update(data);
+    } catch {}
   });
-};
 
 const clear = () => {
   destroyAll();
@@ -82,16 +104,16 @@ const clear = () => {
 };
 
 // ===== CANVASJS MINI CHARTS (Coin Details) =====
-
 const drawMiniChart = async (coinId) => {
   const { ok, data } = await getCoinMarketChart(coinId);
+  const prices = data?.prices;
 
-  if (!ok || !data?.prices || data.prices.length === 0) {
+  if (!ok || !prices || prices.length === 0) {
     $(`#miniChart-${coinId}`).html(`<p class="text-center text-muted">No chart data available</p>`);
     return;
   }
 
-  const prices = data.prices.map(([time, price]) => ({
+  const dataPoints = prices.map(([time, price]) => ({
     x: new Date(time),
     y: price,
   }));
@@ -109,7 +131,7 @@ const drawMiniChart = async (coinId) => {
     data: [
       {
         type: "line",
-        dataPoints: prices,
+        dataPoints: dataPoints,
         color: "#0d6efd",
         markerSize: 4,
         lineThickness: 2,

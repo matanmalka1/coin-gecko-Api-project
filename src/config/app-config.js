@@ -33,7 +33,7 @@ export const REPORTS_UPDATE_MS = 2000;
 
 // ===== CHART CONFIGURATION =====
 export const CHART_CONFIG = {
-  points: 70,
+  points: 300,
   badge: "Live",
   colors: {
     up: "#26a69a",
