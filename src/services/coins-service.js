@@ -1,7 +1,7 @@
 import { fetchWithRetry } from "./api.js";
 import { getCache, setCache, writeJSON, getSelectedReports, setSelectedReports } from "./storage-manager.js";
 import { COINGECKO_BASE, CHART_HISTORY_DAYS, COINS_PER_PAGE, COINS_CACHE_KEY, COINS_TIMESTAMP_KEY } from "../config/app-config.js";
-import { normalizeSymbol } from "../utils/general-utils.js";
+import { ensureArray, normalizeSymbol } from "../utils/general-utils.js";
 import { ERRORS } from "../config/error.js";
 
 const sortFunctions = {
@@ -27,7 +27,7 @@ export const loadAllCoins = async () => {
     return { ok: false, error: error || ERRORS.COIN_LIST_ERROR, status };
   }
 
-  const coinsArray = Array.isArray(data) ? data : [];
+  const coinsArray = ensureArray(data);
   const filteredCoins = coinsArray
     .filter(({ id, symbol }) => id && symbol)
     .map((coin) => ({

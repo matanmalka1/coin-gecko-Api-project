@@ -1,6 +1,6 @@
 import { CHART_CONFIG } from "../config/app-config.js";
 import { getCoinMarketChart } from "../services/coins-service.js";
-import { ErrorUI } from "./error-ui.js";
+import { ensureArray } from "../utils/general-utils.js";
 
 // ===== LIGHTWEIGHT CHARTS (Live Reports) =====
 const charts = new Map();
@@ -70,7 +70,7 @@ const update = (candlesBySymbol = {}, options = {}) => {
 
   Object.entries(candlesBySymbol).forEach(([symbol, candles]) => {
     const entry = charts.get(symbol);
-    if (!entry || !Array.isArray(candles)) return;
+    if (!entry || ensureArray(candles)) return;
 
     const trimmed = candles.slice(-limit);
     entry.series.setData(trimmed);
