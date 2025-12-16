@@ -18,12 +18,16 @@ const cleanAndValidateCandle = (c) => {
   const high = +c.high;
   const low = +c.low;
   const close = +c.close;
-  
-  if (!Number.isFinite(open) || !Number.isFinite(high) || 
-      !Number.isFinite(low) || !Number.isFinite(close)) {
+
+  if (
+    !Number.isFinite(open) ||
+    !Number.isFinite(high) ||
+    !Number.isFinite(low) ||
+    !Number.isFinite(close)
+  ) {
     return null;
   }
-  
+
   return { time: c.time, open, high, low, close };
 };
 
@@ -43,7 +47,7 @@ const setupCharts = (symbols, options = {}) => {
   symbols.forEach((symbol) => {
     const containerId = `chart-${symbol}`;
     grid.append(`
-      <div class="col-md-6 col-lg-4">
+<div class="col-12"> 
         <div class="card shadow-sm p-3 h-100 rounded-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">${symbol}</h6>
@@ -65,7 +69,19 @@ const setupCharts = (symbols, options = {}) => {
         textColor: colors.textBorder,
       },
       rightPriceScale: { borderColor: colors.textBorder },
-      timeScale: { borderColor: colors.textBorder },
+      timeScale: { borderColor: colors.textBorder, barSpacing: 20 },
+
+      localization: {
+        timeFormatter: (ts) =>
+          new Date(ts * 1000).toLocaleString("he-IL", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          }),
+      },
     });
 
     const series = chart.addSeries(LightweightCharts.CandlestickSeries, {
@@ -78,7 +94,6 @@ const setupCharts = (symbols, options = {}) => {
     });
     charts.set(symbol, { chart, series });
   });
-  
 };
 
 const update = (candlesBySymbol = {}) =>
@@ -109,7 +124,9 @@ const drawMiniChart = async (coinId) => {
   const prices = data?.prices;
 
   if (!ok || !prices || prices.length === 0) {
-    $(`#miniChart-${coinId}`).html(`<p class="text-center text-muted">No chart data available</p>`);
+    $(`#miniChart-${coinId}`).html(
+      `<p class="text-center text-muted">No chart data available</p>`
+    );
     return;
   }
 
