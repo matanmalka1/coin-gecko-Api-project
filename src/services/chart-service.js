@@ -74,10 +74,12 @@ export const cleanup = () => {
     liveIntervalId = null;
   }
   liveCandlesBySymbol = {};
+  isInitialHistoryLoad = false;
 };
 
 export const startLiveChart = async (chartCallbacks = {}) => {
   cleanup();
+  isInitialHistoryLoad = false;
 
   const selected = getSelectedReports();
     if (!selected.length) {
@@ -105,7 +107,6 @@ export const startLiveChart = async (chartCallbacks = {}) => {
       } else {
         dataToSend = Object.fromEntries(
           Object.entries(candlesBySymbol)
-          
             .filter(([, candles]) => candles?.length) 
             .map(([symbol, candles]) => [symbol, [candles.at(-1)]])
         );

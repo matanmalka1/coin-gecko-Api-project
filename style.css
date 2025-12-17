@@ -229,3 +229,27 @@ header.parallax {
 #aboutSection {
   color: var(--color-text);
 }
+
+/* ==========================
+   EMBLA (Reports Carousel)
+   ========================== */
+.embla__viewport {
+  overflow: hidden;
+}
+
+.embla__container {
+  display: flex;
+}
+
+.embla__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.reports-carousel .embla__slide {
+  padding: 0.5rem;
+}
+
+.reports-carousel .reports-nav {
+  gap: 0.75rem;
+}

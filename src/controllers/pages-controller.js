@@ -7,7 +7,7 @@ import { getAllCoins, loadAllCoins, getGlobalStats} from "../services/coins-serv
 import { cleanup,startLiveChart } from "../services/chart-service.js";
 import { getNewsForFavorites ,fetchNews } from "../services/news-service.js";
 import { getFavorites, getSelectedReports, readJSON } from "../services/storage-manager.js";
-import { skeleton,renderStatsBar } from "../ui/Components/base-components.js";
+import { skeleton,renderStatsBar,spinner } from "../ui/Components/base-components.js";
 import { ErrorUI } from "../ui/error-ui.js";
 import { ERRORS } from "../config/error.js";
 
@@ -74,8 +74,8 @@ export const showReportsPage = async () => {
   cleanup();
   const $content = $("#content");
   $content.html(reportsPage());
-  const $chartsGrid = $content.find("#chartsGrid");
-  $chartsGrid.html(skeleton("charts", 6));
+  const $chartsTrack = $content.find("#chartsTrack");
+  $chartsTrack.html(spinner("Loading live charts..."));
 
   await startLiveChart({
     onChartReady: ({ symbols }) => {
@@ -86,11 +86,10 @@ export const showReportsPage = async () => {
         historyPoints: CHART_CONFIG.points,
       });
     },
-    onError: ({error}) => {
-      const message = error || ERRORS.LIVE_CHART_ERROR;
-      ErrorUI.showError(message);
-      $("#chartsGrid").html(`<p class="text-center text-muted py-5">${message}</p>`);
-    },
+  onError: ({error = ERRORS.LIVE_CHART_ERROR}) => {
+    ErrorUI.showError(error);
+    $("#chartsTrack").html(`<div class="embla__slide"><p class="text-center text-muted py-5 mb-0">${error}</p></div>`);
+  },
   });
 };
 
@@ -102,7 +101,7 @@ const loadNews = async (mode = "general") => {
   $newsList.html(skeleton("news", 3))
   NewsUI.setNewsFilterMode(mode);
 
-  const {ok,data,error,status,} = isFavorites
+  const {ok,data,error} = isFavorites
     ? await getNewsForFavorites(getFavorites())
     : await fetchNews(NEWS_CACHE_GEN, { q: NEWS_QUERY });
 
