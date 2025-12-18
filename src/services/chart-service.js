@@ -3,7 +3,7 @@ import { getSelectedReports } from "./storage-manager.js";
 import { CHART_CONFIG, CRYPTOCOMPARE_BASE, CRYPTOCOMPARE_KEY, REPORTS_UPDATE_MS } from "../config/app-config.js";
 import { ERRORS } from "../config/error.js";
 
-let liveIntervalId = null;
+let liveIntervalId;
 let liveCandlesBySymbol = {};
 let isInitialHistoryLoad = false;
 
@@ -69,10 +69,8 @@ const fetchLivePrices = async (symbols) => {
 
 // ===== CHART LIFECYCLE =====
 export const cleanup = () => {
-  if (liveIntervalId) {
-    clearInterval(liveIntervalId);
-    liveIntervalId = null;
-  }
+ clearInterval(liveIntervalId);
+  liveIntervalId = undefined;
   liveCandlesBySymbol = {};
   isInitialHistoryLoad = false;
 };

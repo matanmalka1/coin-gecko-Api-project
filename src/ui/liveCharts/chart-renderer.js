@@ -4,6 +4,9 @@ import { ensureArray } from "../../utils/general-utils.js";
 const charts = new Map();
 let emblaApi = null;
 let emblaSymbols = [];
+const $pager = $("#reportsPager");
+const $prevBtn = $("#reportsPrevBtn");
+const $nextBtn = $("#reportsNextBtn");
 
 const cleanup = () => {
   charts.forEach((entry) => entry?.chart?.remove());
@@ -92,13 +95,11 @@ export const setupCharts = (symbols) => {
 
   const updateNav = () => {
     if (!emblaApi) return;
-    $("#reportsPager").html(
-      `${emblaApi.selectedScrollSnap() + 1} / ${
-        emblaApi.scrollSnapList().length
-      }`
-    );
-    $("#reportsPrevBtn").prop("disabled", !emblaApi.canScrollPrev());
-    $("#reportsNextBtn").prop("disabled", !emblaApi.canScrollNext());
+
+   $pager.html(`${emblaApi.selectedScrollSnap() + 1} / ${emblaApi.scrollSnapList().length}`);
+
+    $prevBtn.prop("disabled", !emblaApi.canScrollPrev());
+    $nextBtn.prop("disabled", !emblaApi.canScrollNext());
   };
 
   const resizeVisibleChart = () => {
@@ -113,10 +114,10 @@ export const setupCharts = (symbols) => {
     requestAnimationFrame(resizeVisibleChart);
   };
 
-  $("#reportsPrevBtn")
+ $prevBtn
     .off(".reports")
     .on("click.reports", () => emblaApi?.scrollPrev());
-  $("#reportsNextBtn")
+  $nextBtn
     .off(".reports")
     .on("click.reports", () => emblaApi?.scrollNext());
 

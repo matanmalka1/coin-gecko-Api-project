@@ -1,8 +1,9 @@
-import { CACHE_MAX as MAX_ENTRIES, CACHE_TTL as EXPIRY_TIME, KEY_FAVORITES, KEY_REPORTS } from "../config/app-config.js";
+import { CACHE_MAX as MAX_ENTRIES, CACHE_TTL as EXPIRY_TIME} from "../config/app-config.js";
 import { ensureArray } from "../utils/general-utils.js";
 
-// ===== IN-MEMORY CACHE (LRU) =====
-const cacheStore = new Map();
+ const KEY_FAVORITES = "favorites";
+ const KEY_REPORTS = "reportsSelection";
+ const cacheStore = new Map();
 
 export const getCache = (key) => {
   const entry = cacheStore.get(key);

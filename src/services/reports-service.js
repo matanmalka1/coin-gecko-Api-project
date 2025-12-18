@@ -9,14 +9,14 @@ export const toggleCoinSelection = (symbol) => {
   const alreadySelected = selected.includes(symbol);
 
   if (!alreadySelected && selected.length >= REPORTS_MAX) {
-    return {ok: false,error: ERRORS.LIMIT(REPORTS_MAX), limitExceeded: true,newSymbol: symbol,existing: selected,limit: REPORTS_MAX,selected,};
+    return { ok: false, error: ERRORS.LIMIT(REPORTS_MAX), limitExceeded: true, newSymbol: symbol, existing: selected }
   }
   alreadySelected ? removeReport(symbol) : addReport(symbol);
-  return { ok: true, selected: getSelectedReports(), wasAdded: !alreadySelected };
+   return { ok: true, wasAdded: !alreadySelected };
 };
 
 export const replaceReport = (oldSymbol, newSymbol) => {
-  const selected = getSelectedReports();
+  let selected = getSelectedReports();
 
   if (oldSymbol === newSymbol) return { ok: true, selected };
   if (!selected.includes(oldSymbol)) return { ok: false, error: ERRORS.NOT_FOUND, selected };
@@ -25,7 +25,8 @@ export const replaceReport = (oldSymbol, newSymbol) => {
 
   removeReport(oldSymbol);
   addReport(newSymbol);
-  return { ok: true, selected: getSelectedReports() };
+  selected = getSelectedReports();
+  return { ok: true, selected };
 };
 
 export const getCompareData = async (ids) => {

@@ -60,6 +60,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   try {
     const { ok, data, error } = await loadAllCoins();
     if (!ok) {
+      isLoadingCoins = false;
       showError(error);
       return;
     }

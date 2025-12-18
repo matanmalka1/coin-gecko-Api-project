@@ -35,7 +35,7 @@ export const skeleton = (type = "coins", count = 6) => {
     `,
   };
   const colClasses =
-    type === "news"
+    type === "news" || type === "coins"
       ? "col-12 col-md-6 col-lg-4 d-flex"
       : "col-12 col-md-6 col-lg-4";
 

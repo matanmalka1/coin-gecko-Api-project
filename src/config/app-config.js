@@ -16,8 +16,7 @@ export const CACHE_MAX = 100;
 export const CACHE_COINS_REFRESH_MS = 5 * 60 * 1000;
 export const NEWS_TTL = 30 * 60 * 1000;
 export const NEWS_FRESH_MS = 5 * 60 * 60 * 1000;
-export const KEY_FAVORITES = "favorites";
-export const KEY_REPORTS = "reportsSelection";
+
 export const COINS_CACHE_KEY = "marketData";
 export const COINS_TIMESTAMP_KEY = "marketDataTimestamp";
 

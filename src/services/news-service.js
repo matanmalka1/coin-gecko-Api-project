@@ -31,15 +31,13 @@ export const fetchNews = async (cacheKey, params = {}) => {
     NEWS_TTL
   );
 
-  if (!ok) {return {ok: false,status,error: error || ERRORS.NEWS_ERROR,};
-  }
+  if (!ok) {return {ok: false,status,error: error || ERRORS.NEWS_ERROR,}}
 
-  const articles = ensureArray(data);
-  const fresh = filterLastHours(articles, NEWS_FRESH_MS)
+  const fresh = filterLastHours(data, NEWS_FRESH_MS);
   return {
     ok: true,
-    data: fresh.length ? fresh : articles,
-    usedFallback: !fresh.length && articles.length > 0,
+    data: fresh.length ? fresh : data,
+    usedFallback: !fresh.length && data.length > 0,
   };
 };
 
