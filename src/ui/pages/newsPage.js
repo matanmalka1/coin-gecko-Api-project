@@ -2,16 +2,19 @@ import { ERRORS } from "../../config/error.js";
 import { shortenText } from "../../utils/general-utils.js";
 import { NEWS_DESC_MAX } from "../../config/app-config.js";
 
+const NEWS_FALLBACK_IMAGE = "images/2.jpeg";
+
 export const newsArticleCard = (article) => {
   const { title, description, published_at, source = {}, original_url, url, image } = article || {};
   const publishedDate = published_at
     ? new Date(published_at).toLocaleString()
     : "Unknown time";
+  const imageSrc = image || NEWS_FALLBACK_IMAGE;
 
   return `
     <div class="col-12 col-md-6 col-lg-4 d-flex"><div class="card news-card h-100 shadow-sm border-0">
         <div class="ratio ratio-16x9 bg-light rounded-top">
-          <img src="${image || "images/2.jpeg"}" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"}" loading = "lazy" />
+          <img src="${imageSrc}" onerror="this.onerror=null;this.src='${NEWS_FALLBACK_IMAGE}';" class="card-img-top h-100 w-100 object-fit-cover rounded-top" alt="${title || "matan's photo"}" loading="lazy" />
         </div>
         <div class="card-body d-flex flex-column">
             <h5 class="card-title mb-3">
@@ -62,5 +65,4 @@ export const newsPage = () => `
     </div>
     <div id="newsList" class="row g-4"></div>
 `;
-
 

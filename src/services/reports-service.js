@@ -5,17 +5,18 @@ import { fetchWithRetry } from "./api.js";
 import { ERRORS } from "../config/error.js";
 
 export const toggleCoinSelection = (symbol) => {
-const alreadySelected = getSelectedReports().includes(symbol);
+  const selected = getSelectedReports();
+  const alreadySelected = selected.includes(symbol);
 
   if (!alreadySelected && selected.length >= REPORTS_MAX) {
-    return { ok: false, error: ERRORS.LIMIT(REPORTS_MAX), limitExceeded: true, newSymbol: symbol, existing: selected }
+    return {ok: false,error: ERRORS.LIMIT(REPORTS_MAX), limitExceeded: true,newSymbol: symbol,existing: selected,limit: REPORTS_MAX,selected,};
   }
   alreadySelected ? removeReport(symbol) : addReport(symbol);
-   return { ok: true, wasAdded: !alreadySelected };
+  return { ok: true, selected: getSelectedReports(), wasAdded: !alreadySelected };
 };
 
 export const replaceReport = (oldSymbol, newSymbol) => {
-  let selected = getSelectedReports();
+  const selected = getSelectedReports();
 
   if (oldSymbol === newSymbol) return { ok: true, selected };
   if (!selected.includes(oldSymbol)) return { ok: false, error: ERRORS.NOT_FOUND, selected };
@@ -24,8 +25,7 @@ export const replaceReport = (oldSymbol, newSymbol) => {
 
   removeReport(oldSymbol);
   addReport(newSymbol);
-  selected = getSelectedReports();
-  return { ok: true, selected };
+  return { ok: true, selected: getSelectedReports() };
 };
 
 export const getCompareData = async (ids) => {
