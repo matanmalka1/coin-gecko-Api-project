@@ -58,19 +58,6 @@ a:hover {
   color: var(--color-link-hover);
   text-decoration: underline;
 }
-
-/* ===== NAVBAR ===== */
-.navbar .btn:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-
-.btn.active {
-  background-color: var(--color-primary) !important;
-  color: white !important;
-  border-color: var(--color-primary) !important;
-}
-
 /* ===== HEADER & PARALLAX ===== */
 header.parallax {
   background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920");
@@ -138,14 +125,13 @@ header.parallax {
 .price-badge {
   background-color: var(--color-input-bg);
   color: var(--color-text);
-  font-size: 0.95rem;
   border-left: 3px solid var(--color-primary);
   transition: transform 0.2s ease;
 }
 
 .price-badge:hover {
   transform: translateX(5px);
-}
+} 
 
 .mini-chart-container {
   height: 220px;
@@ -172,15 +158,10 @@ header.parallax {
 }
 
 /* ===== MODALS (רק overrides ל-theme) ===== */
-#replaceModal .modal-content,
-#compareModal .modal-content,
 .modal-content {
-  background-color: var(--color-card-bg);
-  color: var(--color-text);
   border-color: var(--color-border);
   border-radius: var(--radius-md);
 }
-
 .modal-header,
 .modal-footer {
   border-color: var(--color-border);

@@ -1,6 +1,6 @@
 import { getAllCoins } from "../services/coins-service.js";
 import {toggleCoinSelection,replaceReport,getCompareData,} from "../services/reports-service.js";
-import {toggleCompareSelection,getCompareSelection,resetCompareSelection,updateToggleStates,} from "../ui/pages/currenciesPage.js";
+import {toggleCompareSelection,getCompareSelection,resetCompareSelection,updateToggleStates} from "../ui/pages/currenciesPage.js";
 import { showReplaceModal, showCompareModal } from "../ui/modals.js";
 import { REPORTS_COMPARE_MAX } from "../config/app-config.js";
 import { ERRORS , showError,showInfo} from "../config/error.js";
@@ -61,14 +61,9 @@ const handleCompareClick = async function () {
     showError(ERRORS.NOT_FOUND);
     return;
   }
+  const {selected, limitExceeded } = toggleCompareSelection(coinId, REPORTS_COMPARE_MAX);
 
-  const {selected, limitExceeded} = toggleCompareSelection(coinId, REPORTS_COMPARE_MAX);
-  if (!ok) {
-    if (limitExceeded) {
-      showError(ERRORS.COMPARE_FULL(REPORTS_COMPARE_MAX));
-    } else if (error) {
-      showError(error);
-    }
+    if (limitExceeded) {showError(ERRORS.COMPARE_FULL(REPORTS_COMPARE_MAX))
     return;
   }
 
@@ -77,8 +72,8 @@ const handleCompareClick = async function () {
 
   if (currentSelection.length < REPORTS_COMPARE_MAX) return;
 
-  const { ok, coins, missing, error } = await getCompareData(currentSelection);
-  if (!ok) {
+  const { ok: compareOk, coins, missing, error: compareError } = await getCompareData(currentSelection);
+  if (!compareOk) {
     showError(compareError);
     return;
   }

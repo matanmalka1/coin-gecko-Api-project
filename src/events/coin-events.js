@@ -5,8 +5,7 @@ import { showCurrenciesPage, renderCoins } from "./pages-events.js";
 import {filterSelectedCoins,getCoinDetails,searchCoin,getAllCoins,sortCoins,} from "../services/coins-service.js";
 import { spinner } from "../ui/base-components.js";
 
-let isShowingFavoritesOnly = false;
-let isShowingSelectedOnly = false;
+
 let currentViewMode = "all";
 
 const RENDER_STRATEGIES = {
@@ -46,7 +45,7 @@ const handleFavoriteToggle = (e) => {
   showInfo(favorite ? "Removed from favorites" : "Added to favorites");
 
   updateFavoriteIcon(coinSymbol, !favorite);
-  if (isShowingFavoritesOnly) toggleViewMode("favorites");
+  if (currentViewMode === "favorites") toggleViewMode("favorites");
 
 };
 
@@ -59,8 +58,7 @@ const toggleViewMode = (mode) => {
   const result = strategy();
   if (!result) return;
 
-  isShowingFavoritesOnly = targetMode === "favorites";
-  isShowingSelectedOnly = targetMode === "selected";
+
   currentViewMode = targetMode;
 
   $("#showFavoritesBtn").toggleClass("active", targetMode === "favorites");

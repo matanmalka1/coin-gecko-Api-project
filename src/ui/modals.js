@@ -84,11 +84,7 @@ const buildCompareTable = (coins) =>
     <tbody>${coins.map(buildCompareRow).join("")}</tbody>
   </table>`;
 
-export const showReplaceModal = (
-  newSymbol,
-  existingCoins,
-  { maxCoins, onConfirm, onClose } = {}
-) => {
+export const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, onClose } = {}) => {
   const modalHTML = replaceModal(newSymbol, existingCoins, { maxCoins });
 
   $("body").append(modalHTML);
@@ -99,12 +95,12 @@ export const showReplaceModal = (
     .off()
     .on("click", () => {
       const selectedToRemove = $(".replace-toggle:checked").data("symbol");
-      if (!selectedToRemove)
-        return ErrorUI.showInfo(ERRORS.REPLACE_SELECTION_REQUIRED);
+      if (!selectedToRemove) return showInfo(ERRORS.REPLACE_SELECTION_REQUIRED);
       typeof onConfirm === "function"
         ? onConfirm({ remove: selectedToRemove, add: newSymbol, modal })
         : modal.hide();
     });
+
   $replaceModal.one("hidden.bs.modal", () => {
     $replaceModal.remove();
     onClose?.();
@@ -112,10 +108,7 @@ export const showReplaceModal = (
   return modal;
 };
 
-export const showCompareModal = (
-  coins,
-  { missingSymbols = [], title, onClose } = {}
-) => {
+export const showCompareModal = (coins,{ missingSymbols = [], title, onClose } = {}) => {
   const content = buildCompareTable(coins);
   const modalHTML = compareModal(content, { title: title || "Compare Coins" });
 
