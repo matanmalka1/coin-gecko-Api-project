@@ -4,7 +4,7 @@ import { filterLastHours, ensureArray } from "../utils/general-utils.js";
 import { fetchWithCache } from "./storage-manager.js";
 import { fetchWithRetry } from "./api.js";
 
-// ===== NORMALIZATION =====
+
 const normalizeArticle = ({title,description,pubDate,source_id,link,image_url,} = {}) => ({
   title,
   description,
@@ -42,7 +42,7 @@ export const fetchNews = async (cacheKey, params = {}) => {
     usedFallback: !fresh.length && articles.length > 0,
   };
 };
-// ===== FETCH LAYER =====
+
 export const getNewsForFavorites = (favoriteSymbols = []) => {
   if (!favoriteSymbols || favoriteSymbols.length === 0) {
     return {ok: false,error: ERRORS.NO_FAVORITES,};

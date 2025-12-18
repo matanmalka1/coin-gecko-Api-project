@@ -1,5 +1,6 @@
-import { formatLargeNumber, formatPercent } from "../../utils/general-utils.js";
+import { formatLargeNumber, formatPercent } from "../utils/general-utils.js";
 // Returns a spinner block with an accessible status message.
+
 export const spinner = (message = "Loading...") => `
   <div class="text-center my-3">
     <div class="spinner-border text-primary">
@@ -32,42 +33,51 @@ export const skeleton = (type = "coins", count = 6) => {
         </div>
       </div>
     `,
-    charts: `
-      <div class="d-flex justify-content-between mb-2">
-        <span class="placeholder col-3"></span>
-        <span class="placeholder col-2"></span>
-      </div>
-      <div class="placeholder bg-light rounded" style="height:220px;"></div>
-    `,
   };
-
-  const template = templates[type] || templates.coins;
   const colClasses =
     type === "news"
       ? "col-12 col-md-6 col-lg-4 d-flex"
       : "col-12 col-md-6 col-lg-4";
 
-  const cards = Array.from({ length: count }, () =>
-    `<div class="${colClasses}"><div class="card border shadow-sm placeholder-wave h-100 p-3">${template}</div></div>`
+  const cards = Array.from(
+    { length: count },
+    () =>
+      `<div class="${colClasses}"><div class="card border shadow-sm placeholder-wave h-100 p-3">${templates[type]}</div></div>`
   ).join("");
 
   return `<div class="row g-4 align-items-stretch">${cards}</div>`;
 };
 
 export const renderStatsBar = (targetSelector, data) => {
-  const {total_market_cap,total_volume,market_cap_percentage,market_cap_change_percentage_24h_usd } = data;
-  
+  const {
+    total_market_cap,
+    total_volume,
+    market_cap_percentage,
+    market_cap_change_percentage_24h_usd,
+  } = data;
+
   const stats = [
     { label: "Market Cap", value: formatLargeNumber(total_market_cap?.usd) },
     { label: "24h Volume", value: formatLargeNumber(total_volume?.usd) },
-    { label: "BTC Dominance", value: formatPercent(market_cap_percentage?.btc, { decimals: 1 }) },
-    { label: "Market Change", value: formatPercent(market_cap_change_percentage_24h_usd, { decimals: 2, showSign: true }) },
+    {
+      label: "BTC Dominance",
+      value: formatPercent(market_cap_percentage?.btc, { decimals: 1 }),
+    },
+    {
+      label: "Market Change",
+      value: formatPercent(market_cap_change_percentage_24h_usd, {
+        decimals: 2,
+        showSign: true,
+      }),
+    },
   ];
 
   $(targetSelector).html(`
     <div class="container">
       <div class="row g-3 text-center">
-        ${stats.map(({ label, value }) => `
+        ${stats
+          .map(
+            ({ label, value }) => `
           <div class="col-6 col-md-3">
             <div class="card shadow-sm h-100">
               <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
@@ -77,7 +87,9 @@ export const renderStatsBar = (targetSelector, data) => {
               </div>
             </div>
           </div>
-        `).join("")}
+        `
+          )
+          .join("")}
       </div>
     </div>
   `);

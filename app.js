@@ -1,7 +1,8 @@
-import { CoinEvents } from "./src/events/coin-events.js";
-import { ReportsEvents } from "./src/events/reports-events.js";
-import {showCurrenciesPage,showReportsPage,showNewsPage,showAboutPage,initStatsBar,} from "./src/controllers/pages-controller.js";
+import { setupCoinsEvents } from "./src/events/coin-events.js";
+import { setupReportsEvents } from "./src/events/reports-events.js";
+import { showCurrenciesPage,initStatsBar,setupPagesEvents } from "./src/events/pages-events.js";
 
+// ===== DARKMODE WIDGET =====
 const initDarkmodeWidget = () => {
   const darkmode = new Darkmode({
     bottom: "20px",
@@ -19,21 +20,11 @@ const initDarkmodeWidget = () => {
   darkmode.showWidget();
 };
 
-const registerGlobalEvents = () => {
-  $("#currenciesBtn, #brandHome").on("click", () => showCurrenciesPage());
-  $("#reportsBtn").on("click", () => showReportsPage());
-  $("#newsBtn").on("click", () => showNewsPage());
-  $("#aboutBtn").on("click", () => showAboutPage());
-
-  $(document)
-    .on("click", "#newsGeneralBtn", () => {showNewsPage("general")})
-    .on("click", "#newsFavoritesBtn", () => {showNewsPage("favorites")});
-}
 $(() => {
-  CoinEvents.register();
-  ReportsEvents.register();
-  registerGlobalEvents();
   showCurrenciesPage();
   initDarkmodeWidget();
   initStatsBar();
+  setupCoinsEvents();
+  setupReportsEvents();
+  setupPagesEvents();
 });

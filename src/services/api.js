@@ -19,7 +19,6 @@ export const fetchWithRetry = async (url, options = {}, retries = 1) => {
         status,
       };
     }
-
     const data = await response.json();
     return { ok: true, data, status };
   } catch {

@@ -37,3 +37,32 @@ export const ERRORS = {
   // ===== GENERIC UI ERRORS =====
   GENERIC: "An error occurred. Please try again.",
 };
+
+let notyf;
+const getNotyf = () => {
+  if (!notyf) {
+    notyf = new Notyf({
+      duration: 3000,
+      position: { x: "right", y: "top" },
+      dismissible: true,
+    });
+  }
+  return notyf;
+};
+
+export const showError = (message) => {
+  const resolved = (message && ERRORS[message]) || message || ERRORS.DEFAULT;
+  getNotyf().error(resolved);
+};
+
+export const showInfo = (message, type = "primary") => {
+  if (type === "warning") {
+    getNotyf().open({
+      type: "warning",
+      message,
+      background: "#ff9800",
+    });
+  } else {
+    getNotyf().success(message);
+  }
+};

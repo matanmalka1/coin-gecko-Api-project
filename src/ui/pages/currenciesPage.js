@@ -1,6 +1,6 @@
 import { REPORTS_COMPARE_MAX } from "../../config/app-config.js";
 import { shortenText, formatPrice, formatLargeNumber, ensureArray } from "../../utils/general-utils.js";
-import { ChartRenderer } from "../chart-renderer.js";
+import { drawMiniChart } from "../liveCharts/miniChart.js";
 const COIN_DESC_MAX = 200;
 
 let compareSelection = [];
@@ -217,7 +217,7 @@ export const updateFavoriteIcon = (symbol, isFavorite) => {
 
 export const showCoinDetails = (containerId,data) => {
   $(`#${containerId}`).html(coinDetails(data) + coinMiniChart(data.id));
-  ChartRenderer.drawMiniChart(data.id);
+  drawMiniChart(data.id);
 };
 
 export const updateToggleStates = (selectedReports) => {
@@ -243,3 +243,27 @@ export const setCompareHighlight = (coinId, isActive) => {
 export const clearCompareHighlights = () => {
   resetCompareSelection();
 };
+// Renders the currencies page shell: search/sort areas and compare status slot.
+export const currenciesPage = () => `
+  <div id="searchArea" class="my-4 d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-center gap-2">
+    <div class="flex-grow-1 d-flex justify-content-center justify-content-md-end">
+      <input type="text" id="searchInput" class="w-100 w-md-25 rounded-pill py-2 px-4" placeholder="Search coin by symbol (e.g. BTC, ETH, SOL)" minlength="2" maxlength="20" pattern="[a-zA-Z0-9\\s.-]+">
+    </div>
+    <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
+      <button type="button" id="filterReportsBtn" class="btn btn-light mx-2">Show Selected</button>
+      <button type="button" id="showFavoritesBtn" class="btn btn-light mx-2">Favorites ⭐️</button>
+      <button type="button" id="clearSearchBtn" class="btn btn-light mx-2 d-none" >Clear</button>
+      <button type="button" id="refreshCoinsBtn" class="btn btn-light mx-2"><i class="bi bi-arrow-clockwise"></i></button>
+    </div>
+  </div>
+
+    <div id="sortArea" class="my-3">
+      <select id="sortSelect" class="form-select w-auto d-inline-block">
+        <option value="marketcap_desc">Top Coins (Default)</option><option value="marketcap_asc">Market Cap ↑</option>
+        <option value="price_desc">Price ↓</option><option value="price_asc">Price ↑</option>
+        <option value="volume_high">Volume High</option><option value="volume_low">Volume Low</option>
+      </select>
+     </div>
+     
+  <div id="compareStatus" class="d-none mb-3"></div>
+  <div id="coinsContainer" class="row g-3"></div>`;

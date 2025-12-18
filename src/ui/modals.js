@@ -1,7 +1,5 @@
-import { ERRORS } from "../../config/error.js";
-import { ErrorUI } from "../error-ui.js";
-import { formatPrice, formatLargeNumber, formatPercent } from "../../utils/general-utils.js";
-
+import { ERRORS,showInfo } from "../config/error.js";
+import {formatPrice,formatLargeNumber,formatPercent,} from "../utils/general-utils.js";
 
 const replaceModal = (newSymbol, existingCoins, options = {}) => {
   const limit =
@@ -86,7 +84,11 @@ const buildCompareTable = (coins) =>
     <tbody>${coins.map(buildCompareRow).join("")}</tbody>
   </table>`;
 
-export const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, onClose } = {}) => {
+export const showReplaceModal = (
+  newSymbol,
+  existingCoins,
+  { maxCoins, onConfirm, onClose } = {}
+) => {
   const modalHTML = replaceModal(newSymbol, existingCoins, { maxCoins });
 
   $("body").append(modalHTML);
@@ -110,7 +112,10 @@ export const showReplaceModal = (newSymbol,existingCoins,{ maxCoins, onConfirm, 
   return modal;
 };
 
-export const showCompareModal = (coins, { missingSymbols = [], title, onClose } = {}) => {
+export const showCompareModal = (
+  coins,
+  { missingSymbols = [], title, onClose } = {}
+) => {
   const content = buildCompareTable(coins);
   const modalHTML = compareModal(content, { title: title || "Compare Coins" });
 
@@ -119,7 +124,7 @@ export const showCompareModal = (coins, { missingSymbols = [], title, onClose } 
   const modal = new bootstrap.Modal($compareModal[0]);
 
   if (missingSymbols.length) {
-    ErrorUI.showInfo(ERRORS.MISSING_DATA(missingSymbols.join(", ")), "warning");
+    showInfo(ERRORS.MISSING_DATA(missingSymbols.join(", ")), "warning");
   }
 
   $compareModal.on("hidden.bs.modal", () => {
