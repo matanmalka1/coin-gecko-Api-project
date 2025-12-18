@@ -31,7 +31,7 @@ const fetchLivePrices = async (symbols) => {
           `${CRYPTOCOMPARE_BASE}/histohour?fsym=${symbol}&tsym=USD&limit=${30 * 7}&api_key=${CRYPTOCOMPARE_KEY}`
         );
 
-        const { Data: rawCandles = [] } = data || {};
+        const rawCandles = data?.Data || [];
         if (!ok || !Array.isArray(rawCandles)) {
           return { symbol, candles: [], ok: false, error, status };
         }
@@ -67,7 +67,6 @@ const fetchLivePrices = async (symbols) => {
   return { ok: true, candlesBySymbol };
 };
 
-// ===== CHART LIFECYCLE =====
 export const cleanup = () => {
  clearInterval(liveIntervalId);
   liveIntervalId = undefined;
@@ -96,6 +95,7 @@ export const startLiveChart = async (chartCallbacks = {}) => {
           status,
           error: error || ERRORS.LIVE_CHART_ERROR,
         });
+        cleanup();
         return;
       }
 

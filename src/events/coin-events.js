@@ -69,9 +69,8 @@ const toggleViewMode = (mode) => {
 
 // ===== EVENT HANDLERS =====
 const handleSearch = () => {
-  const $searchInput = $("#searchInput");
   const $clearBtn = $("#clearSearchBtn");
-  const searchTerm = $searchInput.val();
+  const searchTerm = String($("#searchInput").val() || "").trim();
 
   $clearBtn.toggleClass("d-none", !searchTerm);
   if (!searchTerm) return;
