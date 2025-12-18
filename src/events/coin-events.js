@@ -5,10 +5,9 @@ import { showCurrenciesPage, renderCoins } from "./pages-events.js";
 import {filterSelectedCoins,getCoinDetails,searchCoin,getAllCoins,sortCoins,} from "../services/coins-service.js";
 import { spinner } from "../ui/base-components.js";
 
-
 let currentViewMode = "all";
 
-const RENDER_STRATEGIES = {
+const VIEW_MODE_HANDLERS = {
   favorites: () => {
     const favoriteSymbols = getFavorites();
     const coins = getAllCoins().filter((coin) => favoriteSymbols.includes(coin.symbol));
@@ -29,7 +28,7 @@ const RENDER_STRATEGIES = {
 
 const handleSortChange = () => {
   const sortType = $("#sortSelect").val();
-  const strategy = RENDER_STRATEGIES[currentViewMode];
+  const strategy = VIEW_MODE_HANDLERS[currentViewMode];
   const result = strategy?.();
   if (!result) return;
 
@@ -52,7 +51,7 @@ const handleFavoriteToggle = (e) => {
 const toggleViewMode = (mode) => {
   const targetMode = currentViewMode === mode ? "all" : mode;
 
-  const strategy = RENDER_STRATEGIES[targetMode];
+  const strategy = VIEW_MODE_HANDLERS[targetMode];
   if (!strategy) return;
 
   const result = strategy();
@@ -89,7 +88,7 @@ const handleClearSearch = () => {
   $("#searchInput").val("");
   $("#clearSearchBtn").addClass("d-none");
 
-  const strategy = RENDER_STRATEGIES[currentViewMode];
+  const strategy = VIEW_MODE_HANDLERS[currentViewMode];
   const { coins, options } = strategy?.() || {};
   if (coins) renderCoins(coins, options);
 };
