@@ -234,5 +234,4 @@ export const currenciesPage = () => `
       </select>
      </div>
      
-  <div id="compareStatus" class="d-none mb-3"></div>
   <div id="coinsContainer" class="row g-3"></div>`;

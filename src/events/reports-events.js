@@ -8,15 +8,12 @@ import { ensureArray } from "../utils/general-utils.js";
 
 const updateCompareIndicator = (selected = getCompareSelection()) => {
   const selectedCount = ensureArray(selected).length;
-  const $status = $("#compareStatus");
 
   if (!selectedCount) {
     resetCompareSelection();
-    $status.addClass("d-none");
     return;
   }
   showInfo(`${selectedCount} / ${REPORTS_COMPARE_MAX} coins selected`);
-  $status.removeClass("d-none");
 };
 
 const openReplaceFlow = ({ newSymbol, existing, limit }) => {

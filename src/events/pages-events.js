@@ -39,7 +39,7 @@ export const showCurrenciesPage = async ({ forceRefresh = false } = {}) => {
   const $content = $("#content");
   $content.html(currenciesPage());
 
-  $("#compareStatus").addClass("d-none").empty();
+
 
   const coins = getAllCoins();
   const lastUpdated = readJSON(COINS_TIMESTAMP_KEY, 0);

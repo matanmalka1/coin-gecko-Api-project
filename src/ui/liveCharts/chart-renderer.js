@@ -112,7 +112,7 @@ export const setupCharts = (symbols) => {
     requestAnimationFrame(resizeVisibleChart);
   };
 
-    $("#reportsPager")
+    $("#reportsPrevBtn")
     .off(".reports")
     .on("click.reports", () => emblaApi?.scrollPrev());
 

@@ -1,252 +1,110 @@
-# 🪙 Crypto Tracker - Real-Time Cryptocurrency Monitor
+# Crypto Tracker - Live Cryptocurrency Dashboard
 
-A professional, real-time cryptocurrency tracking application built with vanilla JavaScript, jQuery, and Bootstrap 5. Features live price charts, news aggregation, advanced filtering, and comprehensive coin comparison tools.
+![Crypto Tracker Screenshot](images/3.png) <!-- Replace with actual screenshot if available -->
 
----
+This is a real-time cryptocurrency tracking application built as part of the **John Bryce Full Stack Development Course**. It provides live market data, charts, news, and more for cryptocurrencies using public APIs. The app is fully client-side and runs in the browser.
 
-## 📋 Table of Contents
+## Features
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Usage](#-usage)
-- [API Integration](#-api-integration)
-- [Architecture](#-architecture)
-- [Performance](#-performance)
-- [Browser Support](#-browser-support)
-- [Contributing](#-contributing)
-- [License](#-license)
+- **Currencies Page**: View top cryptocurrencies with real-time prices, market cap, volume, and 24h changes. Supports searching, sorting, favoriting, and selecting coins for reports.
+- **Live Reports**: Interactive candlestick charts for selected coins, updated every few seconds. Supports up to 5 coins with carousel navigation.
+- **News Page**: Curated cryptocurrency news from the last 5 hours. Filter by general news or favorites-specific news.
+- **Favorites System**: Star coins to track them easily and get tailored news.
+- **Compare Coins**: Select up to 2 coins for quick side-by-side comparison in a modal.
+- **Global Stats Bar**: Displays overall market cap, 24h volume, BTC dominance, and market change.
+- **Dark Mode**: Toggle between light and dark themes with a widget.
+- **About Page**: Information about the project and developer.
+- **Responsive Design**: Works on desktop and mobile using Bootstrap.
+- **Error Handling & Notifications**: User-friendly messages for errors, limits, and actions using Notyf.
+- **Caching**: Local storage and in-memory caching for faster loads and reduced API calls.
 
----
+## Technologies Used
 
-## ✨ Features
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Libraries & Frameworks**:
+  - jQuery for DOM manipulation and events
+  - Bootstrap 5 for responsive UI
+  - CanvasJS for mini charts
+  - TradingView Lightweight Charts for live candlestick charts
+  - Embla Carousel for chart sliding
+  - Darkmode.js for theme toggling
+  - Notyf for toast notifications
+- **APIs**:
+  - CoinGecko API: For coin data, market charts, and global stats
+  - CryptoCompare API: For live price updates and historical data
+  - NewsData.io API: For cryptocurrency news
+- **Other**:
+  - LocalStorage for persisting favorites and selections
+  - In-memory caching with TTL for API responses
+  - Parallax header background for visual appeal
 
-### 🎯 Core Functionality
-- **Real-Time Price Tracking** - Live cryptocurrency prices with automatic updates
-- **Interactive Charts** - Candlestick charts powered by TradingView Lightweight Charts
-- **Advanced Search** - Fast, client-side search by coin name or symbol
-- **Smart Filtering** - Sort by price, market cap, volume (high/low)
-- **Favorites System** - Mark and filter your favorite coins
-- **Compare Mode** - Side-by-side comparison of up to 2 coins
-- **Live Reports** - Track up to 5 selected coins with real-time charts
+## Installation
 
-### 📰 News Integration
-- **Crypto News Feed** - Latest headlines from newsdata.io
-- **Dual Mode Filtering**:
-  - General crypto news
-  - Personalized news for favorited coins
-- **Freshness Indicator** - Shows articles from last 5 hours with fallback
+1. **Clone the Repository**:
+   git clone https://github.com/your-username/crypto-tracker.git
+   text(Replace with your actual repo URL if hosted on GitHub.)
 
-### 🎨 UI/UX
-- **Responsive Design** - Mobile-first, works on all screen sizes
-- **Skeleton Loaders** - Smooth loading states
-- **Toast Notifications** - Non-intrusive alerts via Notyf
-- **Bootstrap 5 Modals** - Professional dialogs for coin replacement and comparison
-- **Dark/Light Indicators** - Visual feedback for selected/compared coins
+2. **Navigate to the Project Directory**:
+   cd crypto-tracker
+ **Open in Browser**:
 
----
+- Simply open `index.html` in any modern web browser (e.g., Chrome, Firefox).
+- No server or dependencies installation required, as it's a static app.
 
-## 🛠 Tech Stack
+**Note**: Some APIs may have rate limits. If you encounter issues, wait a minute and refresh.
 
-### Frontend
-- **HTML5** - Semantic markup
-- **CSS3** - Custom styles + Bootstrap utilities
-- **JavaScript (ES6+)** - Modular architecture with ES modules
-- **jQuery 3.7** - DOM manipulation and event handling
+## Usage
 
-### UI Framework
-- **Bootstrap 5.3** - Responsive grid and components
-- **Bootstrap Icons** - Iconography
-- **Font Awesome 6** - Additional icons
+- **Navigation**: Use the top navbar to switch between Currencies, Live Reports, News, and About.
+- **Currencies**:
+- Search by symbol or name (e.g., "BTC" or "Bitcoin").
+- Toggle favorites with the star icon.
+- Select coins for reports using checkboxes (max 5).
+- Click "More Info" for detailed coin data.
+- Sort by market cap, price, or volume.
+- **Live Reports**:
+- Automatically loads charts for selected coins.
+- Use prev/next buttons to navigate the carousel.
+- **News**:
+- Switch between "General" and "Favorites" filters.
+- Click articles to open full stories in a new tab.
+- **Compare**:
+- In Currencies page, click "Compare" on coins (select up to 2).
+- A modal will show a comparison table.
+- **Dark Mode**: Click the sun/moon icon in the bottom-right corner to toggle.
 
-### Charts & Visualization
-- **TradingView Lightweight Charts** - Professional candlestick charts
-- **CanvasJS** - Mini charts in coin details
+If no coins are loaded initially, click the refresh button.
 
-### APIs
-- **CoinGecko API** - Cryptocurrency data (prices, market cap, details)
-- **CryptoCompare API** - Historical price data for charts
-- **NewsData.io API** - Crypto news headlines
+## API Keys
 
-### Notifications
-- **Notyf** - Modern toast notifications
+- The app uses hardcoded API keys for demonstration (from free tiers).
+- In production, replace them in `app-config.js` with your own:
+- `CRYPTOCOMPARE_KEY`
+- `NEWS_KEY`
+- Sign up for free at:
+- [CoinGecko](https://www.coingecko.com/en/api) (no key needed for basic usage)
+- [CryptoCompare](https://min-api.cryptocompare.com/)
+- [NewsData.io](https://newsdata.io/)
 
----
+## Limitations
 
-## 📁 Project Structure
+- API rate limits: May hit limits on heavy usage (e.g., CryptoCompare allows ~15k calls/month free).
+- No backend: All data is fetched client-side.
+- Max 100 coins loaded by default (top by market cap).
+- News limited to English and last 5 hours for freshness.
 
-```
-crypto-tracker/
-├── index.html                 # Main HTML file
-├── styles.css                 # Custom styles
-├── images/                    # Project images
-│
-├── config/
-│   ├── app-config.js         # Configuration constants (102 lines)
-│   └── error.js              # Error messages & resolver (77 lines)
-│
-├── services/
-│   ├── api.js                # Core fetch layer with retry (29 lines)
-│   ├── coins-service.js      # Coin data operations (126 lines)
-│   ├── chart-service.js      # Live chart data service (116 lines)
-│   ├── news-service.js       # News fetching & filtering (60 lines)
-│   ├── reports-service.js    # Reports selection logic (51 lines)
-│   └── storage-manager.js    # Cache & localStorage (124 lines)
-│
-├── ui/
-│   ├── base-ui.js            # Core UI utilities (72 lines)
-│   ├── coin-ui.js            # Coin display logic (140 lines)
-│   ├── news-ui.js            # News display logic (24 lines)
-│   ├── error-ui.js           # Error display (43 lines)
-│   ├── chart-renderer.js     # Chart rendering (127 lines)
-│   │
-│   └── Components/
-│       ├── base-components.js    # Reusable components (45 lines)
-│       ├── coin-components.js    # Coin card templates (104 lines)
-│       └── page-components.js    # Page templates (102 lines)
-│
-├── controllers/
-│   └── pages-controller.js   # Page navigation & initialization (173 lines)
-│
-├── events/
-│   ├── coin-events.js        # Coin interaction handlers (120 lines)
-│   └── reports-events.js     # Reports & compare handlers (134 lines)
-│
-└── utils/
-    └── general-utils.js      # Helper functions (39 lines)
-```
-### Navigation
+## Contributing
 
-The app has 4 main pages:
+Feel free to fork and submit pull requests! Improvements to charts, error handling, or adding more features are welcome.
 
-1. **Currencies** (`#currencies`) - Browse and search all coins
-2. **Live Reports** (`#reports`) - Real-time charts for selected coins
-3. **News** (`#news`) - Crypto news headlines
-4. **About** (`#about`) - Project information
+## License
 
-### Key Features Guide
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-#### 🔍 Search Coins
-```
-1. Type in search box (min 2 characters)
-2. Results filter in real-time
-3. Click "Clear" to reset
-```
+## Author
 
-#### ⭐ Favorites
-```
-1. Click star icon on any coin
-2. Click "Favorites ⭐" button to view favorites only
-3. Switch back with "All Coins" button
-```
+- **Matan Yehuda Malka**
+- LinkedIn: [matanyehudamalka](https://www.linkedin.com/in/matanyehudamalka)
+- Built with ❤️ as a course project.
 
-#### 📊 Live Reports
-```
-1. Toggle switches on up to 5 coins
-2. Navigate to "Live Reports" page
-3. Charts update every 2 seconds automatically
-```
-
-#### ⚖️ Compare Coins
-```
-1. Click "Compare" on first coin (highlight appears)
-2. Click "Compare" on second coin
-3. Modal opens with side-by-side comparison
-4. Close modal to reset selection
-```
-
-#### ℹ️ Coin Details
-```
-1. Click "More Info" on any coin card
-2. Panel expands with:
-   - Prices in USD/EUR/ILS
-   - All-time high
-   - 7-day mini chart
-   - Description
-   - Contract address
-```
-
-#### 🔄 Refresh Data
-```
-1. Click refresh icon (🔄) in top bar
-2. Forces fresh data from API
-3. Bypasses 5-minute cache
-```
-
----
-
-## 🔌 API Integration
-
-### CoinGecko API
-- **Endpoint:** `https://api.coingecko.com/api/v3`
-- **Used For:** Coin list, prices, market data, details
-- **Rate Limit:** 10-30 calls/minute (free tier)
-- **Cache Strategy:** 5 minutes for market data
-
-### CryptoCompare API
-- **Endpoint:** `https://min-api.cryptocompare.com/data`
-- **Used For:** Historical hourly data for candlestick charts
-- **Rate Limit:** 100,000 calls/month (free tier)
-- **Cache Strategy:** Live data, no caching
-
-### NewsData.io API
-- **Endpoint:** `https://newsdata.io/api/1/crypto`
-- **Used For:** Crypto news headlines
-- **Rate Limit:** 200 calls/day (free tier)
-- **Cache Strategy:** 15 minutes, filters to 5-hour freshness
-
-### State Management
-
-- **In-Memory Cache:** Map-based LRU cache for API responses
-- **localStorage:** Persistent favorites and selected reports
-- **Session State:** Compare selection, filter mode
-
-### Optimizations Implemented
-
-1. **LRU Cache (100 entries)**
-   - Reduces API calls by 80%+
-   - 5-minute TTL for market data
-   - 15-minute TTL for news
-
-3. **Debounced Updates**
-   - Live reports: 2-second intervals
-   - Search: Real-time but optimized
-
-5. **API Retry Logic**
-   - Automatic retry on rate limit (429)
-   - 60-second backoff
-
-### Required Features
-- ES6 Modules
-- Fetch API
-- LocalStorage
-- CSS Grid & Flexbox
-
-This project was built as part of the **John Bryce Full Stack Development Course**.
-
-**Author:** Matan Yehuda Malka  
-**LinkedIn:** [linkedin.com/in/matanyehudamalka](https://www.linkedin.com/in/matanyehudamalka)
-
----
-
-## 🙏 Acknowledgments
-
-- [CoinGecko](https://www.coingecko.com) - Cryptocurrency data
-- [CryptoCompare](https://www.cryptocompare.com) - Historical price data
-- [NewsData.io](https://newsdata.io) - News API
-- [TradingView](https://www.tradingview.com) - Lightweight Charts library
-- [Bootstrap Team](https://getbootstrap.com) - UI framework
-- [Notyf](https://github.com/caroso1222/notyf) - Toast notifications
-
----
-## 📞 Support
-
-For questions or issues:
-- Open an issue on GitHub
-- Contact via LinkedIn
-
----
-
-**Built with ❤️ using JavaScript, jQuery, and Bootstrap 5**
+For questions or feedback, open an issue or reach out on LinkedIn!

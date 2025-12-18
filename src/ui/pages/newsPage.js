@@ -48,21 +48,40 @@ export const setNewsFilterMode = (mode) => {
   const isFavorites = mode === "favorites";
   $("#newsGeneralBtn").toggleClass("active", !isFavorites);
   $("#newsFavoritesBtn").toggleClass("active", isFavorites);
-};
-export const newsPage = () => `
-    <div class="news-hero mb-2 py-3 rounded-3">
-          <div class="row gy-4 ">
-            <div class="col-lg-7">
-              <h1 class="fw-bold">Stay ahead with curated crypto headlines</h1>
-              <p>Filter between global coverage or insights tailored to your favorite coins. Updated continuously through the last 5 hours.</p>
-              <div class="d-flex flex-wrap">
-                <button type="button" class="btn px-3 py-2 rounded-2 active" id="newsGeneralBtn"><i class="bi bi-globe2 me-2"></i>General</button>
-                <button type="button" class="btn  px-3 py-2 rounded-2" id="newsFavoritesBtn"><i class="bi bi-star me-2"></i>Favorites</button>
-              </div>
-            </div>
-            <div class="col-lg-5"><i class="bi bi-info-circle me-1"></i>Live monitor 5H freshness</div>
-          </div>
+  
+};export const newsPage = () => `
+  <div class="news-hero mb-4 p-4 rounded-4 bg-light border shadow-sm">
+    <div class="row align-items-center gy-4">
+      
+      <div class="col-lg-8">
+        <h2 class="fw-bold text-dark mb-2">Crypto News Feed</h2>
+        <p class="text-secondary mb-4">
+          Stay ahead with curated headlines. Filter between global coverage or your 
+          <span class="text-primary fw-bold">favorite coins</span>.
+        </p>
+        
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-primary px-4 py-2 rounded-pill active shadow-sm" id="newsGeneralBtn">
+            <i class="bi bi-globe2 me-2"></i>General
+          </button>
+          <button type="button" class="btn btn-outline-dark px-4 py-2 rounded-pill bg-white shadow-sm" id="newsFavoritesBtn">
+            <i class="bi bi-star me-2"></i>Favorites
+          </button>
+        </div>
+      </div>
+
+      <div class="col-lg-4 text-lg-end">
+        <div class="d-inline-flex align-items-center px-3 py-2 bg-white border rounded-3 shadow-sm">
+          <div class="spinner-grow spinner-grow-sm text-success me-2" role="status"></div>
+          <small class="fw-bold text-muted uppercase" style="font-size: 0.75rem;">
+            Live: 5H Freshness
+          </small>
+        </div>
+      </div>
+
     </div>
-    <div id="newsList" class="row g-4"></div>
+  </div>
+
+  <div id="newsList" class="row g-4"></div>
 `;
 

@@ -57,11 +57,12 @@ export const renderStatsBar = (targetSelector, data) => {
   } = data;
 
   const stats = [
-    { label: "Market Cap", value: formatLargeNumber(total_market_cap?.usd) },
-    { label: "24h Volume", value: formatLargeNumber(total_volume?.usd) },
+    { label: "Market Cap", value: formatLargeNumber(total_market_cap?.usd), icon: "bi-graph-up" },
+    { label: "24h Volume", value: formatLargeNumber(total_volume?.usd), icon: "bi-droplet" },
     {
       label: "BTC Dominance",
       value: formatPercent(market_cap_percentage?.btc, { decimals: 1 }),
+      icon: "bi-currency-bitcoin"
     },
     {
       label: "Market Change",
@@ -69,27 +70,31 @@ export const renderStatsBar = (targetSelector, data) => {
         decimals: 2,
         showSign: true,
       }),
+      icon: "bi-activity"
     },
   ];
 
   $(targetSelector).html(`
     <div class="container">
-      <div class="row g-3 text-center">
-        ${stats
-          .map(
-            ({ label, value }) => `
-          <div class="col-6 col-md-3">
-            <div class="card shadow-sm h-100">
-              <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
-                <div class="mb-2"><i class="fas fa-chart-bar"></i></div>
-                <div class="text-muted small mb-1">${label}</div>
-                <div class="fw-bold h5 mb-0">${value}</div>
+      <div class="py-3 px-4 bg-white border rounded-4 shadow-sm">
+        <div class="row g-3 align-items-center">
+          ${stats
+            .map(
+              ({ label, value, icon }, index) => `
+            <div class="col-6 col-md-3 ${index !== 3 ? 'border-end-md' : ''}">
+              <div class="d-flex align-items-center justify-content-center justify-content-md-start px-md-3">
+                <div class="flex-shrink-0 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi ${icon}"></i>
+                </div>
+                <div>
+                  <div class="text-muted fw-medium mb-0" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">${label}</div>
+                  <div class="fw-bold text-dark h6 mb-0">${value}</div>
+                </div>
               </div>
             </div>
-          </div>
-        `
-          )
-          .join("")}
+          `)
+            .join("")}
+        </div>
       </div>
     </div>
   `);
