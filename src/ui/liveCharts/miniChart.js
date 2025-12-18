@@ -2,7 +2,6 @@ import { getCoinMarketChart } from "../../services/coins-service.js";
 
 export const drawMiniChart = async (coinId) => {
   const { ok, data } = await getCoinMarketChart(coinId);
-  if (!data) data = {};
   const prices = data?.prices;
 
   if (!ok || !prices || prices.length === 0) {
@@ -17,7 +16,7 @@ export const drawMiniChart = async (coinId) => {
     y: price,
   }));
   
-  try {
+
     const chart = new CanvasJS.Chart(`miniChart-${coinId}`, {
       height: 220,
       backgroundColor: "transparent",
@@ -40,9 +39,4 @@ export const drawMiniChart = async (coinId) => {
     });
 
     chart.render();
-  } catch (err) {
-    $(`#miniChart-${coinId}`).html(
-      `<p class="text-center text-muted">Chart rendering failed</p>`
-    );
-  }
 };

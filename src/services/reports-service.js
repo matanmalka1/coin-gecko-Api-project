@@ -5,8 +5,7 @@ import { fetchWithRetry } from "./api.js";
 import { ERRORS } from "../config/error.js";
 
 export const toggleCoinSelection = (symbol) => {
-  const selected = getSelectedReports();
-  const alreadySelected = selected.includes(symbol);
+const alreadySelected = getSelectedReports().includes(symbol);
 
   if (!alreadySelected && selected.length >= REPORTS_MAX) {
     return { ok: false, error: ERRORS.LIMIT(REPORTS_MAX), limitExceeded: true, newSymbol: symbol, existing: selected }
